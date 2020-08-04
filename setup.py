@@ -1,9 +1,10 @@
 
+import os
 from setuptools import find_packages
 from setuptools import setup
 
-_NAME='integrationutils'
-_VERSION='0.0.1'
+_NAME = 'integrationutils'
+_VERSION = os.environ.get('PY_VERSION') or '0.0.1'
 _DESCRIPTION = 'Utility library providing implementations of various numerical integration schemes.'
 
 _INSTALL_REQUIRES = [
