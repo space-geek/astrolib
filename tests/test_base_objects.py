@@ -8,6 +8,24 @@ class Test_Matrix(unittest.TestCase):
     def test_constructor(self):
         pass
 
+    def test_num_rows(self):
+        A = Matrix([[1,2,3],[4,5,6]])
+        self.assertTrue(A.num_rows == 2)
+        with self.assertRaises(AttributeError):
+            A.num_rows = 1
+
+    def test_num_cols(self):
+        A = Matrix([[1,2,3],[4,5,6]])
+        self.assertTrue(A.num_cols == 3)
+        with self.assertRaises(AttributeError):
+            A.num_cols = 1
+
+    def test_size(self):
+        A = Matrix([[1,2,3],[4,5,6]])
+        self.assertTrue(A.size == (2,3))
+        with self.assertRaises(AttributeError):
+            A.size = 1
+
     def test_fill(self):
         A = Matrix.fill(2, 2, 1.0)
         B = Matrix([[1,1],[1,1]])

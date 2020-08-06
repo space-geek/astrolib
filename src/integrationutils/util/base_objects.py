@@ -32,10 +32,9 @@ class Matrix:
         return A
 
     def __init__(self, A: List[List]):
-        self._num_rows = len(A) if A else 0
-        self._num_cols = len(A[0]) if A else 0
+        num_cols = len(A[0]) if A else 0
         for row in A:
-            if len(row) != self._num_cols:
+            if len(row) != num_cols:
                 raise ValueError('Each row must have the same number of columns.')
         self._A = A
 
@@ -51,13 +50,25 @@ class Matrix:
     def __getitem__(self, indices: Tuple[int,int]) -> float:
         return self._A[indices[0]][indices[1]]
 
+    @property
+    def num_rows(self):
+        return len(self._A)
+
+    @property
+    def num_cols(self):
+        return len(self._A[0]) if self._A else 0
+
+    @property
+    def size(self):
+        return self.num_rows, self.num_cols
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, Matrix):
             return False
-        if (self._num_rows != other._num_rows) or (self._num_cols != other._num_cols):
+        if (self.size != other.size):
             return False
-        for i in range(self._num_rows):
-            for j in range(self._num_cols):
+        for i in range(self.num_rows):
+            for j in range(self.num_cols):
                 if self[i,j] != other[i,j]:
                     return False
         return True
@@ -68,12 +79,12 @@ class Matrix:
                 isinstance(other, int)):
             return NotImplemented
         if isinstance(other, float) or isinstance(other, int):
-            other = Matrix.fill(self._num_rows, self._num_cols, other)
-        if (self._num_rows != other._num_rows) or (self._num_cols != other._num_cols):
+            other = Matrix.fill(*self.size, other)
+        if (self.size != other.size):
             raise ValueError("Matrices must be the same size to be added.")
-        M = Matrix.zeros(self._num_rows, self._num_cols)
-        for i in range(self._num_rows):
-            for j in range(self._num_cols):
+        M = Matrix.zeros(*self.size)
+        for i in range(self.num_rows):
+            for j in range(self.num_cols):
                 M[i,j] = self[i,j] + other[i,j]
         return M
 
@@ -93,7 +104,19 @@ class Matrix:
         return NotImplemented
 
     def transpose(self):
+        """Returns the transpose of the calling matrix."""
+        M = Matrix.zeros(self.num_cols, self.num_rows)
+        for i in range(self.num_rows):
+            for j in range(self.num_cols):
+                M[j,i] = self[i,j]
+        return M
+
+    def inverse(self):
+        """Returns the inverse of the calling matrix, computed using
+           the cofactor method.
+        """
         raise NotImplementedError
+
 
 class Vec3d(Matrix):
     """Class represents a Euclidean vector."""
