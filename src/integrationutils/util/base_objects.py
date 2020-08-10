@@ -73,6 +73,28 @@ class Matrix:
                     return False
         return True
 
+    def __lt__(self, other) -> bool:
+        if not isinstance(other, Matrix):
+            return False
+        if (self.size != other.size):
+            return False
+        for i in range(self.num_rows):
+            for j in range(self.num_cols):
+                if self[i,j] >= other[i,j]:
+                    return False
+        return True
+
+    def __le__(self, other) -> bool:
+        if not isinstance(other, Matrix):
+            return False
+        if (self.size != other.size):
+            return False
+        for i in range(self.num_rows):
+            for j in range(self.num_cols):
+                if self[i,j] > other[i,j]:
+                    return False
+        return True
+
     def __add__(self, other):
         if not (isinstance(other, Matrix) or \
                 isinstance(other, float) or \
@@ -92,16 +114,47 @@ class Matrix:
         return self.__add__(other)
 
     def __sub__(self, other):
-        return NotImplemented
+        return self.__add__(-1.0 * other)
 
     def __rsub__(self, other):
-        return NotImplemented
+        return -1.0 * self.__sub__(other)
 
-    def __mult__(self, other):
-        return NotImplemented
+    def __mul__(self, other):
+        if not (isinstance(other, Matrix) or \
+                isinstance(other, float) or \
+                isinstance(other, int)):
+            return NotImplemented
+        if isinstance(other, float) or isinstance(other, int):
+            M = Matrix.zeros(*self.size)
+            for i in range(self.num_rows):
+                for j in range(self.num_cols):
+                    M[i,j] = other * self[i,j]
+        elif (isinstance(other, Matrix)):
+            if other.num_rows != self.num_cols:
+                raise ValueError("Incorrect dimensions for matrix multiplication. Check that the number of columns in the first matrix matches the number of rows in the second matrix.")
+            M = Matrix.zeros(self.num_rows, other.num_cols)
+            for i in range(self.num_rows):
+                for j in range(other.num_cols):
+                    M[i,j] = sum([x * y for (x,y) in zip(self.get_row(i), other.get_col(j))])
+        return M
 
-    def __rmult__(self, other):
-        return NotImplemented
+    def __rmul__(self, other):
+        if not (isinstance(other, float) or isinstance(other, int)):
+            return NotImplemented
+        return self.__mul__(other)
+
+    def __abs__(self):
+        M = Matrix.zeros(*self.size)
+        for i in range(self.num_rows):
+            for j in range(self.num_cols):
+                M[i,j] = abs(self[i,j])
+        return M
+
+    def get_row(self, idx: int) -> List:
+        return self._A[idx]
+
+    def get_col(self, idx: int) -> List:
+        return [row[idx] for row in self._A]
 
     def transpose(self):
         """Returns the transpose of the calling matrix."""
@@ -137,6 +190,12 @@ class Vec3d(Matrix):
     def fill(cls, num_rows: int, num_cols: int, fill_value: float):
         raise NotImplementedError()
 
+    @classmethod
+    def from_matrix(cls, M: Matrix):
+        if M.size not in {(3,1), (1,3)}:
+            raise ValueError("Input matrix must be a row or column matrix of length three.")
+        return cls(*(M.get_col(0) if M.size == (3,1) else M.get_row(0)))
+
     def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0):
         super().__init__([[x],[y],[z]])
 
@@ -168,20 +227,13 @@ class Vec3d(Matrix):
         return f'[x = {self.x}, y = {self.y}, z = {self.z}]'
 
     def __add__(self, other):
-        result = super().__add__(other)
-        return Vec3d(result[0,0], result[1,0], result[2,0])
-
-    def __radd__(self, other):
-        result = super().__radd__(other)
-        return Vec3d(result[0,0], result[1,0], result[2,0])
+        return Vec3d.from_matrix(super().__add__(other))
 
     def __sub__(self, other):
-        result = super().__sub__(other)
-        return Vec3d(result[0,0], result[1,0], result[2,0])
+        return Vec3d.from_matrix(super().__sub__(other))
 
     def __rsub__(self, other):
-        result = super().__rsub__(other)
-        return Vec3d(result[0,0], result[1,0], result[2,0])
+        return Vec3d.from_matrix(super().__rsub__(other))
 
     def norm(self) -> float:
         """Returns the Euclidean norm of the calling vector."""
@@ -209,3 +261,8 @@ class Vec3d(Matrix):
         if not isinstance(other, Vec3d):
             return NotImplemented
         return self.x * other.x + self.y * other.y + self.z * other.z
+
+    def normalized(self):
+        """Returns the calling vector, normalized by its Euclidean norm."""
+        norm = self.norm
+        return Vec3d(self.x/norm, self.y/norm, self.z/norm)
