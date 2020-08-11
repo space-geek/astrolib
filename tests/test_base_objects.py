@@ -225,6 +225,25 @@ class Test_Matrix(unittest.TestCase):
         B = Matrix([[1,4],[2,5],[3,6]])
         self.assertTrue(A.transpose() == B, "The matrix transpose was not computed successfully.")
 
+    def test_determinant(self):
+        A = Matrix([[3,0,1],[0,5,0],[-1,1,-1]])
+        B = Matrix([[3,0,1],[0,5,0]])
+        self.assertTrue(A.determinant() == -10, "The matrix determinant was not computed successfully.")
+        with self.assertRaises(ValueError):
+            B.determinant()
+        # TODO Add more test cases
+
+    def test_inverse(self):
+        A = Matrix([[3,0,1],[0,5,0],[-1,1,-1]])
+        B = Matrix([[0.5,-0.1,0.5],[0,0.2,0],[-0.5,0.3,-1.5]])
+        C = Matrix([[3,0,1],[0,5,0]])
+        tol = 1.0e-10
+        self.assertTrue(A.inverse() - B <= Matrix.fill(A.num_rows, A.num_cols, tol), "The matrix inverse was not computed successfully.")
+        with self.assertRaises(ValueError):
+            C.inverse()
+        # TODO Add more test cases
+
+
 class Test_Vec3d(unittest.TestCase):
 
     def test_constructor(self):

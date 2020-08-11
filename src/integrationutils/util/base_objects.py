@@ -221,20 +221,46 @@ class Matrix:
 
     def determinant(self):
         """Returns the determinant of the calling matrix."""
-        if max(self.size) == 2:
-            d = self[0,0] * self[1,1] - self[1,2] * self[2,1]
+        m,n = self.size
+        if m != n:
+            raise ValueError("The calling matrix is not square and the determinant does not exist.")
+        if m == 2:
+            d = self[0,0] * self[1,1] - self[0,1] * self[1,0]
         else:
             d = 0.0
             for j in range(self.num_cols):
-                A_temp = self._A
-                # A_temp(0,:)
+                A_temp = self[:,:]
+                A_temp[0,:] = Matrix.empty()
+                A_temp[:,j] = Matrix.empty()
+                d += (self[0,j] * pow(-1,j) * A_temp.determinant())
         return d
 
     def inverse(self):
         """Returns the inverse of the calling matrix, computed using
            the cofactor method.
         """
-        raise NotImplementedError
+        def compute_cofactor_matrix(A: Matrix):
+            """Returns the cofactor matrix for the calling matrix."""
+            m,n = A.size
+            if m != n:
+                raise ValueError("The calling matrix is not square and the cofactor matrix does not exist.")
+            M = Matrix.zeros(*A.size)
+            for i in range(A.num_rows):
+                for j in range(A.num_cols):
+                    A_temp = A[:,:]
+                    A_temp[i,:] = Matrix.empty()
+                    A_temp[:,j] = Matrix.empty()
+                    M[i,j] = pow(-1,i+j) * A_temp.determinant()
+            return M
+        m,n = self.size
+        if m != n:
+            raise ValueError("The calling matrix is not square and the inverse does not exist.")
+        d = self.determinant()
+        if not d:
+            raise ValueError("The calling matrix is singular and not invertible.")
+        C = compute_cofactor_matrix(self)
+        A_inv = (1 / d) * C.transpose()
+        return A_inv
 
 
 class Vec3d(Matrix):
