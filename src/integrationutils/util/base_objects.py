@@ -1,6 +1,7 @@
 from math import sqrt
 from typing import List
 from typing import Tuple
+from typing import Union
 
 class Matrix:
     """Class represents a matrix."""
@@ -31,6 +32,10 @@ class Matrix:
             A[i,i] = 1.0
         return A
 
+    @classmethod
+    def empty(cls):
+        return Matrix([])
+
     def __init__(self, A: List[List]):
         num_cols = len(A[0]) if A else 0
         for row in A:
@@ -44,11 +49,57 @@ class Matrix:
         mat = "\n ".join(stringify_row(row) for row in self._A)
         return f"[{mat}]"
 
-    def __setitem__(self, indices: Tuple[int,int], value: float):
-        self._A[indices[0]][indices[1]] = value
+    def __setitem__(self, indices: Union[Tuple[int,slice],Tuple[int,slice],Tuple[slice,slice]], value):
+        if isinstance(indices[0], slice) and isinstance(indices[1], slice): # expects Matrix
+            if not isinstance(value, Matrix):
+                raise ValueError("When setting matrix indices using slice notation a Matrix value must be used.")
+            if value.is_empty:
+                raise ValueError("When setting matrix indices using slice notation for both the row and column indices an empty Matrix value cannot be used.")
+            slice_rows_range = range((indices[0].start or 0), (indices[0].stop or self.num_rows), (indices[0].step or 1))
+            slice_cols_range = range((indices[1].start or 0), (indices[1].stop or self.num_cols), (indices[1].step or 1))
+            value_rows_range = range(value.num_rows)
+            value_cols_range = range(value.num_cols)
+            for (i,m) in zip(slice_rows_range, value_rows_range):
+                for (j,n) in zip(slice_cols_range, value_cols_range):
+                    self._A[i][j] = value[m,n]
+        elif isinstance(indices[0], slice): # expects Matrix
+            if not isinstance(value, Matrix):
+                raise ValueError("When setting matrix indices using slice notation a Matrix value must be used.")
+            slice_range = range((indices[0].start or 0), (indices[0].stop or self.num_rows), (indices[0].step or 1))
+            if value.is_empty:
+                self._A = [[self._A[i][j] for j in range(self.num_cols) if j != indices[1]] for i in slice_range]
+            else:
+                value_range = range(value.num_rows)
+                for (i,j) in zip(slice_range, value_range):
+                    self._A[i][indices[1]] = value[j,0]
+        elif isinstance(indices[1], slice): # expects Matrix
+            if not isinstance(value, Matrix):
+                raise ValueError("When setting matrix indices using slice notation a Matrix value must be used.")
+            slice_range = range((indices[1].start or 0), (indices[1].stop or self.num_cols), (indices[1].step or 1))
+            if value.is_empty:
+                self._A = [[self._A[i][j] for j in slice_range] for i in range(self.num_rows) if i != indices[0]]
+            else:
+                value_range = range(value.num_cols)
+                for (i,j) in zip(slice_range, value_range):
+                    self._A[indices[0]][i] = value[0,j]
+        else: # expects int or float
+            if not (isinstance(value, float) or isinstance(value, int)):
+                raise ValueError("When setting matrix indices using direct index notation an int or float value must be used.")
+            self._A[indices[0]][indices[1]] = value
 
-    def __getitem__(self, indices: Tuple[int,int]) -> float:
-        return self._A[indices[0]][indices[1]]
+    def __getitem__(self, indices: Union[Tuple[int,slice],Tuple[int,slice],Tuple[slice,slice]]):
+        M = None
+        if isinstance(indices[0], slice) and isinstance(indices[1], slice): # returns Matrix
+            rows_range = range((indices[0].start or 0), (indices[0].stop or self.num_rows), (indices[0].step or 1))
+            cols_range = range((indices[1].start or 0), (indices[1].stop or self.num_cols), (indices[1].step or 1))
+            M = Matrix([[self.get_row(i)[j] for j in cols_range] for i in rows_range])
+        elif isinstance(indices[0], slice): # returns Matrix
+            M = Matrix([[self.get_col(indices[1])[i]] for i in range((indices[0].start or 0), (indices[0].stop or self.num_rows), (indices[0].step or 1))])
+        elif isinstance(indices[1], slice): # returns Matrix
+            M = Matrix([[self.get_row(indices[0])[i] for i in range((indices[1].start or 0), (indices[1].stop or self.num_cols), (indices[1].step or 1))]])
+        else: # returns float
+            M = self._A[indices[0]][indices[1]]
+        return M
 
     @property
     def num_rows(self):
@@ -61,6 +112,10 @@ class Matrix:
     @property
     def size(self):
         return self.num_rows, self.num_cols
+
+    @property
+    def is_empty(self):
+        return not (bool(self.num_rows) or bool(self.num_cols))
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Matrix):
@@ -163,6 +218,17 @@ class Matrix:
             for j in range(self.num_cols):
                 M[j,i] = self[i,j]
         return M
+
+    def determinant(self):
+        """Returns the determinant of the calling matrix."""
+        if max(self.size) == 2:
+            d = self[0,0] * self[1,1] - self[1,2] * self[2,1]
+        else:
+            d = 0.0
+            for j in range(self.num_cols):
+                A_temp = self._A
+                # A_temp(0,:)
+        return d
 
     def inverse(self):
         """Returns the inverse of the calling matrix, computed using

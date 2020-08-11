@@ -6,7 +6,63 @@ from integrationutils.util.base_objects import Vec3d
 class Test_Matrix(unittest.TestCase):
 
     def test_constructor(self):
-        pass
+        A = Matrix([[1,2,3],[4,5,6]])
+        for i in range(A.num_rows):
+            for j in range(A.num_cols):
+                self.assertTrue(A[i,j] == i*3+j+1, "Matrix construction not done correctly.")
+        with self.assertRaises(ValueError):
+            Matrix([[1,2],[3,4,5]])
+
+    def test_get_item(self):
+        A = Matrix([[1,2,3],[4,5,6],[7,8,9]])
+        B = Matrix([[4,5,6]])
+        C = Matrix([[2],[5],[8]])
+        D = Matrix([[4,6]])
+        E = Matrix([[2],[8]])
+        F = Matrix([[1,3],[7,9]])
+        self.assertTrue(A[1,1] == 5, "Matrix indexing not done correctly")
+        self.assertTrue(A[1,:] == B, "Matrix indexing not done correctly")
+        self.assertTrue(A[:,1] == C, "Matrix indexing not done correctly")
+        self.assertTrue(A[1,0:3:2] == D, "Matrix indexing not done correctly")
+        self.assertTrue(A[0:3:2,1] == E, "Matrix indexing not done correctly")
+        self.assertTrue(A[:,:] == A, "Matrix indexing not done correctly")
+        self.assertTrue(A[0:3:2,0:3:2] == F, "Matrix indexing not done correctly")
+
+    def test_set_item(self):
+        A = Matrix([[1,2,3],[4,5,6],[7,8,9]])
+        B = Matrix([[1,9,3],[4,5,6],[7,8,9]])
+        C = Matrix([[1,3,3],[4,6,6],[7,9,9]])
+        D = Matrix([[1,1,1],[4,6,6],[7,9,9]])
+        E = Matrix([[0,9,0],[4,5,6],[0,8,0]])
+        F = Matrix([[1,9,1],[1,5,1],[1,8,1]])
+        G = Matrix([[1,1],[1,1],[1,1]])
+        H = Matrix([[1,1],[1,1]])
+        A[0,1] = 9
+        self.assertTrue(A == B, "Matrix assignment not done correctly")
+        A[:,1] = Matrix([[3],[6],[9]])
+        self.assertTrue(A == C, "Matrix assignment not done correctly")
+        A[0,:] = Matrix.ones(1,3)
+        self.assertTrue(A == D, "Matrix assignment not done correctly")
+        A[:,:] = B
+        self.assertTrue(A == B, "Matrix assignment not done correctly")
+        A[0:3:2,0:3:2] = Matrix.zeros(2)
+        self.assertTrue(A == E, "Matrix assignment not done correctly")
+        A[:,0:3:2] = Matrix.ones(3,2)
+        self.assertTrue(A == F, "Matrix assignment not done correctly")
+        with self.assertRaises(ValueError):
+            A[:,:] = 1
+        with self.assertRaises(ValueError):
+            A[1:2,:] = 1
+        with self.assertRaises(ValueError):
+            A[:,1:2] = 1
+        with self.assertRaises(ValueError):
+            A[1,1] = B
+        A[:,1] = Matrix.empty()
+        self.assertTrue(A == G, "Matrix assignment not done correctly")
+        A[0,:] = Matrix.empty()
+        self.assertTrue(A == H, "Matrix assignment not done correctly")
+        with self.assertRaises(ValueError):
+            A[:,:] = Matrix.empty()
 
     def test_num_rows(self):
         A = Matrix([[1,2,3],[4,5,6]])
@@ -25,6 +81,14 @@ class Test_Matrix(unittest.TestCase):
         self.assertTrue(A.size == (2,3))
         with self.assertRaises(AttributeError):
             A.size = 1
+
+    def test_is_empty(self):
+        A = Matrix([])
+        B = Matrix([[1],[2]])
+        C = Matrix.empty()
+        self.assertTrue(A.is_empty, "Matrix is empty.")
+        self.assertTrue(not B.is_empty, "Matrix is not empty.")
+        self.assertTrue(C.is_empty, "Matrix is empty.")
 
     def test_fill(self):
         A = Matrix.fill(2, 2, 1.0)
