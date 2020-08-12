@@ -240,10 +240,10 @@ class Matrix:
            the cofactor method.
         """
         def compute_cofactor_matrix(A: Matrix):
-            """Returns the cofactor matrix for the calling matrix."""
+            """Returns the cofactor matrix computed from the input matrix."""
             m,n = A.size
             if m != n:
-                raise ValueError("The calling matrix is not square and the cofactor matrix does not exist.")
+                raise ValueError("The input matrix is not square. The cofactor matrix does not exist.")
             M = Matrix.zeros(*A.size)
             for i in range(A.num_rows):
                 for j in range(A.num_cols):
@@ -254,10 +254,10 @@ class Matrix:
             return M
         m,n = self.size
         if m != n:
-            raise ValueError("The calling matrix is not square and the inverse does not exist.")
+            raise ValueError("The calling matrix is not square. The matrix inverse does not exist.")
         d = self.determinant()
         if not d:
-            raise ValueError("The calling matrix is singular and not invertible.")
+            raise ValueError("The calling matrix is singular. The matrix inverse does not exist.")
         C = compute_cofactor_matrix(self)
         A_inv = (1 / d) * C.transpose()
         return A_inv
@@ -280,6 +280,10 @@ class Vec3d(Matrix):
 
     @classmethod
     def fill(cls, num_rows: int, num_cols: int, fill_value: float):
+        raise NotImplementedError()
+
+    @classmethod
+    def empty(cls):
         raise NotImplementedError()
 
     @classmethod
@@ -356,5 +360,5 @@ class Vec3d(Matrix):
 
     def normalized(self):
         """Returns the calling vector, normalized by its Euclidean norm."""
-        norm = self.norm
-        return Vec3d(self.x/norm, self.y/norm, self.z/norm)
+        m = self.norm()
+        return Vec3d(self.x/m, self.y/m, self.z/m) if m else Vec3d.zeros()
