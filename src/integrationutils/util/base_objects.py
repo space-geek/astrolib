@@ -331,6 +331,9 @@ class Vec3d(Matrix):
     def __rsub__(self, other):
         return Vec3d.from_matrix(super().__rsub__(other))
 
+    def __abs__(self):
+        return Vec3d.from_matrix(super().__abs__())
+
     def norm(self) -> float:
         """Returns the Euclidean norm of the calling vector."""
         return sqrt(self.x**2 + self.y**2 + self.z**2)
@@ -357,6 +360,13 @@ class Vec3d(Matrix):
         if not isinstance(other, Vec3d):
             return NotImplemented
         return self.x * other.x + self.y * other.y + self.z * other.z
+
+    def normalize(self):
+        """Normalizes the calling vector in place by its Euclidean norm."""
+        m = self.norm()
+        self[0,0] /= m
+        self[1,0] /= m
+        self[2,0] /= m
 
     def normalized(self):
         """Returns the calling vector, normalized by its Euclidean norm."""
