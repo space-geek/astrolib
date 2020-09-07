@@ -27,16 +27,18 @@ class TimeSpan:
         return cls(*_decompose_decimal_seconds(seconds))
 
     def __init__(self, whole_seconds: int, nano_seconds: int):
+        def normalize_time(ws: int, ns: int) -> Tuple[int,int]:
+            """Function for normalizing whole vs sub-second digits."""
+            ws += (copysign(1,ns) * 1)
+            ns -= (copysign(1,ns) * NANOSECONDS_PER_SECOND)
+            return ws, ns
         self.whole_seconds = None
         self.nano_seconds = None
         if (whole_seconds is not None) and (nano_seconds is not None):
-            sign = lambda x: copysign(1,x)
             while abs(nano_seconds) >= NANOSECONDS_PER_SECOND:
-                whole_seconds += (sign(nano_seconds) * 1)
-                nano_seconds -= (sign(nano_seconds) * NANOSECONDS_PER_SECOND)
-            if sign(whole_seconds) != sign(nano_seconds):
-                whole_seconds += (sign(nano_seconds) * 1)
-                nano_seconds -= (sign(nano_seconds) * NANOSECONDS_PER_SECOND)
+                whole_seconds, nano_seconds = normalize_time(whole_seconds, nano_seconds)
+            if copysign(1,whole_seconds) != copysign(1,nano_seconds):
+                whole_seconds, nano_seconds = normalize_time(whole_seconds, nano_seconds)
             self.whole_seconds = int(whole_seconds)
             self.nano_seconds = int(nano_seconds)
 
