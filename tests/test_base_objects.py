@@ -161,6 +161,25 @@ class Test_Matrix(unittest.TestCase):
         with self.assertRaises(ValueError):
             Matrix.identity(0)
 
+    def test_from_column_matrices(self):
+        A = Matrix.zeros(3,1)
+        B = Matrix.ones(4,1)
+        C = Matrix.fill(2,1,1.2345)
+        D = Vec3d(1,2,3)
+        E = Vec3d.zeros()
+        F = Matrix.zeros(2,2)
+        G = Matrix.from_column_matrices([D,E])
+        truth_mat_1 = Matrix([[0],[0],[0],[1],[1],[1],[1],[1.2345],[1.2345]])
+        truth_mat_2 = Matrix([[1],[2],[3],[0],[0],[0]])
+        truth_mat_3 = Matrix([[0],[0],[0],[1],[1],[1],[1],[1.2345],[1.2345],[1],[2],[3],[0],[0],[0]])
+        self.assertTrue(Matrix.from_column_matrices([A,B,C]) == truth_mat_1, "The matrix instantiation from column matrices was not completed successfully.")
+        for row in G:
+            self.assertTrue(isinstance(row[0], (float,int)), "The matrix instantiation from column matrices was not completed successfully.")
+        self.assertTrue(G == truth_mat_2, "The matrix instantiation from column matrices was not completed successfully.")
+        self.assertTrue(Matrix.from_column_matrices([A,B,C,D,E]) == truth_mat_3, "The matrix instantiation from column matrices was not completed successfully.")
+        with self.assertRaises(ValueError):
+            Matrix.from_column_matrices([A,F])
+
     def test_equals(self):
         A = Matrix([[1,2,3],[4,5,6]])
         B = Matrix([[4,5,6],[7,8,9]])
@@ -255,6 +274,21 @@ class Test_Vec3d(unittest.TestCase):
         self.assertTrue(B.x == 0, "The vector was not initialized successfully.")
         self.assertTrue(B.y == 0, "The vector was not initialized successfully.")
         self.assertTrue(B.z == 0, "The vector was not initialized successfully.")
+
+    def test_ones(self):
+        A = Vec3d.ones()
+        self.assertTrue(A.x == 1, "The vector was not initialized successfully.")
+        self.assertTrue(A.y == 1, "The vector was not initialized successfully.")
+        self.assertTrue(A.z == 1, "The vector was not initialized successfully.")
+
+    def test_zeros(self):
+        A = Vec3d.zeros()
+        self.assertTrue(isinstance(A.x, int), "The vector was not initialized successfully.")
+        self.assertTrue(isinstance(A.y, int), "The vector was not initialized successfully.")
+        self.assertTrue(isinstance(A.z, int), "The vector was not initialized successfully.")
+        self.assertTrue(A.x == 0, "The vector was not initialized successfully.")
+        self.assertTrue(A.y == 0, "The vector was not initialized successfully.")
+        self.assertTrue(A.z == 0, "The vector was not initialized successfully.")
 
     def test_add(self):
         A = Vec3d(1,2,3)
