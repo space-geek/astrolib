@@ -36,6 +36,13 @@ class Matrix:
     def empty(cls):
         return Matrix([])
 
+    @classmethod
+    def from_column_matrices(cls, matrices):
+        for A in matrices:
+            if A.num_cols != 1:
+                raise ValueError('Each matrix must be a column matrix to concatenate.')
+        return Matrix([row for A in matrices for row in A])
+
     def __init__(self, A: List[List]):
         num_cols = len(A[0]) if A else 0
         for row in A:
@@ -83,7 +90,7 @@ class Matrix:
                 for (i,j) in zip(slice_range, value_range):
                     self._A[indices[0]][i] = value[0,j]
         else: # expects int or float
-            if not (isinstance(value, float) or isinstance(value, int)):
+            if not isinstance(value, (float, int)):
                 raise ValueError("When setting matrix indices using direct index notation an int or float value must be used.")
             self._A[indices[0]][indices[1]] = value
 
@@ -101,16 +108,20 @@ class Matrix:
             M = self._A[indices[0]][indices[1]]
         return M
 
+    def __iter__(self):
+        for row in self._A:
+            yield row
+
     @property
-    def num_rows(self):
+    def num_rows(self) -> int:
         return len(self._A)
 
     @property
-    def num_cols(self):
+    def num_cols(self) -> int:
         return len(self._A[0]) if self._A else 0
 
     @property
-    def size(self):
+    def size(self) -> Tuple[int,int]:
         return self.num_rows, self.num_cols
 
     @property
@@ -151,11 +162,9 @@ class Matrix:
         return True
 
     def __add__(self, other):
-        if not (isinstance(other, Matrix) or \
-                isinstance(other, float) or \
-                isinstance(other, int)):
+        if not isinstance(other, (Matrix, float, int)):
             return NotImplemented
-        if isinstance(other, float) or isinstance(other, int):
+        if isinstance(other, (float, int)):
             other = Matrix.fill(*self.size, other)
         if (self.size != other.size):
             raise ValueError("Matrices must be the same size to be added.")
@@ -175,11 +184,9 @@ class Matrix:
         return -1.0 * self.__sub__(other)
 
     def __mul__(self, other):
-        if not (isinstance(other, Matrix) or \
-                isinstance(other, float) or \
-                isinstance(other, int)):
+        if not isinstance(other, (Matrix, float, int)):
             return NotImplemented
-        if isinstance(other, float) or isinstance(other, int):
+        if isinstance(other, (float, int)):
             M = Matrix.zeros(*self.size)
             for i in range(self.num_rows):
                 for j in range(self.num_cols):
@@ -194,7 +201,7 @@ class Matrix:
         return M
 
     def __rmul__(self, other):
-        if not (isinstance(other, float) or isinstance(other, int)):
+        if not isinstance(other, (float, int)):
             return NotImplemented
         return self.__mul__(other)
 
