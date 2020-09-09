@@ -33,6 +33,39 @@ class Test_TimeSpan(unittest.TestCase):
         self.assertTrue(C == C_truth, "TimeSpans are equal.")
         self.assertTrue(D == D_truth, "TimeSpans are equal.")
 
+    def test_from_minutes(self):
+        A = TimeSpan.from_minutes(1.1)
+        B = TimeSpan.from_minutes(1234567.99999)
+        C = TimeSpan.from_minutes(-3.1415962)
+        A_truth = TimeSpan(66, 0)
+        B_truth = TimeSpan(74074079, 999399990)
+        C_truth = TimeSpan(-188, -495772000)
+        self.assertTrue(A == A_truth, f"TimeSpans are equal.")
+        self.assertTrue(B == B_truth, f"TimeSpans are equal.")
+        self.assertTrue(C == C_truth, f"TimeSpans are equal.")
+
+    def test_from_hours(self):
+        A = TimeSpan.from_hours(1.1)
+        B = TimeSpan.from_hours(1234567.99999)
+        C = TimeSpan.from_hours(-3.1415962)
+        A_truth = TimeSpan(3960, 0)
+        B_truth = TimeSpan(4444444799, 964000000)
+        C_truth = TimeSpan(-11309, -746320000)
+        self.assertTrue(A == A_truth, f"TimeSpans are equal.")
+        self.assertTrue(B == B_truth, f"TimeSpans are equal.")
+        self.assertTrue(C == C_truth, f"TimeSpans are equal.")
+
+    def test_from_days(self):
+        A = TimeSpan.from_days(1.1)
+        B = TimeSpan.from_days(1234567.99999)
+        C = TimeSpan.from_days(-3.1415962)
+        A_truth = TimeSpan(95040, 0)
+        B_truth = TimeSpan(106666675199, 135990000)
+        C_truth = TimeSpan(-271433, -911680000)
+        self.assertTrue(A == A_truth, f"TimeSpans are equal.")
+        self.assertTrue(B == B_truth, f"TimeSpans are equal.")
+        self.assertTrue(C == C_truth, f"TimeSpans are equal.")
+
     def test_equals(self):
         A = TimeSpan(1,1)
         B = TimeSpan(1,2)
@@ -62,14 +95,46 @@ class Test_TimeSpan(unittest.TestCase):
         self.assertTrue(C < D, "Conditional was not met properly.")
         self.assertTrue(A > E, "Conditional was not met properly.")
 
+    def test_abs(self):
+        A = TimeSpan(-1,-1)
+        B = TimeSpan(1,1)
+        self.assertTrue(abs(A) == B, "Absolute value was not applied successfully.")
+
+    def test_neg(self):
+        A = TimeSpan(1,1)
+        B = TimeSpan(-1,-1)
+        self.assertTrue(-A == B, "Unary negation was not applied successfully.")
+
     def test_add(self):
-        pass
+        A = TimeSpan.from_days(1.0 + 2/24)
+        B = TimeSpan.from_hours(2.0)
+        C = TimeSpan.from_hours(28.0)
+        D = TimeSpan.from_hours(3.0)
+        E = TimeSpan.from_hours(25.0)
+        self.assertTrue(A + B == C, "Failed to add TimeSpans properly.")
+        self.assertTrue(B + A == C, "Failed to add TimeSpans properly.")
+        self.assertTrue(A + B + (-D) == E, "Failed to add TimeSpans properly.")
+        self.assertTrue(C + (-A) + (-B) == TimeSpan.zero(), "Failed to add TimeSpans properly.")
 
     def test_subract(self):
-        pass
+        A = TimeSpan.from_days(1.0 + 2/24)
+        B = TimeSpan.from_hours(2.0)
+        C = TimeSpan.from_hours(28.0)
+        D = TimeSpan.from_hours(3.0)
+        E = TimeSpan.from_hours(25.0)
+        self.assertTrue(C - A == B, "Failed to subtract TimeSpans properly.")
+        self.assertTrue(A - C == -B, "Failed to subtract TimeSpans properly.")
+        self.assertTrue(C - A - B == TimeSpan.zero(), "Failed to subtract TimeSpans properly.")
+        self.assertTrue(C - D == E, "Failed to subtract TimeSpans properly.")
 
     def test_mult(self):
-        pass
+        A = TimeSpan.from_hours(2.0)
+        B = TimeSpan.from_hours(6.0)
+        C = TimeSpan.from_hours(3.0)
+        D = TimeSpan.from_hours(-11.0)
+        self.assertTrue(3 * A == B, "Failed to multiply TimeSpan properly.")
+        self.assertTrue(1.5 * A == C, "Failed to multiply TimeSpan properly.")
+        self.assertTrue(-(11/2) * A == D, "Failed to multiply TimeSpan properly.")
 
     def test_to_seconds(self):
         A = TimeSpan(123456789, 123456)
