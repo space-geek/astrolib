@@ -191,6 +191,11 @@ class Test_Matrix(unittest.TestCase):
         self.assertTrue(A != D, "Matrices are not equal.")
         self.assertTrue(A != E, "Matrices are not equal.")
 
+    def test_neg(self):
+        A = Matrix.ones(3,2)
+        B = Matrix.fill(3,2,-1)
+        self.assertTrue(-A == B, "Matrices are equal")
+
     def test_add(self):
         A = Matrix([[1,2,3],[4,5,6]])
         B = Matrix([[4,5,6],[7,8,9]])

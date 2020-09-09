@@ -127,8 +127,8 @@ class TimeSpan:
         return TimeSpan(ws,ns)
 
     def __neg__(self):
-        ws = -int(self.whole_seconds) if self.whole_seconds is not None else None
-        ns = -int(self.nano_seconds) if self.nano_seconds is not None else None
+        ws = -1 * self.whole_seconds if self.whole_seconds is not None else None
+        ns = -1 * self.nano_seconds if self.nano_seconds is not None else None
         return TimeSpan(ws,ns)
 
     def to_seconds(self) -> float:
