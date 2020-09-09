@@ -142,5 +142,23 @@ class Test_TimeSpan(unittest.TestCase):
         self.assertTrue(A.to_seconds() == 123456789.000123456)
         self.assertTrue(B.to_seconds() == -1.55)
 
+    def test_to_minutes(self):
+        A = TimeSpan(123456789, 123456)
+        B = TimeSpan(-1, -550000000)
+        self.assertTrue(A.to_minutes() == 2057613.1500020577)
+        self.assertTrue(B.to_minutes() == -0.025833333333333333)
+
+    def test_to_hours(self):
+        A = TimeSpan(123456789, 123456)
+        B = TimeSpan(-1, -550000000)
+        self.assertTrue(A.to_hours() == 34293.5525000343)
+        self.assertTrue(B.to_hours() == -0.00043055555555555555)
+
+    def test_to_days(self):
+        A = TimeSpan(123456789, 123456)
+        B = TimeSpan(-1, -550000000)
+        self.assertTrue(A.to_days() == 1428.8980208347623)
+        self.assertTrue(B.to_days() == -1.7939814814814815e-05)
+
 if __name__ == '__main__':
     unittest.main()
