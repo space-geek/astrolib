@@ -4,6 +4,9 @@ from math import floor
 from typing import Tuple
 
 from integrationutils.util.constants import NANOSECONDS_PER_SECOND
+from integrationutils.util.constants import SECONDS_PER_HOUR
+from integrationutils.util.constants import SECONDS_PER_MINUTE
+from integrationutils.util.constants import SECONDS_PER_SOLAR_DAY
 
 
 _DECIMAL_NANOSECONDS_PER_SECOND = Decimal(str(NANOSECONDS_PER_SECOND))
@@ -23,8 +26,23 @@ class TimeSpan:
 
     @classmethod
     def from_seconds(cls, seconds: float):
-        """Factory method to create a TimeSpan from seconds."""
+        """Factory method to create a TimeSpan from a number of seconds."""
         return cls(*_decompose_decimal_seconds(seconds))
+
+    @classmethod
+    def from_minutes(cls, minutes: float):
+        """Factory method to create a TimeSpan from a number of minutes."""
+        return cls(*_decompose_decimal_seconds(minutes * SECONDS_PER_MINUTE))
+
+    @classmethod
+    def from_hours(cls, minutes: float):
+        """Factory method to create a TimeSpan from a number of hours."""
+        return cls(*_decompose_decimal_seconds(minutes * SECONDS_PER_HOUR))
+
+    @classmethod
+    def from_days(cls, days: float):
+        """Factory method to create a TimeSpan from a number of mean solar days."""
+        return cls(*_decompose_decimal_seconds(days * SECONDS_PER_SOLAR_DAY))
 
     def __init__(self, whole_seconds: int, nano_seconds: int):
         def normalize_time(ws: int, ns: int) -> Tuple[int,int]:
@@ -104,7 +122,14 @@ class TimeSpan:
         return self.__mul__(other)
 
     def __abs__(self):
-        return TimeSpan(abs(self.whole_seconds), abs(self.nano_seconds))
+        ws = abs(self.whole_seconds) if self.whole_seconds is not None else None
+        ns = abs(self.nano_seconds) if self.nano_seconds is not None else None
+        return TimeSpan(ws,ns)
+
+    def __neg__(self):
+        ws = -int(self.whole_seconds) if self.whole_seconds is not None else None
+        ns = -int(self.nano_seconds) if self.nano_seconds is not None else None
+        return TimeSpan(ws,ns)
 
     def to_seconds(self) -> float:
         """Returns the calling TimeSpan's value converted to seconds. This conversion could
