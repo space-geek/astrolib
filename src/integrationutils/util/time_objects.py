@@ -137,6 +137,24 @@ class TimeSpan:
         """
         return self.whole_seconds + (self.nano_seconds / NANOSECONDS_PER_SECOND)
 
+    def to_minutes(self) -> float:
+        """Returns the calling TimeSpan's value converted to minutes. This conversion could
+        potentially not preserve the calling TimeSpan's precision.
+        """
+        return self.to_seconds() / SECONDS_PER_MINUTE
+
+    def to_hours(self) -> float:
+        """Returns the calling TimeSpan's value converted to hours. This conversion could
+        potentially not preserve the calling TimeSpan's precision.
+        """
+        return self.to_seconds() / SECONDS_PER_HOUR
+
+    def to_days(self) -> float:
+        """Returns the calling TimeSpan's value converted to mean solar days. This conversion could
+        potentially not preserve the calling TimeSpan's precision.
+        """
+        return self.to_seconds() / SECONDS_PER_SOLAR_DAY
+
 def _decompose_decimal_seconds(seconds: float) -> Tuple[int, int]:
     decimal_sec = Decimal(str(seconds))
     return int(decimal_sec), int((decimal_sec % 1) * _DECIMAL_NANOSECONDS_PER_SECOND)
