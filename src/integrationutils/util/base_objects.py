@@ -212,6 +212,13 @@ class Matrix:
                 M[i,j] = abs(self[i,j])
         return M
 
+    def __neg__(self):
+        M = Matrix.zeros(*self.size)
+        for i in range(self.num_rows):
+            for j in range(self.num_cols):
+                M[i,j] = -1 * self[i,j]
+        return M
+
     def get_row(self, idx: int) -> List:
         return self._A[idx]
 
