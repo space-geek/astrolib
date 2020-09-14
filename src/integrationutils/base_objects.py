@@ -3,6 +3,7 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
+
 class Matrix:
     """Class represents a matrix."""
 

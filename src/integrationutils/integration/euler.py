@@ -1,8 +1,8 @@
 from typing import Callable
 from typing import Tuple
 
-from integrationutils.util.base_objects import Matrix
-from integrationutils.util.time_objects import TimeSpan
+from integrationutils.base_objects import Matrix
+from integrationutils.time_objects import TimeSpan
 
 
 def integrate(t_0: TimeSpan, X_0: Matrix, h: TimeSpan, dynamics_func: Callable[[TimeSpan, Matrix],Matrix]) -> Tuple[TimeSpan, Matrix, TimeSpan]:

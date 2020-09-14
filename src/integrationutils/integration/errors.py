@@ -1,4 +1,5 @@
 
+
 class NumericalIntegrationError(Exception):
     """ Base exception type for errors encountered in numerical integration."""
 

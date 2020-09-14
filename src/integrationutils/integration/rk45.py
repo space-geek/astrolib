@@ -1,10 +1,10 @@
 from typing import Callable
 from typing import Tuple
 
-from integrationutils.util.base_objects import Matrix
-from integrationutils.util.constants import MINIMUM_STEP_SIZE_IN_SECONDS
+from integrationutils.base_objects import Matrix
 from integrationutils.integration.errors import MinimumStepSizeExceededError
-from integrationutils.util.time_objects import TimeSpan
+from integrationutils.time_objects import TimeSpan
+from integrationutils.util.constants import MINIMUM_STEP_SIZE_IN_SECONDS
 
 _DEFAULT_RELATIVE_ERROR_TOLERANCE = 1.0e-12
 _MINIMUM_STEP_SIZE = TimeSpan.from_seconds(MINIMUM_STEP_SIZE_IN_SECONDS)
