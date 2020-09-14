@@ -186,10 +186,13 @@ class Test_Matrix(unittest.TestCase):
         C = Matrix([[1,2,3],[4,5,6]])
         D = Matrix([[1,2,3],[4,5,6],[7,8,9]])
         E = Matrix([[1,2,3,4],[5,6,7,8],[9,10,11,12]])
+        F = 1.0
         self.assertTrue(A != B, "Matrices are not equal.")
         self.assertTrue(A == C, "Matrices are equal.")
         self.assertTrue(A != D, "Matrices are not equal.")
         self.assertTrue(A != E, "Matrices are not equal.")
+        self.assertTrue(A != F, "Matrices are not equal.")
+        self.assertTrue(Matrix.ones(*A.size) == F, "Matrices are equal.")
 
     def test_neg(self):
         A = Matrix.ones(3,2)
@@ -236,11 +239,11 @@ class Test_Matrix(unittest.TestCase):
         G = Matrix([[1,2],[3,4],[5,6]])
         H = Matrix([[22,28],[49,64],[76,100]])
         tol = 2.0e-3
-        self.assertTrue(abs(A * B - C) <= Matrix.fill(C.num_rows, C.num_cols, tol), "The matrix product was not computed successfully.")
-        self.assertTrue(abs(B * A - D) <= Matrix.fill(D.num_rows, D.num_cols, tol), "The matrix product was not computed successfully.")
-        self.assertTrue(abs(3 * D - E) <= Matrix.fill(E.num_rows, E.num_cols, tol), "The matrix product was not computed successfully.")
-        self.assertTrue(abs(D * 3 - E) <= Matrix.fill(E.num_rows, E.num_cols, tol), "The matrix product was not computed successfully.")
-        self.assertTrue(abs(F * G - H) <= Matrix.fill(H.num_rows, H.num_cols, tol), "The matrix product was not computed successfully.")
+        self.assertTrue(abs(A * B - C) <= tol, "The matrix product was not computed successfully.")
+        self.assertTrue(abs(B * A - D) <= tol, "The matrix product was not computed successfully.")
+        self.assertTrue(abs(3 * D - E) <= tol, "The matrix product was not computed successfully.")
+        self.assertTrue(abs(D * 3 - E) <= tol, "The matrix product was not computed successfully.")
+        self.assertTrue(abs(F * G - H) <= tol, "The matrix product was not computed successfully.")
         with self.assertRaises(ValueError):
             G * F
 
