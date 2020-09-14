@@ -1,6 +1,6 @@
 import unittest
 
-from integrationutils.util.time_objects import TimeSpan
+from integrationutils.time_objects import TimeSpan
 
 class Test_TimeSpan(unittest.TestCase):
 

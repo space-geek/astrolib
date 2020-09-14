@@ -1,7 +1,7 @@
 import unittest
 
-from integrationutils.util.base_objects import Matrix
-from integrationutils.util.base_objects import Vec3d
+from integrationutils.base_objects import Matrix
+from integrationutils.base_objects import Vec3d
 
 class Test_Matrix(unittest.TestCase):
 
