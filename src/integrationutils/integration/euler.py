@@ -19,4 +19,4 @@ def integrate(t_0: TimeSpan, X_0: Matrix, h: TimeSpan, dynamics_func: Callable[[
         Tuple[TimeSpan, Matrix, TimeSpan]                   Tuple of the propagated state vector epoch, the
                                                             propagated state vector, and the step size taken.
     """
-    return t_0 + h, X_0 + h * dynamics_func(t_0, X_0), h
+    return t_0 + h, X_0 + h.to_seconds() * dynamics_func(t_0, X_0), h
