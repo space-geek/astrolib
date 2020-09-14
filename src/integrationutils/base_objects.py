@@ -130,8 +130,10 @@ class Matrix:
         return not (bool(self.num_rows) or bool(self.num_cols))
 
     def __eq__(self, other) -> bool:
-        if not isinstance(other, Matrix):
+        if not isinstance(other, (Matrix, float, int)):
             return False
+        if isinstance(other, (float, int)):
+            other = Matrix.fill(*self.size, other)
         if (self.size != other.size):
             return False
         for i in range(self.num_rows):
@@ -141,8 +143,10 @@ class Matrix:
         return True
 
     def __lt__(self, other) -> bool:
-        if not isinstance(other, Matrix):
+        if not isinstance(other, (Matrix, float, int)):
             return False
+        if isinstance(other, (float, int)):
+            other = Matrix.fill(*self.size, other)
         if (self.size != other.size):
             return False
         for i in range(self.num_rows):
@@ -152,8 +156,10 @@ class Matrix:
         return True
 
     def __le__(self, other) -> bool:
-        if not isinstance(other, Matrix):
+        if not isinstance(other, (Matrix, float, int)):
             return False
+        if isinstance(other, (float, int)):
+            other = Matrix.fill(*self.size, other)
         if (self.size != other.size):
             return False
         for i in range(self.num_rows):
