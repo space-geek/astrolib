@@ -42,12 +42,12 @@ def integrate(t_0: TimeSpan, X_0: Matrix, h_max: TimeSpan, dynamics_func: Callab
     while True:
 
         # Compute the RK coefficients:
-        k1 = h.to_seconds() * dynamics_func(t_0,                                X_0)
-        k2 = h.to_seconds() * dynamics_func(t_0 + (  1.0/4.0) * h.to_seconds(), X_0 + (1.0/4.0) * k1)
-        k3 = h.to_seconds() * dynamics_func(t_0 + (  3.0/8.0) * h.to_seconds(), X_0 + (     3.0/32.0) * k1 + (     9.0/32.0) * k2)
-        k4 = h.to_seconds() * dynamics_func(t_0 + (12.0/13.0) * h.to_seconds(), X_0 + (1932.0/2197.0) * k1 - (7200.0/2197.0) * k2 + (7296.0/2197.0) * k3)
-        k5 = h.to_seconds() * dynamics_func(t_0 + (      1.0) * h.to_seconds(), X_0 + (  439.0/216.0) * k1 - (          8.0) * k2 + ( 3680.0/513.0) * k3 - ( 845.0/4104.0) * k4)
-        k6 = h.to_seconds() * dynamics_func(t_0 + (  1.0/2.0) * h.to_seconds(), X_0 - (     8.0/27.0) * k1 + (          2.0) * k2 - (3544.0/2565.0) * k3 + (1859.0/4104.0) * k4 - (11.0/40.0) * k5)
+        k1 = h.to_seconds() * dynamics_func(t_0,                   X_0)
+        k2 = h.to_seconds() * dynamics_func(t_0 + (  1.0/4.0) * h, X_0 + (1.0/4.0) * k1)
+        k3 = h.to_seconds() * dynamics_func(t_0 + (  3.0/8.0) * h, X_0 + (     3.0/32.0) * k1 + (     9.0/32.0) * k2)
+        k4 = h.to_seconds() * dynamics_func(t_0 + (12.0/13.0) * h, X_0 + (1932.0/2197.0) * k1 - (7200.0/2197.0) * k2 + (7296.0/2197.0) * k3)
+        k5 = h.to_seconds() * dynamics_func(t_0 + (      1.0) * h, X_0 + (  439.0/216.0) * k1 - (          8.0) * k2 + ( 3680.0/513.0) * k3 - ( 845.0/4104.0) * k4)
+        k6 = h.to_seconds() * dynamics_func(t_0 + (  1.0/2.0) * h, X_0 - (     8.0/27.0) * k1 + (          2.0) * k2 - (3544.0/2565.0) * k3 + (1859.0/4104.0) * k4 - (11.0/40.0) * k5)
 
         # Compute the error term:
         R = (1.0 / h.to_seconds()) * abs((1.0/360.0) * k1 - (128.0/4275.0) * k3 - (2197.0/75240.0) * k4 + (1.0/50.0) * k5 + (2.0/55.0) * k6)
