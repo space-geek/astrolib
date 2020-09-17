@@ -39,6 +39,8 @@ class Matrix:
 
     @classmethod
     def from_column_matrices(cls, matrices):
+        if not isinstance(matrices, list):
+            raise ValueError('Input collection must be a list of matrices to concatenate.')
         for A in matrices:
             if A.num_cols != 1:
                 raise ValueError('Each matrix must be a column matrix to concatenate.')
