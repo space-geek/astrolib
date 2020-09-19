@@ -1,10 +1,10 @@
 import unittest
 
 from integrationutils.base_objects import Matrix
+from integrationutils.base_objects import TimeSpan
 from integrationutils.integration.euler import integrate as euler_integrate
 from integrationutils.integration.rk4 import integrate as rk4_integrate
 from integrationutils.integration.rk45 import integrate as rk45_integrate
-from integrationutils.time_objects import TimeSpan
 
 
 class Test_Euler(unittest.TestCase):
