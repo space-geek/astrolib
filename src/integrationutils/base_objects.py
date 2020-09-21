@@ -52,6 +52,8 @@ class Matrix:
         if not isinstance(matrices, list):
             raise ValueError('Input collection must be a list of matrices to concatenate.')
         for A in matrices:
+            if not isinstance(A, Matrix):
+                raise ValueError('Input collection must be a list of matrices to concatenate.')
             if A.num_cols != 1:
                 raise ValueError('Each matrix must be a column matrix to concatenate.')
         return Matrix([row for A in matrices for row in A])

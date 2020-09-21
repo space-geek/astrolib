@@ -11,10 +11,6 @@ class ElementSetBase():
     """
 
     def __init__(self, elements: List[Matrix]):
-        if elements.num_cols != 1:
-            if elements.num_rows != 1:
-                raise ValueError("Input matrix must be a column matrix.")
-            elements = elements.transpose()
         self._elements = Matrix.from_column_matrices(elements)
 
     @property
