@@ -1,7 +1,7 @@
-from integrationutils.attitude_elements import Quaternion
-from integrationutils.base_objects import Matrix
-from integrationutils.base_objects import TimeSpan
-from integrationutils.base_objects import Vec3d
+from astrolib.attitude_elements import Quaternion
+from astrolib.base_objects import Matrix
+from astrolib.base_objects import TimeSpan
+from astrolib.base_objects import Vec3d
 
 
 class CelestialObjectOrientationModel:

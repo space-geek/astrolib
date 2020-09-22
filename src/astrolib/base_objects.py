@@ -6,10 +6,10 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
-from integrationutils.util.constants import NANOSECONDS_PER_SECOND
-from integrationutils.util.constants import SECONDS_PER_HOUR
-from integrationutils.util.constants import SECONDS_PER_MINUTE
-from integrationutils.util.constants import SECONDS_PER_SOLAR_DAY
+from astrolib.util.constants import NANOSECONDS_PER_SECOND
+from astrolib.util.constants import SECONDS_PER_HOUR
+from astrolib.util.constants import SECONDS_PER_MINUTE
+from astrolib.util.constants import SECONDS_PER_SOLAR_DAY
 
 _DECIMAL_NANOSECONDS_PER_SECOND = Decimal(str(NANOSECONDS_PER_SECOND))
 

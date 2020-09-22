@@ -3,9 +3,9 @@ import os
 from setuptools import find_packages
 from setuptools import setup
 
-_NAME = 'integrationutils'
+_NAME = 'astrolib'
 _VERSION = os.environ.get('PY_VERSION') or '0.0.1'
-_DESCRIPTION = 'Utility library providing implementations of various numerical integration schemes.'
+_DESCRIPTION = 'Utility library providing implementations of various astrodynamics-related utilities and models.'
 
 _INSTALL_REQUIRES = [
     '',

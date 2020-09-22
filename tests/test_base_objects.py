@@ -1,8 +1,8 @@
 import unittest
 
-from integrationutils.base_objects import Matrix
-from integrationutils.base_objects import Vec3d
-from integrationutils.base_objects import TimeSpan
+from astrolib.base_objects import Matrix
+from astrolib.base_objects import Vec3d
+from astrolib.base_objects import TimeSpan
 
 class Test_Matrix(unittest.TestCase):
 
