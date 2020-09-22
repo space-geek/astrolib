@@ -1,8 +1,8 @@
 from typing import List
 
-from integrationutils.element_set_base import ElementSetBase
-from integrationutils.base_objects import Matrix
-from integrationutils.base_objects import Vec3d
+from astrolib.element_set_base import ElementSetBase
+from astrolib.base_objects import Matrix
+from astrolib.base_objects import Vec3d
 
 
 class AttitudeElementSet(ElementSetBase):

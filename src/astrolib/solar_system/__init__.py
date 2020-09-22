@@ -1,6 +1,6 @@
-from integrationutils.solar_system.celestial_objects import CelestialObject
-from integrationutils.solar_system.motion_models import OriginFixedMotionModel
-from integrationutils.solar_system.orientation_models import InertiallyFixedOrientationModel
+from astrolib.solar_system.celestial_objects import CelestialObject
+from astrolib.solar_system.motion_models import OriginFixedMotionModel
+from astrolib.solar_system.orientation_models import InertiallyFixedOrientationModel
 
 Sun = CelestialObject(OriginFixedMotionModel(),InertiallyFixedOrientationModel())
 Mercury = CelestialObject(OriginFixedMotionModel(),InertiallyFixedOrientationModel())

@@ -1,7 +1,7 @@
-from integrationutils.base_objects import Matrix
-from integrationutils.base_objects import TimeSpan
-from integrationutils.base_objects import Vec3d
-from integrationutils.orbit_elements import CartesianElements
+from astrolib.base_objects import Matrix
+from astrolib.base_objects import TimeSpan
+from astrolib.base_objects import Vec3d
+from astrolib.orbit_elements import CartesianElements
 
 
 class CelestialObjectMotionModel:
