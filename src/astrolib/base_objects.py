@@ -240,6 +240,14 @@ class Matrix:
                 M[i,j] = -1 * self[i,j]
         return M
 
+    def __len__(self) -> int:
+        """Returns the length of the calling Matrix, defined as the maximum dimension.
+
+        Returns:
+            int: The maximum dimension of the calling Matrix, i.e. max(num_rows, num_cols)
+        """
+        return int(max(self.size))
+
     def get_row(self, idx: int) -> List:
         return self._A[idx]
 
@@ -296,6 +304,22 @@ class Matrix:
         C = compute_cofactor_matrix(self)
         A_inv = (1 / d) * C.transpose()
         return A_inv
+
+    def is_row_matrix(self) -> bool:
+        """Returns True if the calling Matrix is a row matrix (i.e. has 1 row and 1+ columns), False otherwise.
+
+        Returns:
+            bool: Boolean indicator of whether or not the calling matrix is a row matrix.
+        """
+        return (self.num_rows == 1)
+
+    def is_column_matrix(self) -> bool:
+        """Returns True if the calling Matrix is a column matrix (i.e. has 1 column and 1+ rows), False otherwise.
+
+        Returns:
+            bool: Boolean indicator of whether or not the calling matrix is a column matrix.
+        """
+        return (self.num_cols == 1)
 
 
 class Vec3d(Matrix):
