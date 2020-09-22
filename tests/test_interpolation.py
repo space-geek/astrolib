@@ -1,0 +1,26 @@
+import unittest
+
+from astrolib.base_objects import Matrix
+from astrolib.interpolation.lagrange import interpolate
+
+class Test_Lagrange(unittest.TestCase):
+
+    def test_1(self):
+        x_0  = 8.4;
+        xvals = Matrix([[8.1, 8.3, 8.6, 8.7]])
+        yvals = Matrix([[16.94410, 17.56492, 18.50515, 18.82091]])
+        self.assertTrue(interpolate(xvals[0,2:4], yvals[0,2:4], x_0) == 17.878329999999998, "Lagrange interpolation failed.")
+        self.assertTrue(interpolate(xvals[0,2:5], yvals[0,2:5], x_0) == 17.877155000000002, "Lagrange interpolation failed.")
+        self.assertTrue(interpolate(xvals, yvals, x_0) == 17.877142500000001, "Lagrange interpolation failed.")
+
+    def test_2(self):
+        # Example 2 from Numerical Analysis, Burden & Faires 10th Edition, page 108
+        x_0  = 3.0
+        xvals = Matrix([[2,2.75,4]])
+        yvals = Matrix([[1/x for x in xvals.get_row(0)]])
+        self.assertTrue(interpolate(xvals, yvals, x_0) == 0.329545454545455, "Lagrange interpolation failed.")
+
+    # TODO: Add more extensive Lagrange interpolation tests
+
+if __name__ == '__main__':
+    unittest.main()
