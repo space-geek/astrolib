@@ -4,13 +4,13 @@ from astrolib.base_objects import Matrix
 
 
 def interpolate(x_vals: Matrix, y_vals: Matrix, x_0: float) -> float:
-    if not x_vals.is_row_matrix():
-        x_vals = x_vals.transpose()
-    if not x_vals.is_row_matrix():
+    def validate_input_data(data: Matrix) -> bool:
+        if not data.is_row_matrix():
+            data.transpose()
+        return data.is_row_matrix()
+    if not validate_input_data(x_vals):
         raise ValueError("Invalid input data provided to Lagrange polynomial fit function. X-data must be a row or column vector.")
-    if not y_vals.is_row_matrix():
-        y_vals = y_vals.transpose()
-    if not y_vals.is_row_matrix():
+    if not validate_input_data(y_vals):
         raise ValueError("Invalid input data provided to Lagrange polynomial fit function. Y-data must be a row or column vector.")
     if x_vals.size != y_vals.size:
         raise ValueError("Invalid input data provided to Lagrange polynomial fit function. X- and Y-vectors must be the same size.")
