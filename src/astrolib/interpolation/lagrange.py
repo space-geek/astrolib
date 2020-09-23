@@ -16,8 +16,9 @@ def interpolate(x_vals: Matrix, y_vals: Matrix, x_0: float) -> float:
         raise ValueError("Invalid input data provided to Lagrange polynomial fit function. X- and Y-vectors must be the same size.")
     y_0 = 0.0
     for i in range(0, x_vals.num_cols):
-        L = lambda x: 1.0
+        L = 1.0
         for j in range(0, y_vals.num_cols):
-            L = lambda x: ((x - x_vals[0,j]) / (x_vals[0,i] - x_vals[0,j])) * L(x)
-        y_0 = y_0 + y_vals[0,i] * L(x_0)
+            if j != i:
+                L = ((x_0 - x_vals[0,j]) / (x_vals[0,i] - x_vals[0,j])) * L
+        y_0 = y_0 + y_vals[0,i] * L
     return y_0
