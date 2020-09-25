@@ -24,7 +24,10 @@ class Ephemeris(PropagatorBase):
         self._states = {x.epoch : x for x in states}
     
     def __str__(self) -> str:
-        return f"to be implemented"
+        return f"[Ephemeris with:\n\tStart Epoch:\t\t{self.start_epoch.to_seconds()} seconds" \
+               f"\n\tEnd Epoch:\t\t{self.end_epoch.to_seconds()} seconds" \
+               f"\n\tDuration:\t\t{self.duration.to_seconds()} seconds" \
+               f"\n\tNumber of States:\t{self.num_states}]"
 
     def __iter__(self) -> StateVector:
         for state in sorted(self._states.values(), lambda x: x.epoch):
