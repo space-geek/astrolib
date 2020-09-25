@@ -6,7 +6,7 @@
 
 from astrolib.base_objects import TimeSpan
 from astrolib.base_objects import Vec3d
-from astrolib.element_set_base import StateVector
+from astrolib.state_vector import StateVector
 from astrolib.orbit_elements import CartesianElements
 from astrolib.orbit_elements import KeplerianElements
 from astrolib.attitude_elements import Quaternion

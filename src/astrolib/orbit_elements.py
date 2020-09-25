@@ -1,8 +1,8 @@
 from typing import List
 
-from astrolib.element_set_base import ElementSetBase
 from astrolib.base_objects import Matrix
 from astrolib.base_objects import Vec3d
+from astrolib.state_vector import ElementSetBase
 
 
 class OrbitElementSet(ElementSetBase):

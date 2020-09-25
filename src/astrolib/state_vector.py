@@ -6,6 +6,7 @@ from astrolib.base_objects import Matrix
 from astrolib.base_objects import TimeSpan
 
 
+
 class ElementSetBase():
     """ Class represents a set of generic state vector elements, e.g.
     """
@@ -30,9 +31,9 @@ class ElementSetBase():
 
 class StateVector():
 
-    def __init__(self):
-        self.epoch = TimeSpan.undefined()
-        self.components: List[ElementSetBase] = []
+    def __init__(self, epoch: TimeSpan=TimeSpan.undefined(), components: List[ElementSetBase]=[]):
+        self.epoch = epoch
+        self.components = components
 
     @property
     def component_types(self) -> List[ElementSetBase]:
