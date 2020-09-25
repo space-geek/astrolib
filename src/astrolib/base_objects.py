@@ -483,7 +483,10 @@ class TimeSpan:
             self.nano_seconds = int(nano_seconds)
 
     def __str__(self):
-        return f'[whole_seconds = {self.whole_seconds}, nano_seconds = {self.nano_seconds}]'
+        return f'[whole_seconds = {self.whole_seconds}, nano_seconds = {self.nano_seconds}]' if self.is_defined() else 'Undefined'
+
+    def __hash__(self):
+        return hash((self.whole_seconds, self.nano_seconds))
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, TimeSpan):
