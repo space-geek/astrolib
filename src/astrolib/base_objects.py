@@ -553,6 +553,14 @@ class TimeSpan:
         ns = -1 * self.nano_seconds if self.nano_seconds is not None else None
         return TimeSpan(ws,ns)
 
+    def is_defined(self) -> bool:
+        """Returns a boolean indicator of whether or not the calling TimeSpan is defined.
+
+        Returns:
+            bool: Boolean indicator of whether or not the calling TimeSpan is defined.
+        """
+        return (self.whole_seconds is not None) and (self.nano_seconds is not None)
+
     def to_seconds(self) -> float:
         """Returns the calling TimeSpan's value converted to seconds. This conversion could
         potentially not preserve the calling TimeSpan's precision.
