@@ -513,6 +513,12 @@ class Test_TimeSpan(unittest.TestCase):
         self.assertTrue(A.to_days() == 1428.8980208347623)
         self.assertTrue(B.to_days() == -1.7939814814814815e-05)
 
+    def test_is_defined(self):
+        A = TimeSpan.undefined()
+        B = TimeSpan.zero()
+        self.assertTrue(not A.is_defined(), "Defined-ness check failed.")
+        self.assertTrue(B.is_defined(), "Defined-ness check failed.")
+
 
 if __name__ == '__main__':
     unittest.main()
