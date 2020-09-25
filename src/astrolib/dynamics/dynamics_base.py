@@ -3,7 +3,7 @@ from typing import List
 
 from astrolib.base_objects import Matrix
 from astrolib.base_objects import TimeSpan
-from astrolib.element_set_base import ElementSetBase
+from astrolib.state_vector import ElementSetBase
 
 
 class ForceModelBase():
