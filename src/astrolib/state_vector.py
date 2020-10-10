@@ -30,6 +30,9 @@ class ElementSetBase():
             raise ValueError(f"Input column matrix must have {self.num_elements} elements.")
         self._elements = value
 
+    def compute_time_derivative(self, epoch: TimeSpan) -> Matrix:
+        raise NotImplementedError()
+
 
 class StateVector():
 
