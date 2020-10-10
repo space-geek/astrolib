@@ -11,6 +11,9 @@ class OrbitElementSet(ElementSetBase):
     def __init__(self, elements: List[Matrix]):
         super().__init__(elements)
 
+    def compute_time_derivative(self, epoch: TimeSpan) -> Matrix:
+        raise NotImplementedError()
+
 
 class CartesianElements(OrbitElementSet):
     """Class represents a set of Cartesian orbital elements, e.g. position and velocity."""
@@ -88,6 +91,9 @@ class CartesianElements(OrbitElementSet):
         self._elements[3,0] = value.x
         self._elements[4,0] = value.y
         self._elements[5,0] = value.z
+
+    def compute_time_derivative(self, epoch: TimeSpan, accel: Matrix) -> Matrix:
+        return Matrix.from_column_matrices([self.velocity, accel])
 
 
 class KeplerianElements(OrbitElementSet):
