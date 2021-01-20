@@ -1,18 +1,13 @@
-from typing import List
+""" TODO: Module docstring
+"""
 
+from astrolib.base_objects import ElementSetBase
 from astrolib.base_objects import Matrix
 from astrolib.base_objects import Vec3d
-from astrolib.state_vector import ElementSetBase
 
 
 class OrbitElementSet(ElementSetBase):
     """Class represents a generic set of orbital elements."""
-
-    def __init__(self, elements: List[Matrix]):
-        super().__init__(elements)
-
-    def compute_time_derivative(self, epoch: TimeSpan) -> Matrix:
-        raise NotImplementedError()
 
 
 class CartesianElements(OrbitElementSet):
@@ -92,9 +87,6 @@ class CartesianElements(OrbitElementSet):
         self._elements[4,0] = value.y
         self._elements[5,0] = value.z
 
-    def compute_time_derivative(self, epoch: TimeSpan, accel: Matrix) -> Matrix:
-        return Matrix.from_column_matrices([self.velocity, accel])
-
 
 class KeplerianElements(OrbitElementSet):
     """Class represents a set of classical Keplerian orbital elements."""
@@ -103,7 +95,12 @@ class KeplerianElements(OrbitElementSet):
         super().__init__([Matrix([[sma],[ecc],[inc],[raan],[arg_of_periapsis],[true_anomaly]])])
 
     def __str__(self) -> str:
-        return f"Semimajor Axis: {self.sma}\nEccentricity: {self.ecc}\nInclination: {self.inc}\nRight Ascension of the Ascending Node: {self.raan}\nArgument of Periapsis: {self.arg_of_periapsis}\nTrue Anomaly: {self.true_anomaly}"
+        return f"Semimajor Axis: {self.sma}\n" + \
+               f"Eccentricity: {self.ecc}\n" + \
+               f"Inclination: {self.inc}\n" + \
+               f"Right Ascension of the Ascending Node: {self.raan}\n" + \
+               f"Argument of Periapsis: {self.arg_of_periapsis}\n" + \
+               f"True Anomaly: {self.true_anomaly}"
 
     @property
     def sma(self) -> float:
