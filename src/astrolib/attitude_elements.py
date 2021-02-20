@@ -1,18 +1,16 @@
 from typing import List
 
-from astrolib.base_objects import Matrix
-from astrolib.base_objects import Vec3d
-from astrolib.state_vector import ElementSetBase
+from astrolib import Matrix
+from astrolib import Vec3d
+from astrolib.base_objects import ElementSetBase
 
 
-class AttitudeElementSet(ElementSetBase):
-    """Class represents a generic set of attitude elements."""
-
-    def __init__(self, elements: List[Matrix]):
-        super().__init__(elements)
+class AttitudeCoordinates(ElementSetBase):
+    """ Class represents a generic set of attitude position coordinates.
+    """
 
 
-class Quaternion(AttitudeElementSet):
+class Quaternion(AttitudeCoordinates):
     """Class represents a quaternion representation of the attitude of an object, with q1, q2, and q3 as the vector components and q4 as the scalar"""
 
     @classmethod
@@ -71,3 +69,72 @@ class Quaternion(AttitudeElementSet):
         self.x = value.x
         self.y = value.y
         self.z = value.z
+
+
+class DirectionCosineMatrix(AttitudeCoordinates):
+
+    def __init__(self, dcm: Matrix):
+        if not dcm.is_square():
+            raise ValueError(f"Input matrix must be square but is instead size {dcm.size}.")
+        super().__init__([dcm.to_column_matrix()])
+
+    @property
+    def matrix(self) -> Matrix:
+        pass
+
+
+class AttitudeRates(ElementSetBase):
+
+    def __init__(self, rates: Matrix):
+        super().__init__(rates)
+
+
+class AngularVelocity(AttitudeRates):
+
+    def __init__(self, x: float, y: float, z: float):
+        super().__init__([Vec3d(x,y,z)])
+
+
+    def __str__(self) -> str:
+        return f'[x = {self.x}, y = {self.y}, z = {self.z}]'
+
+    @property
+    def x(self) -> float:
+        return self._elements[0,0]
+
+    @x.setter
+    def x(self, value: float):
+        self._elements[0,0] = value
+
+    @property
+    def y(self) -> float:
+        return self._elements[1,0]
+
+    @y.setter
+    def y(self, value: float):
+        self._elements[1,0] = value
+
+    @property
+    def z(self) -> float:
+        return self._elements[2,0]
+
+    @z.setter
+    def z(self, value: float):
+        self._elements[2,0] = value
+
+    @property
+    def vector(self) -> Vec3d:
+        return Vec3d(self.x, self.y, self.z)
+
+    @vector.setter
+    def vector(self, value: Vec3d):
+        self.x = value.x
+        self.y = value.y
+        self.z = value.z
+
+
+class AttitudeElementSet(ElementSetBase):
+    """Class represents a generic set of attitude elements."""
+
+    def __init__(self, coordinates: AttitudeCoordinates, rates: AttitudeRates):
+        super().__init__([coordinates.to_column_matrix(), rates.to_column_matrix()])

@@ -1,19 +1,20 @@
 """ TODO: Module docstring
 """
-
+from astrolib import Matrix
+from astrolib import Vec3d
 from astrolib.base_objects import ElementSetBase
-from astrolib.base_objects import Matrix
-from astrolib.base_objects import Vec3d
 
 
 class OrbitElementSet(ElementSetBase):
-    """Class represents a generic set of orbital elements."""
+    """ Class represents a generic set of orbital elements.
+    """
 
 
 class CartesianElements(OrbitElementSet):
-    """Class represents a set of Cartesian orbital elements, e.g. position and velocity."""
+    """ Class represents a set of Cartesian orbital elements, e.g. position and velocity.
+    """
 
-    def __init__(self, position: Vec3d, velocity: Vec3d):
+    def __init__(self, position: Vec3d = Vec3d.zeros(), velocity: Vec3d = Vec3d.zeros()):
         super().__init__([position, velocity])
 
     def __str__(self) -> str:
@@ -77,6 +78,8 @@ class CartesianElements(OrbitElementSet):
         self._elements[1,0] = value.y
         self._elements[2,0] = value.z
 
+    #TODO Figure out a way to enable "elements.position.x = float_value" usage. Currently does not make it back to self._elements data structure.
+
     @property
     def velocity(self) -> Vec3d:
         return Vec3d(*[x[0] for x in self._elements[3:,0]])
@@ -86,6 +89,8 @@ class CartesianElements(OrbitElementSet):
         self._elements[3,0] = value.x
         self._elements[4,0] = value.y
         self._elements[5,0] = value.z
+
+    #TODO Figure out a way to enable "elements.velocity.x = float_value" usage. Currently does not make it back to self._elements data structure.
 
 
 class KeplerianElements(OrbitElementSet):

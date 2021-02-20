@@ -1,3 +1,3 @@
 [format]
 max-line-length=120
-good-names=x,y,z,v_x,v_y,v_z,mu,w
+good-names=x,y,z,v_x,v_y,v_z,mu,w,i,j
