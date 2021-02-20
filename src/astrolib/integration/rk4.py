@@ -10,7 +10,7 @@ from astrolib import TimeSpan
 def integrate(t_0: TimeSpan,
               x_0: Matrix,
               h: TimeSpan,
-              dynamics_func: Callable[[TimeSpan, Matrix],Matrix]
+              dynamics_func: Callable[[TimeSpan, Matrix], Matrix]
               ) -> Tuple[TimeSpan, Matrix, TimeSpan]:
     """ Function utilizes a 4th-order Runge-Kutta integration scheme to integrate
         the input state vector from the initial to the final epoch.
