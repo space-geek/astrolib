@@ -62,7 +62,7 @@ class Matrix:
                 raise ValueError('Each matrix must be a column matrix to concatenate.')
         return Matrix([row for A in matrices for row in A])
 
-    def __init__(self, A: List[List]):
+    def __init__(self, A: List[List[float]]):
         num_cols = len(A[0]) if A else 0
         for row in A:
             if len(row) != num_cols:
@@ -76,9 +76,21 @@ class Matrix:
         return f"[{mat}]"
 
     def __setitem__(self,
-                    indices: Union[Tuple[int, int], Tuple[int, slice], Tuple[int, slice], Tuple[slice, slice]],
+                    indices: Union[Tuple[int, int],
+                                   Tuple[int, slice],
+                                   Tuple[int, slice],
+                                   Tuple[slice, slice],
+                                   int,
+                                   slice],
                     value: Union[int, 'Matrix']
                     ) -> None:
+        if isinstance(indices, (int, slice)):
+            if self.is_row_matrix():
+                indices = (0, indices)
+            elif self.is_column_matrix():
+                indices = (indices, 0)
+            else:
+                raise ValueError("Single-index indexing only supported for row or column matrices.")
         if isinstance(indices[0], slice) and isinstance(indices[1], slice): # expects Matrix
             if not isinstance(value, Matrix):
                 raise ValueError("When setting matrix indices using slice notation a Matrix value "
@@ -132,9 +144,21 @@ class Matrix:
             self._A[indices[0]][indices[1]] = value
 
     def __getitem__(self,
-                    indices: Union[Tuple[int, int], Tuple[int, slice], Tuple[int, slice], Tuple[slice, slice]]
+                    indices: Union[Tuple[int, int],
+                                   Tuple[int, slice],
+                                   Tuple[int, slice],
+                                   Tuple[slice, slice],
+                                   int,
+                                   slice]
                     ) -> Union[float, 'Matrix']:
         M = None
+        if isinstance(indices, (int, slice)):
+            if self.is_row_matrix():
+                indices = (0, indices)
+            elif self.is_column_matrix():
+                indices = (indices, 0)
+            else:
+                raise ValueError("Single-index indexing only supported for row or column matrices.")
         if isinstance(indices[0], slice) and isinstance(indices[1], slice): # returns Matrix
             rows_range = range((indices[0].start or 0),
                                (indices[0].stop or self.num_rows),
@@ -394,15 +418,15 @@ class Vec3d(Matrix):
 
     @classmethod
     def identity(cls, dim: int) -> 'Vec3d':
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def fill(cls, num_rows: int, num_cols: int, fill_value: float) -> 'Vec3d':
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def empty(cls) -> 'Vec3d':
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def from_matrix(cls, M: Matrix) -> 'Vec3d':
@@ -482,7 +506,7 @@ class Vec3d(Matrix):
         z = self.x * other.y - self.y * other.x
         return Vec3d(x,y,z)
 
-    def dot(self, other: Vec3d) -> float:
+    def dot(self, other: 'Vec3d') -> float:
         """ Returns the dot product of the calling vector with the argument
             vector, computed as C = A * B for C = A.dot(B).
         """
