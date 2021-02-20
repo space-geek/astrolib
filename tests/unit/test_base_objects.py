@@ -21,6 +21,8 @@ class Test_Matrix(unittest.TestCase):
         D = Matrix([[4,6]])
         E = Matrix([[2],[8]])
         F = Matrix([[1,3],[7,9]])
+        G = Matrix([[2], [5]])
+        H = Matrix([[5, 6]])
         self.assertTrue(A[1,1] == 5, "Matrix indexing not done correctly")
         self.assertTrue(A[1,:] == B, "Matrix indexing not done correctly")
         self.assertTrue(A[:,1] == C, "Matrix indexing not done correctly")
@@ -28,6 +30,12 @@ class Test_Matrix(unittest.TestCase):
         self.assertTrue(A[0:3:2,1] == E, "Matrix indexing not done correctly")
         self.assertTrue(A[:,:] == A, "Matrix indexing not done correctly")
         self.assertTrue(A[0:3:2,0:3:2] == F, "Matrix indexing not done correctly")
+        self.assertTrue(C[1] == 5, "Matrix indexing not done correctly.")
+        self.assertTrue(C[0:2] == G, "Matrix indexing not done correctly.")
+        self.assertTrue(B[1:3] == H, "Matrix indexing not done correctly.")
+        with self.assertRaises(ValueError):
+            A[0:2]
+        
 
     def test_set_item(self):
         A = Matrix([[1,2,3],[4,5,6],[7,8,9]])
