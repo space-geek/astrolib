@@ -1,55 +1,37 @@
-from typing import Dict
+""" TODO: Module docstring
+"""
 from typing import List
-from typing import Tuple
+from typing import Set
 from typing import Type
-from typing import Union
 
-from astrolib.base_objects import Matrix
-from astrolib.base_objects import TimeSpan
-from astrolib.state_vector import ElementSetBase
+from astrolib import Matrix
 from astrolib.state_vector import StateVector
 
 
 class ForceModelBase():
-    """ Class represents..."""
+    """ TODO: Class docstring
+    """
 
-    def __init__(self):
-        pass
+    supported_state_vector_types: Set[Type] = None
 
+    def compute_acceleration(self, state: StateVector) -> Matrix:
+        raise NotImplementedError
 
-class AccelerationModel(ForceModelBase):
-
-    def __init__(self):
-        super().__init__()
-
-    def compute_acceleration(self, t: TimeSpan, X: ElementSetBase) -> Vec3d:
-        raise NotImplementedError()
-
-    def compute_partials(self, t: TimeSpan, X: ElementSetBase) -> Matrix:
-        raise NotImplementedError()
-
-
-class TorqueModel(ForceModelBase):
-
-    def __init__(self):
-        super().__init__()
-
-    def compute_torque(self, t: TimeSpan, X: ElementSetBase) -> Matrix:
-        raise NotImplementedError()
-
-    def compute_partials(self, t: TimeSpan, X: ElementSetBase) -> Matrix:
-        raise NotImplementedError()
+    def compute_partials(self, state: StateVector) -> Matrix:
+        raise NotImplementedError
 
 
 class DynamicsModel():
-    """Class represents..."""
+    """ TODO: Class docstring
+    """
 
-    def __init__(self):
-        self._force_models: Dict[str, List[ForceModelBase]] = dict()
+    def __init__(self, force_models: List[ForceModelBase] = list()):
+        self.force_models = force_models
 
     def evaluate(self, state: StateVector) -> Matrix:
-        accel_models = [x for x in self._force_models if isinstance(x, AccelerationModel)]
-        torque_models = [x for x in self._force_models if isinstance(x, TorqueModel)]
-        derivatives = []
-        for element_set in state.elements:
+        forces = [x for x in self.force_models if type(state) in x.supported_state_vector_types]
+        accel = Matrix.zeros(3,1)
+        for force in forces:
+            accel += force.compute_acceleration(state)
+        return Matrix.from_column_matrices([state.rates, accel])
             

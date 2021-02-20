@@ -1,35 +1,42 @@
-from astrolib.base_objects import Matrix
-from astrolib.base_objects import TimeSpan
-from astrolib.base_objects import Vec3d
+""" TODO: Module docstring
+"""
+from astrolib import Matrix
+from astrolib import TimeSpan
+from astrolib import Vec3d
+from astrolib.dynamics import ForceModelBase
 from astrolib.solar_system.motion_models import CelestialObjectMotionModel
-from astrolib.dynamics.dynamics_base import AccelerationModel
-from astrolib.orbit_elements import CartesianElements
+from astrolib.state_vector import CartesianStateVector
 
 
-class PointMassGravityModel(AccelerationModel):
+class PointMassGravityModel(ForceModelBase):
+
+    supported_state_vector_types = set([CartesianStateVector])
 
     def __init__(self, mu: float, motion_model: CelestialObjectMotionModel):
         super().__init__()
         self.mu = mu
         self.motion_model = motion_model
 
-    def compute_acceleration(self, t: TimeSpan, X: CartesianElements) -> Vec3d:
-        rel_pos = X.position - self.motion_model.get_position_at_epoch(t)
+    def compute_acceleration(self, state: CartesianStateVector) -> Matrix:
+        rel_pos = state.elements.position - self.motion_model.get_position_at_epoch(state.epoch)
         return -(self.mu / (rel_pos.norm()**3)) * rel_pos
 
-    def compute_partials(self, t: TimeSpan, X: Matrix) -> Matrix:
-        raise NotImplementedError()
+    def compute_partials(self, state: CartesianStateVector) -> Matrix:
+        raise NotImplementedError
 
 
-class SphericalHarmonicGravityModel(AccelerationModel):
+class SphericalHarmonicGravityModel(ForceModelBase):
+
+    supported_state_vector_types = (CartesianStateVector)
 
     def __init__(self, mu: float, motion_model: CelestialObjectMotionModel, coefficients: Matrix):
         super().__init__()
         self._point_mass_component = PointMassGravityModel(mu, motion_model)
         self._coeffs = coefficients
 
-    def compute_acceleration(self, t: TimeSpan, X: CartesianElements) -> Matrix:
-        return self._point_mass_component.get_acceleration_at_epoch(t, X) + Vec3d.zeros()
+    def compute_acceleration(self, state: CartesianStateVector) -> Matrix:
+        #TODO Implement spherical harmonic acceleration model
+        return self._point_mass_component.compute_acceleration(state) + Vec3d.zeros()
 
     def compute_partials(self, t: TimeSpan, X: Matrix) -> Matrix:
-        raise NotImplementedError()
+        raise NotImplementedError

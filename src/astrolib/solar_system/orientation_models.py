@@ -10,10 +10,10 @@ class CelestialObjectOrientationModel:
         pass
 
     def get_orientation_at_epoch(self, t: TimeSpan) -> Quaternion:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_angular_velocity_at_epoch(self, t: TimeSpan) -> Vec3d:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 class InertiallyFixedOrientationModel(CelestialObjectOrientationModel):
 

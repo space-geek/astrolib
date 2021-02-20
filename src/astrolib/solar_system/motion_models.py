@@ -9,13 +9,19 @@ class CelestialObjectMotionModel:
     def __init__(self):
         pass
 
+    def get_position_at_epoch(self, t: TimeSpan) -> Vec3d:
+        raise NotImplementedError
+
     def get_posvel_at_epoch(self, t: TimeSpan) -> CartesianElements:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 class OriginFixedMotionModel(CelestialObjectMotionModel):
 
     def __init__(self):
         super().__init__()
+
+    def get_position_at_epoch(self, _):
+        return Vec3d.zeros()
 
     def get_posvel_at_epoch(self, _) -> CartesianElements:
         return CartesianElements(position=Vec3d.zeros(), velocity=Vec3d.zeros())
