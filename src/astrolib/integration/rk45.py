@@ -12,7 +12,7 @@ _MAXIMUM_STEP_SIZE_SCALE_FACTOR = 4.0
 _MINIMUM_STEP_SIZE_SCALE_FACTOR = 0.1
 
 
-def integrate(t_0: TimeSpan, X_0: Matrix, h_max: TimeSpan, dynamics_func: Callable[[TimeSpan, Matrix],Matrix],
+def integrate(t_0: TimeSpan, X_0: Matrix, h_max: TimeSpan, dynamics_func: Callable[[TimeSpan, Matrix], Matrix],
               rel_tol: float = _DEFAULT_RELATIVE_ERROR_TOLERANCE, h_min: TimeSpan = _MINIMUM_STEP_SIZE) -> Tuple[TimeSpan, Matrix, TimeSpan]:
     """ Function utilizes a Runge-Kutta-Fehlberg integration scheme, utilizing a Runge-Kutta method with local
         trucation error of order five to estimate the local error in a Runge-Kutta method of order four, to,
@@ -22,7 +22,7 @@ def integrate(t_0: TimeSpan, X_0: Matrix, h_max: TimeSpan, dynamics_func: Callab
     Args:
         t_0 (TimeSpan)                                      Epoch of the initial state.
         X_0 (Matrix)                                        Initial state vector, in column matrix form.
-        h (TimeSpan)                                        Maximum step size for integration step to take.
+        h_max (TimeSpan)                                    Maximum step size for integration step to take.
         dynamics_func ([Callable[TimeSpan, Matrix],Matrix]) State vector dynamics function.
 
     KWArgs:
@@ -51,6 +51,7 @@ def integrate(t_0: TimeSpan, X_0: Matrix, h_max: TimeSpan, dynamics_func: Callab
 
         # Compute the error term:
         R = (1.0 / h.to_seconds()) * abs((1.0/360.0) * k1 - (128.0/4275.0) * k3 - (2197.0/75240.0) * k4 + (1.0/50.0) * k5 + (2.0/55.0) * k6)
+        R = max(R)[0]
 
         # Check against the relative error tolerance:
         if R <= rel_tol:
@@ -63,18 +64,16 @@ def integrate(t_0: TimeSpan, X_0: Matrix, h_max: TimeSpan, dynamics_func: Callab
             # Break out of the processing loop:
             break
 
-        else:
-
-            # Scale the step size, bounding by the extrema limits:
-            delta = 0.84 * pow(rel_tol / R, 0.25)
-            if delta < _MINIMUM_STEP_SIZE_SCALE_FACTOR:
-                delta = _MINIMUM_STEP_SIZE_SCALE_FACTOR
-            elif delta > _MAXIMUM_STEP_SIZE_SCALE_FACTOR:
-                delta = _MAXIMUM_STEP_SIZE_SCALE_FACTOR
-            h *= delta
-            if h > h_max:
-                h = h_max
-            elif h < h_min:
-                raise MinimumStepSizeExceededError(h.to_seconds(), h_min.to_seconds)
+        # Scale the step size, bounding by the extrema limits:
+        delta = 0.84 * pow(rel_tol / R, 0.25)
+        if delta < _MINIMUM_STEP_SIZE_SCALE_FACTOR:
+            delta = _MINIMUM_STEP_SIZE_SCALE_FACTOR
+        elif delta > _MAXIMUM_STEP_SIZE_SCALE_FACTOR:
+            delta = _MAXIMUM_STEP_SIZE_SCALE_FACTOR
+        h *= delta
+        if h > h_max:
+            h = h_max
+        elif h < h_min:
+            raise MinimumStepSizeExceededError(h.to_seconds(), h_min.to_seconds)
 
     return t_n, X_n, h
