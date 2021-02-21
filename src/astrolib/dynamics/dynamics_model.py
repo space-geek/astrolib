@@ -25,11 +25,11 @@ class DynamicsModel():
     """ TODO: Class docstring
     """
 
-    def __init__(self, force_models: List[ForceModelBase] = list()):
-        self.force_models = force_models
+    def __init__(self, force_models: List[ForceModelBase] = None):
+        self.forces = force_models if force_models else []
 
     def evaluate(self, state: StateVector) -> Matrix:
-        forces = [x for x in self.force_models if type(state) in x.supported_state_vector_types]
+        forces = [x for x in self.forces if type(state) in x.supported_state_vector_types]
         accel = Matrix.zeros(3,1)
         for force in forces:
             accel += force.compute_acceleration(state)

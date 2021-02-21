@@ -1,3 +1,5 @@
+""" TODO Module docstring
+"""
 
 # Minimum integration step size, in seconds
 MINIMUM_STEP_SIZE_IN_SECONDS = 1.0e-9

@@ -69,7 +69,7 @@ class Ephemeris(PropagatorBase):
             if (self.start_epoch.is_defined() and self.end_epoch.is_defined()) else TimeSpan.zero()
 
     @property
-    def vector_epochs(self) -> Iterator[TimeSpan]:
+    def epochs(self) -> Iterator[TimeSpan]:
         for state in self:
             yield state.epoch
 
