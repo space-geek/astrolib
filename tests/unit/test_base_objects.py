@@ -362,6 +362,9 @@ class Test_Vec3d(unittest.TestCase):
         self.assertTrue(abs(A - A_norm) <= 1.0e-01 * Vec3d.ones(), "The normalized form of the vector was not computed successfully.")
         self.assertTrue(A.norm() == 1.0, "The normalized form of the vector was not computed successfully.")
 
+    def test_neg(self):
+        A = Vec3d(0.5377, 1.8339, -2.2588)
+        self.assertTrue(isinstance(-A, Vec3d))
 
 class Test_TimeSpan(unittest.TestCase):
 

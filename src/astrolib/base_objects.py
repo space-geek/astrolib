@@ -487,6 +487,9 @@ class Vec3d(Matrix):
     def __abs__(self) -> 'Vec3d':
         return Vec3d.from_matrix(super().__abs__())
 
+    def __neg__(self) -> 'Vec3d':
+        return Vec3d.from_matrix(super().__neg__())
+
     def norm(self) -> float:
         """ Returns the Euclidean norm of the calling vector. """
         return sqrt(self.x**2 + self.y**2 + self.z**2)
