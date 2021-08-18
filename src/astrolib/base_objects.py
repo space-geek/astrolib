@@ -21,38 +21,38 @@ _DECIMAL_NANOSECONDS_PER_SECOND = Decimal(str(NANOSECONDS_PER_SECOND))
 class Matrix:
     """Class represents a two-dimensional matrix of float values."""
 
-    @classmethod
-    def fill(cls, num_rows: int, num_cols: int, fill_value: float) -> 'Matrix':
+    @staticmethod
+    def fill(num_rows: int, num_cols: int, fill_value: float) -> 'Matrix':
         if (num_rows <= 0) or (num_cols <= 0):
             raise ValueError("The number of rows or columns must be positive and greater than 0.")
         fill_value = float(fill_value)
-        return cls(A=[[fill_value for _ in range(int(num_cols))] for _ in range(int(num_rows))])
+        return Matrix(A=[[fill_value for _ in range(int(num_cols))] for _ in range(int(num_rows))])
 
-    @classmethod
-    def zeros(cls, num_rows: int, num_cols: int = None) -> 'Matrix':
+    @staticmethod
+    def zeros(num_rows: int, num_cols: int = None) -> 'Matrix':
         if not num_cols and num_cols != 0.0:
             num_cols = num_rows
         return Matrix.fill(num_rows, num_cols, 0.0)
 
-    @classmethod
-    def ones(cls, num_rows: int, num_cols: int = None) -> 'Matrix':
+    @staticmethod
+    def ones(num_rows: int, num_cols: int = None) -> 'Matrix':
         if not num_cols and num_cols != 0.0:
             num_cols = num_rows
         return Matrix.fill(num_rows, num_cols, 1.0)
 
-    @classmethod
-    def identity(cls, dim: int) -> 'Matrix':
+    @staticmethod
+    def identity(dim: int) -> 'Matrix':
         A = Matrix.zeros(dim)
         for i in range(dim):
             A[i,i] = 1.0
         return A
 
-    @classmethod
-    def empty(cls) -> 'Matrix':
+    @staticmethod
+    def empty() -> 'Matrix':
         return Matrix([])
 
-    @classmethod
-    def from_column_matrices(cls, matrices) -> 'Matrix':
+    @staticmethod
+    def from_column_matrices(matrices) -> 'Matrix':
         if not isinstance(matrices, list):
             raise ValueError('Input collection must be a list of matrices to concatenate.')
         for A in matrices:
@@ -407,29 +407,29 @@ class Vector3(Matrix):
     """ Class represents a Euclidean vector. """
 
     #pylint: disable=arguments-differ
-    @classmethod
-    def zeros(cls) -> 'Vector3':
+    @staticmethod
+    def zeros() -> 'Vector3':
         return Vector3(0,0,0)
 
     #pylint: disable=arguments-differ
-    @classmethod
-    def ones(cls) -> 'Vector3':
+    @staticmethod
+    def ones() -> 'Vector3':
         return Vector3(1,1,1)
 
-    @classmethod
-    def identity(cls, dim: int) -> 'Vector3':
+    @staticmethod
+    def identity(dim: int) -> 'Vector3':
         raise NotImplementedError
 
-    @classmethod
-    def fill(cls, num_rows: int, num_cols: int, fill_value: float) -> 'Vector3':
+    @staticmethod
+    def fill(num_rows: int, num_cols: int, fill_value: float) -> 'Vector3':
         raise NotImplementedError
 
-    @classmethod
-    def empty(cls) -> 'Vector3':
+    @staticmethod
+    def empty() -> 'Vector3':
         raise NotImplementedError
 
-    @classmethod
-    def from_matrix(cls, M: Matrix) -> 'Vector3':
+    @staticmethod
+    def from_matrix(M: Matrix) -> 'Vector3':
         """ Factory method to construct a Vector3 from a Matrix. The input Matrix must be of size 3x1
             or 1x3 for this operation to be successful.
         Args:
@@ -443,7 +443,7 @@ class Vector3(Matrix):
         """
         if M.size not in {(3,1), (1,3)}:
             raise ValueError("Input matrix must be a row or column matrix of length three.")
-        return cls(*(M.get_col(0) if M.size == (3,1) else M.get_row(0)))
+        return Vector3(*(M.get_col(0) if M.size == (3,1) else M.get_row(0)))
 
     def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0):
         super().__init__([[x],[y],[z]])
@@ -531,37 +531,42 @@ class Vector3(Matrix):
 
 
 class TimeSpan:
-    """ Class represents a time structure supporting nanosecond precision. """
+    """ Class represents a time structure supporting nanosecond precision.
+    """
 
-    @classmethod
-    def undefined(cls) -> 'TimeSpan':
+    @staticmethod
+    def undefined() -> 'TimeSpan':
         """ Factory method to create an undefined TimeSpan. """
-        return cls(None,None)
+        return TimeSpan(None, None)
 
-    @classmethod
-    def zero(cls) -> 'TimeSpan':
-        """ Factory method to create a zero TimeSpan. """
-        return cls(0,0)
+    @staticmethod
+    def zero() -> 'TimeSpan':
+        """ Factory method to create a zero TimeSpan."""
+        return TimeSpan(0, 0)
 
-    @classmethod
-    def from_seconds(cls, seconds: float) -> 'TimeSpan':
-        """ Factory method to create a TimeSpan from a number of seconds. """
-        return cls(*_decompose_decimal_seconds(seconds))
+    @staticmethod
+    def from_seconds(seconds: float) -> 'TimeSpan':
+        """ Factory method to create a TimeSpan from a number of seconds.
+        """
+        return TimeSpan(*_decompose_decimal_seconds(seconds))
 
-    @classmethod
-    def from_minutes(cls, minutes: float) -> 'TimeSpan':
-        """ Factory method to create a TimeSpan from a number of minutes. """
-        return cls(*_decompose_decimal_seconds(minutes * SECONDS_PER_MINUTE))
+    @staticmethod
+    def from_minutes(minutes: float) -> 'TimeSpan':
+        """ Factory method to create a TimeSpan from a number of minutes.
+        """
+        return TimeSpan(*_decompose_decimal_seconds(minutes * SECONDS_PER_MINUTE))
 
-    @classmethod
-    def from_hours(cls, minutes: float) -> 'TimeSpan':
-        """ Factory method to create a TimeSpan from a number of hours. """
-        return cls(*_decompose_decimal_seconds(minutes * SECONDS_PER_HOUR))
+    @staticmethod
+    def from_hours(minutes: float) -> 'TimeSpan':
+        """ Factory method to create a TimeSpan from a number of hours.
+        """
+        return TimeSpan(*_decompose_decimal_seconds(minutes * SECONDS_PER_HOUR))
 
-    @classmethod
-    def from_days(cls, days: float) -> 'TimeSpan':
-        """ Factory method to create a TimeSpan from a number of mean solar days. """
-        return cls(*_decompose_decimal_seconds(days * SECONDS_PER_SOLAR_DAY))
+    @staticmethod
+    def from_days(days: float) -> 'TimeSpan':
+        """ Factory method to create a TimeSpan from a number of mean solar days.
+        """
+        return TimeSpan(*_decompose_decimal_seconds(days * SECONDS_PER_SOLAR_DAY))
 
     def __init__(self, whole_seconds: int, nano_seconds: int):
         def normalize_time(ws: int, ns: int) -> Tuple[int,int]:
