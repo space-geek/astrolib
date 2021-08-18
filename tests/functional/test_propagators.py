@@ -1,11 +1,11 @@
 from astrolib import TimeSpan
 from astrolib import Vec3d
-from astrolib.constants import EARTH_MU
 from astrolib.dynamics.gravity import PointMassGravityModel
 from astrolib.propagators import RK4
 from astrolib.propagators import RK45
 from astrolib.solar_system.motion_models import OriginFixedMotionModel
 from astrolib.state_vector import CartesianStateVector
+from astrolib.util.constants import EARTH_MU
 
 def main():
 
