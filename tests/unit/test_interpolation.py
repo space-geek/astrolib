@@ -1,7 +1,11 @@
+import math
 import unittest
 
 from astrolib.base_objects import Matrix
+from astrolib.interpolation.cubic_spline import interpolate as interpolate_cubic_spline
 from astrolib.interpolation.lagrange import interpolate as interpolate_lagrange
+from astrolib.util.constants import MAX_ZERO_THRESHOLD_VALUE
+
 
 class Test_Lagrange(unittest.TestCase):
 
@@ -26,6 +30,23 @@ class Test_Lagrange(unittest.TestCase):
         xvals = Matrix([[2,2.75,4]])
         yvals = Matrix([[1/x for x in xvals.get_row(0)]])
         self.assertTrue(interpolate_lagrange(xvals, yvals, x_0) == 0.3295454545454546, "Lagrange interpolation failed.")
+
+
+class Test_CubicSpline(unittest.TestCase):
+
+    def test_natural_spline_1(self):
+        # Example 2 from Numerical Analysis, Burden & Faires 10th Edition, page 148
+
+        x_vals = Matrix([[0, 1, 2, 3]])
+        y_vals = Matrix([[math.exp(x) for x in x_vals.get_row(0)]])
+        x_q  = Matrix([[x / 10 for x in range(0, 30)]])
+
+        x_truth = Matrix([[math.exp(x) for x in x_q.get_row(0)]])
+        x_int = interpolate_cubic_spline(x_vals, y_vals, x_q)
+
+        for x_i, x_t in zip(x_int, x_truth):
+            self.assertTrue(x_i - x_t <= MAX_ZERO_THRESHOLD_VALUE, "Natural cubic spline interpolation failed.")
+
 
 if __name__ == '__main__':
     unittest.main()
