@@ -6,14 +6,14 @@ from typing import List
 from typing import Tuple
 from typing import Type
 
-from astrolib.base_objects import Matrix
-from astrolib.base_objects import TimeSpan
-from astrolib.constants import EARTH_MU
+from astrolib import Matrix
+from astrolib import TimeSpan
 from astrolib.dynamics.dynamics_model import DynamicsModel
 from astrolib.integration.euler import integrate as integrate_euler
 from astrolib.integration.rk4 import integrate as integrate_rk4
 from astrolib.integration.rk45 import integrate as integrate_rk45
 from astrolib.state_vector import StateVector
+from astrolib.util.constants import EARTH_MU
 
 
 class PropagatorBase():

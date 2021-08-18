@@ -1,9 +1,9 @@
 """ TODO Module docstring
 """
 
-from astrolib.base_objects import Vec3d
+from astrolib import Vec3d
 from astrolib.orbit_elements import OrbitElementSet
-from astrolib.constants import EARTH_MU
+from astrolib.util.constants import EARTH_MU
 
 
 def angular_momentum_vector(elements: OrbitElementSet) -> Vec3d:
