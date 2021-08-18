@@ -1,7 +1,7 @@
 from typing import List
 
 from astrolib import Matrix
-from astrolib import Vec3d
+from astrolib import Vector3
 from astrolib.base_objects import ElementSetBase
 
 
@@ -61,11 +61,11 @@ class Quaternion(AttitudeCoordinates):
         self._elements[3,0] = value
 
     @property
-    def vector(self) -> Vec3d:
-        return Vec3d(self.x, self.y, self.z)
+    def vector(self) -> Vector3:
+        return Vector3(self.x, self.y, self.z)
 
     @vector.setter
-    def vector(self, value: Vec3d):
+    def vector(self, value: Vector3):
         self.x = value.x
         self.y = value.y
         self.z = value.z
@@ -92,7 +92,7 @@ class AttitudeRates(ElementSetBase):
 class AngularVelocity(AttitudeRates):
 
     def __init__(self, x: float, y: float, z: float):
-        super().__init__([Vec3d(x,y,z)])
+        super().__init__([Vector3(x,y,z)])
 
 
     def __str__(self) -> str:
@@ -123,11 +123,11 @@ class AngularVelocity(AttitudeRates):
         self._elements[2,0] = value
 
     @property
-    def vector(self) -> Vec3d:
-        return Vec3d(self.x, self.y, self.z)
+    def vector(self) -> Vector3:
+        return Vector3(self.x, self.y, self.z)
 
     @vector.setter
-    def vector(self, value: Vec3d):
+    def vector(self, value: Vector3):
         self.x = value.x
         self.y = value.y
         self.z = value.z

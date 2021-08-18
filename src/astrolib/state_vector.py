@@ -7,7 +7,7 @@ from typing import Type
 
 from astrolib import Matrix
 from astrolib import TimeSpan
-from astrolib import Vec3d
+from astrolib import Vector3
 from astrolib.base_objects import ElementSetBase
 from astrolib.orbit_elements import CartesianElements
 from astrolib.orbit_elements import OrbitElementSet
@@ -73,8 +73,8 @@ class CartesianStateVector(OrbitStateVector):
     def from_column_matrix(cls, epoch: TimeSpan, elements: Matrix) -> 'CartesianStateVector':
         if len(elements) != 6:
             raise ValueError(f"The input matrix is of length {len(elements)} but needs to be of length {CartesianElements.num_elements}")
-        return cls(epoch, CartesianElements(Vec3d(*elements[:3].get_col(0)),
-                                            Vec3d(*elements[3:].get_col(0))))
+        return cls(epoch, CartesianElements(Vector3(*elements[:3].get_col(0)),
+                                            Vector3(*elements[3:].get_col(0))))
 
     def __init__(self, epoch: TimeSpan = TimeSpan.zero(), elements: CartesianElements = CartesianElements()):
         super().__init__(epoch, elements)

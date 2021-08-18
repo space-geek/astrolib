@@ -1,7 +1,7 @@
 """ TODO: Module docstring
 """
 from astrolib import Matrix
-from astrolib import Vec3d
+from astrolib import Vector3
 from astrolib.base_objects import ElementSetBase
 
 
@@ -14,7 +14,7 @@ class CartesianElements(OrbitElementSet):
     """ Class represents a set of Cartesian orbital elements, e.g. position and velocity.
     """
 
-    def __init__(self, position: Vec3d = Vec3d.zeros(), velocity: Vec3d = Vec3d.zeros()):
+    def __init__(self, position: Vector3 = Vector3.zeros(), velocity: Vector3 = Vector3.zeros()):
         super().__init__([position, velocity])
 
     def __str__(self) -> str:
@@ -69,11 +69,11 @@ class CartesianElements(OrbitElementSet):
         self._elements[5,0] = value
 
     @property
-    def position(self) -> Vec3d:
-        return Vec3d(*[x[0] for x in self._elements[:3,0]])
+    def position(self) -> Vector3:
+        return Vector3(*[x[0] for x in self._elements[:3,0]])
 
     @position.setter
-    def position(self, value: Vec3d):
+    def position(self, value: Vector3):
         self._elements[0,0] = value.x
         self._elements[1,0] = value.y
         self._elements[2,0] = value.z
@@ -81,11 +81,11 @@ class CartesianElements(OrbitElementSet):
     #TODO Figure out a way to enable "elements.position.x = float_value" usage. Currently does not make it back to self._elements data structure.
 
     @property
-    def velocity(self) -> Vec3d:
-        return Vec3d(*[x[0] for x in self._elements[3:,0]])
+    def velocity(self) -> Vector3:
+        return Vector3(*[x[0] for x in self._elements[3:,0]])
 
     @velocity.setter
-    def velocity(self, value: Vec3d):
+    def velocity(self, value: Vector3):
         self._elements[3,0] = value.x
         self._elements[4,0] = value.y
         self._elements[5,0] = value.z

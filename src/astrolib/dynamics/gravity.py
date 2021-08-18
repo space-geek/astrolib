@@ -2,7 +2,7 @@
 """
 from astrolib import Matrix
 from astrolib import TimeSpan
-from astrolib import Vec3d
+from astrolib import Vector3
 from astrolib.dynamics import ForceModelBase
 from astrolib.solar_system.motion_models import CelestialObjectMotionModel
 from astrolib.state_vector import CartesianStateVector
@@ -36,7 +36,7 @@ class SphericalHarmonicGravityModel(ForceModelBase):
 
     def compute_acceleration(self, state: CartesianStateVector) -> Matrix:
         #TODO Implement spherical harmonic acceleration model
-        return self._point_mass_component.compute_acceleration(state) + Vec3d.zeros()
+        return self._point_mass_component.compute_acceleration(state) + Vector3.zeros()
 
     def compute_partials(self, t: TimeSpan, X: Matrix) -> Matrix:
         raise NotImplementedError

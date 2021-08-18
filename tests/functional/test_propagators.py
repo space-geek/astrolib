@@ -1,5 +1,5 @@
 from astrolib import TimeSpan
-from astrolib import Vec3d
+from astrolib import Vector3
 from astrolib.dynamics.gravity import PointMassGravityModel
 from astrolib.propagators import RK4
 from astrolib.propagators import RK45
@@ -13,8 +13,8 @@ def main():
 
     initial_state = CartesianStateVector()
     initial_state.epoch = TimeSpan.from_days(1.0)
-    initial_state.elements.position = Vec3d(42164, 0, 0)
-    initial_state.elements.velocity = Vec3d(0, 3.0746, 0.01)
+    initial_state.elements.position = Vector3(42164, 0, 0)
+    initial_state.elements.velocity = Vector3(0, 3.0746, 0.01)
     # initial_state.elements.position.x = 42164.0
     # initial_state.elements.position.y = 0.0
     # initial_state.elements.position.z = 0.0

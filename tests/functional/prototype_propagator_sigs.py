@@ -5,7 +5,7 @@
 
 
 from astrolib.base_objects import TimeSpan
-from astrolib.base_objects import Vec3d
+from astrolib.base_objects import Vector3
 from astrolib.state_vector import StateVector
 from astrolib.orbit_elements import CartesianElements
 from astrolib.orbit_elements import KeplerianElements
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     ts = ts0 + TimeSpan.from_days(1.0)
 
     orbit_state = KeplerianElements(10000, 0.0, 0.0, 0.0, 0.0, 0.0)
-    orbit_state = CartesianElements(Vec3d.zeros(), Vec3d.zeros())
+    orbit_state = CartesianElements(Vector3.zeros(), Vector3.zeros())
     attitude_state = Quaternion.identity()
     X_0 =  StateVector(ts0, [orbit_state, attitude_state])
 
