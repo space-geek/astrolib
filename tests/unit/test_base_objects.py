@@ -1,7 +1,7 @@
 import unittest
 
 from astrolib.base_objects import Matrix
-from astrolib.base_objects import Vec3d
+from astrolib.base_objects import Vector3
 from astrolib.base_objects import TimeSpan
 
 class Test_Matrix(unittest.TestCase):
@@ -174,8 +174,8 @@ class Test_Matrix(unittest.TestCase):
         A = Matrix.zeros(3,1)
         B = Matrix.ones(4,1)
         C = Matrix.fill(2,1,1.2345)
-        D = Vec3d(1,2,3)
-        E = Vec3d.zeros()
+        D = Vector3(1,2,3)
+        E = Vector3.zeros()
         F = Matrix.zeros(2,2)
         G = Matrix.from_column_matrices([D,E])
         truth_mat_1 = Matrix([[0],[0],[0],[1],[1],[1],[1],[1.2345],[1.2345]])
@@ -280,26 +280,26 @@ class Test_Matrix(unittest.TestCase):
         # TODO Add more test cases
 
 
-class Test_Vec3d(unittest.TestCase):
+class Test_Vector3(unittest.TestCase):
 
     def test_constructor(self):
-        A = Vec3d(1,2,3)
+        A = Vector3(1,2,3)
         self.assertTrue(A.x == 1, "The vector was not initialized successfully.")
         self.assertTrue(A.y == 2, "The vector was not initialized successfully.")
         self.assertTrue(A.z == 3, "The vector was not initialized successfully.")
-        B = Vec3d()
+        B = Vector3()
         self.assertTrue(B.x == 0, "The vector was not initialized successfully.")
         self.assertTrue(B.y == 0, "The vector was not initialized successfully.")
         self.assertTrue(B.z == 0, "The vector was not initialized successfully.")
 
     def test_ones(self):
-        A = Vec3d.ones()
+        A = Vector3.ones()
         self.assertTrue(A.x == 1, "The vector was not initialized successfully.")
         self.assertTrue(A.y == 1, "The vector was not initialized successfully.")
         self.assertTrue(A.z == 1, "The vector was not initialized successfully.")
 
     def test_zeros(self):
-        A = Vec3d.zeros()
+        A = Vector3.zeros()
         self.assertTrue(isinstance(A.x, int), "The vector was not initialized successfully.")
         self.assertTrue(isinstance(A.y, int), "The vector was not initialized successfully.")
         self.assertTrue(isinstance(A.z, int), "The vector was not initialized successfully.")
@@ -308,63 +308,63 @@ class Test_Vec3d(unittest.TestCase):
         self.assertTrue(A.z == 0, "The vector was not initialized successfully.")
 
     def test_add(self):
-        A = Vec3d(1,2,3)
-        B = Vec3d(4,5,6)
-        C = Vec3d(5,7,9)
+        A = Vector3(1,2,3)
+        B = Vector3(4,5,6)
+        C = Vector3(5,7,9)
         self.assertTrue(A + B == C, "The vector sum was not computed successfully.")
         self.assertTrue(B + A == C, "The vector sum was not computed successfully.")
         self.assertTrue(A + 3 == B, "The vector sum was not computed successfully.")
         self.assertTrue(3 + A == B, "The vector sum was not computed successfully.")
 
     def test_subtract(self):
-        A = Vec3d(1,2,3)
-        B = Vec3d(4,5,6)
-        C = Vec3d(5,7,9)
+        A = Vector3(1,2,3)
+        B = Vector3(4,5,6)
+        C = Vector3(5,7,9)
         self.assertTrue(C - B == A, "The vector difference was not computed successfully.")
         self.assertTrue(C - A == B, "The vector difference was not computed successfully.")
         self.assertTrue(B - 3 == A, "The vector difference was not computed successfully.")
 
     def test_mul_with_matrix(self):
-        x = Vec3d(1,2,3)
+        x = Vector3(1,2,3)
         A = Matrix([[1,2,3],[4,5,6],[7,8,9]])
-        b = Vec3d(14,32,50)
+        b = Vector3(14,32,50)
         self.assertTrue(Matrix.identity(3) * x == x, "The matrix multiplication with the vector was not computed successfully.")
         self.assertTrue(A * x == b, "The matrix multiplication with the vector was not computed successfully.")
 
     def test_norm(self):
-        A = Vec3d(0.5377, 1.8339, -2.2588)
+        A = Vector3(0.5377, 1.8339, -2.2588)
         self.assertTrue(A.norm() - 3.0 <= 1.0e-16, "The vector norm was not computed successfully.")
         self.assertTrue(A.norm_2() - 9.0 <= 1.0e-16, "The vector norm was not computed successfully.")
 
     def test_cross(self):
         #TODO Update Matrix class to utilize Decimal class for its elements instead of floats to increase numeric precision
-        A = Vec3d(0.5377, 1.8339, -2.2588)
-        B = Vec3d(3.0349, 0.7254, -0.0631)
-        AxB = Vec3d(1.522941669438591, -6.821524812007696, -5.175674650707535)
-        BxA = Vec3d(-1.522941669438591, 6.821524812007696, 5.175674650707535)
-        self.assertTrue(abs(A.cross(B) - AxB) <= 1.0e-03 * Vec3d.ones(), "The cross product was not computed successfully.")
-        self.assertTrue(abs(B.cross(A) - BxA) <= 1.0e-03 * Vec3d.ones(), "The cross product was not computed successfully.")
+        A = Vector3(0.5377, 1.8339, -2.2588)
+        B = Vector3(3.0349, 0.7254, -0.0631)
+        AxB = Vector3(1.522941669438591, -6.821524812007696, -5.175674650707535)
+        BxA = Vector3(-1.522941669438591, 6.821524812007696, 5.175674650707535)
+        self.assertTrue(abs(A.cross(B) - AxB) <= 1.0e-03 * Vector3.ones(), "The cross product was not computed successfully.")
+        self.assertTrue(abs(B.cross(A) - BxA) <= 1.0e-03 * Vector3.ones(), "The cross product was not computed successfully.")
 
     def test_dot(self):
         #TODO Update Matrix class to utilize Decimal class for its elements instead of floats to increase numeric precision
-        A = Vec3d(0.5377, 1.8339, -2.2588)
-        B = Vec3d(3.0349, 0.7254, -0.0631)
+        A = Vector3(0.5377, 1.8339, -2.2588)
+        B = Vector3(3.0349, 0.7254, -0.0631)
         dot_product = 3.104517858912047
         self.assertTrue(abs(A.dot(B) - dot_product) <= 1.0e-03, "The dot product was not computed successfully.")
         self.assertTrue(abs(B.dot(A) - dot_product) <= 1.0e-03, "The dot product was not computed successfully.")
 
     def test_normalize(self):
         #TODO Update Matrix class to utilize Decimal class for its elements instead of floats to increase numeric precision
-        A = Vec3d(0.5377, 1.8339, -2.2588)
-        A_norm = Vec3d(0.1792, 0.6113, -0.7529)
-        self.assertTrue(abs(A.normalized() - A_norm) <= 1.0e-01 * Vec3d.ones(), "The normalized form of the vector was not computed successfully.")
+        A = Vector3(0.5377, 1.8339, -2.2588)
+        A_norm = Vector3(0.1792, 0.6113, -0.7529)
+        self.assertTrue(abs(A.normalized() - A_norm) <= 1.0e-01 * Vector3.ones(), "The normalized form of the vector was not computed successfully.")
         A.normalize()
-        self.assertTrue(abs(A - A_norm) <= 1.0e-01 * Vec3d.ones(), "The normalized form of the vector was not computed successfully.")
+        self.assertTrue(abs(A - A_norm) <= 1.0e-01 * Vector3.ones(), "The normalized form of the vector was not computed successfully.")
         self.assertTrue(A.norm() == 1.0, "The normalized form of the vector was not computed successfully.")
 
     def test_neg(self):
-        A = Vec3d(0.5377, 1.8339, -2.2588)
-        self.assertTrue(isinstance(-A, Vec3d))
+        A = Vector3(0.5377, 1.8339, -2.2588)
+        self.assertTrue(isinstance(-A, Vector3))
 
 class Test_TimeSpan(unittest.TestCase):
 

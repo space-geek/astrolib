@@ -403,43 +403,43 @@ class Matrix:
         return Matrix.from_column_matrices([row.transpose() for row in self])
 
 
-class Vec3d(Matrix):
+class Vector3(Matrix):
     """ Class represents a Euclidean vector. """
 
     #pylint: disable=arguments-differ
     @classmethod
-    def zeros(cls) -> 'Vec3d':
-        return Vec3d(0,0,0)
+    def zeros(cls) -> 'Vector3':
+        return Vector3(0,0,0)
 
     #pylint: disable=arguments-differ
     @classmethod
-    def ones(cls) -> 'Vec3d':
-        return Vec3d(1,1,1)
+    def ones(cls) -> 'Vector3':
+        return Vector3(1,1,1)
 
     @classmethod
-    def identity(cls, dim: int) -> 'Vec3d':
+    def identity(cls, dim: int) -> 'Vector3':
         raise NotImplementedError
 
     @classmethod
-    def fill(cls, num_rows: int, num_cols: int, fill_value: float) -> 'Vec3d':
+    def fill(cls, num_rows: int, num_cols: int, fill_value: float) -> 'Vector3':
         raise NotImplementedError
 
     @classmethod
-    def empty(cls) -> 'Vec3d':
+    def empty(cls) -> 'Vector3':
         raise NotImplementedError
 
     @classmethod
-    def from_matrix(cls, M: Matrix) -> 'Vec3d':
-        """ Factory method to construct a Vec3d from a Matrix. The input Matrix must be of size 3x1
+    def from_matrix(cls, M: Matrix) -> 'Vector3':
+        """ Factory method to construct a Vector3 from a Matrix. The input Matrix must be of size 3x1
             or 1x3 for this operation to be successful.
         Args:
-            M (Matrix): The Matrix from which to construct the Vec3d.
+            M (Matrix): The Matrix from which to construct the Vector3.
 
         Raises:
             ValueError: Raised if the input Matrix is not of size 3x1 or 1x3.
 
         Returns:
-            Vec3d: The instantiated Vec3d object.
+            Vector3: The instantiated Vector3 object.
         """
         if M.size not in {(3,1), (1,3)}:
             raise ValueError("Input matrix must be a row or column matrix of length three.")
@@ -475,20 +475,20 @@ class Vec3d(Matrix):
     def __str__(self) -> str:
         return f'[x = {self.x}, y = {self.y}, z = {self.z}]'
 
-    def __add__(self, other: Union[Matrix, 'Vec3d']) -> 'Vec3d':
-        return Vec3d.from_matrix(super().__add__(other))
+    def __add__(self, other: Union[Matrix, 'Vector3']) -> 'Vector3':
+        return Vector3.from_matrix(super().__add__(other))
 
-    def __sub__(self, other: Union[Matrix, 'Vec3d']) -> 'Vec3d':
-        return Vec3d.from_matrix(super().__sub__(other))
+    def __sub__(self, other: Union[Matrix, 'Vector3']) -> 'Vector3':
+        return Vector3.from_matrix(super().__sub__(other))
 
-    def __rsub__(self, other: Union[Matrix, 'Vec3d']) -> 'Vec3d':
-        return Vec3d.from_matrix(super().__rsub__(other))
+    def __rsub__(self, other: Union[Matrix, 'Vector3']) -> 'Vector3':
+        return Vector3.from_matrix(super().__rsub__(other))
 
-    def __abs__(self) -> 'Vec3d':
-        return Vec3d.from_matrix(super().__abs__())
+    def __abs__(self) -> 'Vector3':
+        return Vector3.from_matrix(super().__abs__())
 
-    def __neg__(self) -> 'Vec3d':
-        return Vec3d.from_matrix(super().__neg__())
+    def __neg__(self) -> 'Vector3':
+        return Vector3.from_matrix(super().__neg__())
 
     def norm(self) -> float:
         """ Returns the Euclidean norm of the calling vector. """
@@ -498,36 +498,36 @@ class Vec3d(Matrix):
         """ Returns the square of the Euclidean norm of the calling vector. """
         return self.x**2 + self.y**2 + self.z**2
 
-    def cross(self, other: 'Vec3d') -> 'Vec3d':
+    def cross(self, other: 'Vector3') -> 'Vector3':
         """ Returns the cross product of the calling vector with the argument
             vector, computed as C = A x B for C = A.cross(B).
         """
-        if not isinstance(other, Vec3d):
+        if not isinstance(other, Vector3):
             return NotImplemented
         x = self.y * other.z - self.z * other.y
         y = self.z * other.x - self.x * other.z
         z = self.x * other.y - self.y * other.x
-        return Vec3d(x,y,z)
+        return Vector3(x,y,z)
 
-    def dot(self, other: 'Vec3d') -> float:
+    def dot(self, other: 'Vector3') -> float:
         """ Returns the dot product of the calling vector with the argument
             vector, computed as C = A * B for C = A.dot(B).
         """
-        if not isinstance(other, Vec3d):
+        if not isinstance(other, Vector3):
             return NotImplemented
         return self.x * other.x + self.y * other.y + self.z * other.z
 
-    def normalize(self) -> 'Vec3d':
+    def normalize(self) -> 'Vector3':
         """ Normalizes the calling vector in place by its Euclidean norm. """
         m = self.norm()
         self[0,0] /= m
         self[1,0] /= m
         self[2,0] /= m
 
-    def normalized(self) -> 'Vec3d':
+    def normalized(self) -> 'Vector3':
         """ Returns the calling vector, normalized by its Euclidean norm. """
         m = self.norm()
-        return Vec3d(self.x/m, self.y/m, self.z/m) if m else Vec3d.zeros()
+        return Vector3(self.x/m, self.y/m, self.z/m) if m else Vector3.zeros()
 
 
 class TimeSpan:

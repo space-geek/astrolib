@@ -1,16 +1,16 @@
 """ TODO Module docstring
 """
 
-from astrolib import Vec3d
+from astrolib import Vector3
 from astrolib.orbit_elements import OrbitElementSet
 from astrolib.util.constants import EARTH_MU
 
 
-def angular_momentum_vector(elements: OrbitElementSet) -> Vec3d:
+def angular_momentum_vector(elements: OrbitElementSet) -> Vector3:
     #TODO inject orbit element conversion to cartesian elements
     return elements.position.cross(elements.velocity)
 
-def eccentricity_vector(elements: OrbitElementSet, mu: float = EARTH_MU) -> Vec3d:
+def eccentricity_vector(elements: OrbitElementSet, mu: float = EARTH_MU) -> Vector3:
     #TODO inject orbit element conversion to cartesian elements
     return (1 / mu) * elements.velocity.cross(angular_momentum_vector(elements)) - elements.position.normalized()
 
