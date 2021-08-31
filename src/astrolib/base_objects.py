@@ -52,6 +52,33 @@ class Matrix:
         return Matrix([])
 
     @staticmethod
+    def diagonal(diagonal: 'Matrix') -> 'Matrix':
+        if not (diagonal.is_row_matrix() or diagonal.is_column_matrix()):
+            raise ValueError()
+        A = Matrix.zeros(len(diagonal))
+        for i, _ in enumerate(diagonal):
+            A[i, i] = diagonal[i]
+        return A
+
+    @staticmethod
+    def lower_triangle(mat: 'Matrix', k: int) -> 'Matrix':
+        A = Matrix.zeros(*mat.size)
+        for i in range(A.num_rows):
+            for j in range(A.num_cols):
+                if i <= j - k:
+                    A[i, j] = mat[i, j]
+        return A
+
+    @staticmethod
+    def upper_triangle(mat: 'Matrix', k: int) -> 'Matrix':
+        A = Matrix.zeros(*mat.size)
+        for i in range(A.num_rows):
+            for j in range(A.num_cols):
+                if i >= j + k:
+                    A[i, j] = mat[i, j]
+        return A
+
+    @staticmethod
     def from_column_matrices(matrices) -> 'Matrix':
         if not isinstance(matrices, list):
             raise ValueError('Input collection must be a list of matrices to concatenate.')
@@ -74,6 +101,9 @@ class Matrix:
             return ", ".join([str(x) for x in row])
         mat = "\n ".join(stringify_row(row) for row in self._A)
         return f"[{mat}]"
+
+    def __repr__(self) -> str:
+        return "[" + "; ".join([", ".join(str(x) for x in row) for row in self]) + "]"
 
     def __setitem__(self,
                     indices: Union[Tuple[int, int],
@@ -328,7 +358,9 @@ class Matrix:
         m,n = self.size
         if m != n:
             raise ValueError("The calling matrix is not square and the determinant does not exist.")
-        if m == 2:
+        if m == 1:
+            d = self[0, 0]
+        elif m == 2:
             d = self[0,0] * self[1,1] - self[0,1] * self[1,0]
         else:
             d = 0.0
@@ -366,6 +398,11 @@ class Matrix:
         A_inv = (1 / d) * C.transpose()
         return A_inv
 
+    def pseudo_inverse(self) -> 'Matrix':
+        """ TODO: Method docstring
+        """
+        return (self.transpose() * self).inverse() * self.transpose()
+
     def is_row_matrix(self) -> bool:
         """ Returns True if the calling Matrix is a row matrix (i.e. has one row and one or more
             columns), False otherwise.
@@ -392,6 +429,12 @@ class Matrix:
             bool: Boolean indicator of whether or not the calling matrix is square.
         """
         return self.num_rows == self.num_cols
+
+    def get_diagonal(self) -> 'Matrix':
+        """ TODO: Method docstring
+        """
+        return Matrix([[self[i, i]] for i in min(self.size)])
+
 
     def to_column_matrix(self) -> 'Matrix':
         """ Returns a copy of the calling Matrix expressed as a column matrix, with each row
