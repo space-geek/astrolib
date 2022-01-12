@@ -1,8 +1,20 @@
+""" Module contains unit test definitions for the astrolib.base_objects package.
+"""
+import math
 import unittest
 
 from astrolib.base_objects import Matrix
 from astrolib.base_objects import Vector3
 from astrolib.base_objects import TimeSpan
+
+#pylint: disable=invalid-name
+#pylint: disable=line-too-long
+#pylint: disable=missing-class-docstring
+#pylint: disable=missing-function-docstring
+#pylint: disable=pointless-statement
+#pylint: disable=protected-access
+
+
 
 class Test_Matrix(unittest.TestCase):
 
@@ -35,7 +47,6 @@ class Test_Matrix(unittest.TestCase):
         self.assertTrue(B[1:3] == H, "Matrix indexing not done correctly.")
         with self.assertRaises(ValueError):
             A[0:2]
-        
 
     def test_set_item(self):
         A = Matrix([[1,2,3],[4,5,6],[7,8,9]])
@@ -201,6 +212,7 @@ class Test_Matrix(unittest.TestCase):
         self.assertTrue(A != D, "Matrices are not equal.")
         self.assertTrue(A != E, "Matrices are not equal.")
         self.assertTrue(A != F, "Matrices are not equal.")
+        #pylint: disable=not-an-iterable
         self.assertTrue(Matrix.ones(*A.size) == F, "Matrices are equal.")
 
     def test_neg(self):
@@ -213,6 +225,7 @@ class Test_Matrix(unittest.TestCase):
         B = Matrix([[4,5,6],[7,8,9]])
         C = Matrix([[5,7,9],[11,13,15]])
         D = Matrix([[-1,-2,-3],[-4,-5,-6]])
+        E = Matrix.ones(1, 1)
         self.assertTrue(A + B == C, "The matrix sum was not computed successfully.")
         self.assertTrue(B + A == C, "The matrix sum was not computed successfully.")
         self.assertTrue(A + D == Matrix.zeros(2,3), "The matrix sum was not computed successfully.")
@@ -223,6 +236,10 @@ class Test_Matrix(unittest.TestCase):
             A + "foo"
         with self.assertRaises(TypeError):
             "foo" + A
+        with self.assertRaises(ValueError):
+            A + E
+        with self.assertRaises(ValueError):
+            E + A
 
     def test_subtract(self):
         A = Matrix([[1,2,3],[4,5,6]])
@@ -365,6 +382,14 @@ class Test_Vector3(unittest.TestCase):
     def test_neg(self):
         A = Vector3(0.5377, 1.8339, -2.2588)
         self.assertTrue(isinstance(-A, Vector3))
+        self.assertTrue(abs(A + -A) <= 1.0e-4)
+
+    def test_vertex_angle(self):
+        A = Vector3(1, 0, 0)
+        B = Vector3(0, 1, 0)
+        C = Vector3(math.cos(math.pi/6), math.sin(math.pi/6), 0)
+        self.assertTrue(abs(A.vertex_angle(B) - math.pi/2) <= 1.0e-6)
+        self.assertTrue(abs(A.vertex_angle(C) - math.pi/6) <= 1.0e-6)
 
 class Test_TimeSpan(unittest.TestCase):
 
@@ -374,14 +399,14 @@ class Test_TimeSpan(unittest.TestCase):
         C = TimeSpan(123456789, 1234567891)
         D = TimeSpan(-1, -2.1e9)
         #TODO Add tests for automagic handling of +/- combinations of whole and nano seconds
-        self.assertTrue(A.whole_seconds == 1, 'Number of whole seconds not equal.')
-        self.assertTrue(A.nano_seconds == 2, 'Number of nanoseconds not equal.')
-        self.assertTrue(B.whole_seconds == 123456789, 'Number of whole seconds not equal.')
-        self.assertTrue(B.nano_seconds == 123456789, 'Number of nanoseconds not equal.')
-        self.assertTrue(C.whole_seconds == 123456790, 'Number of whole seconds not equal.')
-        self.assertTrue(C.nano_seconds == 234567891, 'Number of nanoseconds not equal.')
-        self.assertTrue(D.whole_seconds == -3, 'Number of whole seconds not equal.')
-        self.assertTrue(D.nano_seconds == -100000000, 'Number of nanoseconds not equal.')
+        self.assertTrue(A._whole_seconds == 1, 'Number of whole seconds not equal.')
+        self.assertTrue(A._nano_seconds == 2, 'Number of nanoseconds not equal.')
+        self.assertTrue(B._whole_seconds == 123456789, 'Number of whole seconds not equal.')
+        self.assertTrue(B._nano_seconds == 123456789, 'Number of nanoseconds not equal.')
+        self.assertTrue(C._whole_seconds == 123456790, 'Number of whole seconds not equal.')
+        self.assertTrue(C._nano_seconds == 234567891, 'Number of nanoseconds not equal.')
+        self.assertTrue(D._whole_seconds == -3, 'Number of whole seconds not equal.')
+        self.assertTrue(D._nano_seconds == -100000000, 'Number of nanoseconds not equal.')
 
     def test_from_seconds(self):
         A = TimeSpan.from_seconds(1.1)
@@ -404,9 +429,9 @@ class Test_TimeSpan(unittest.TestCase):
         A_truth = TimeSpan(66, 0)
         B_truth = TimeSpan(74074079, 999399990)
         C_truth = TimeSpan(-188, -495772000)
-        self.assertTrue(A == A_truth, f"TimeSpans are equal.")
-        self.assertTrue(B == B_truth, f"TimeSpans are equal.")
-        self.assertTrue(C == C_truth, f"TimeSpans are equal.")
+        self.assertTrue(A == A_truth, "TimeSpans are equal.")
+        self.assertTrue(B == B_truth, "TimeSpans are equal.")
+        self.assertTrue(C == C_truth, "TimeSpans are equal.")
 
     def test_from_hours(self):
         A = TimeSpan.from_hours(1.1)
@@ -415,9 +440,9 @@ class Test_TimeSpan(unittest.TestCase):
         A_truth = TimeSpan(3960, 0)
         B_truth = TimeSpan(4444444799, 964000000)
         C_truth = TimeSpan(-11309, -746320000)
-        self.assertTrue(A == A_truth, f"TimeSpans are equal.")
-        self.assertTrue(B == B_truth, f"TimeSpans are equal.")
-        self.assertTrue(C == C_truth, f"TimeSpans are equal.")
+        self.assertTrue(A == A_truth, "TimeSpans are equal.")
+        self.assertTrue(B == B_truth, "TimeSpans are equal.")
+        self.assertTrue(C == C_truth, "TimeSpans are equal.")
 
     def test_from_days(self):
         A = TimeSpan.from_days(1.1)
@@ -426,9 +451,9 @@ class Test_TimeSpan(unittest.TestCase):
         A_truth = TimeSpan(95040, 0)
         B_truth = TimeSpan(106666675199, 135990000)
         C_truth = TimeSpan(-271433, -911680000)
-        self.assertTrue(A == A_truth, f"TimeSpans are equal.")
-        self.assertTrue(B == B_truth, f"TimeSpans are equal.")
-        self.assertTrue(C == C_truth, f"TimeSpans are equal.")
+        self.assertTrue(A == A_truth, "TimeSpans are equal.")
+        self.assertTrue(B == B_truth, "TimeSpans are equal.")
+        self.assertTrue(C == C_truth, "TimeSpans are equal.")
 
     def test_equals(self):
         A = TimeSpan(1,1)
@@ -449,9 +474,9 @@ class Test_TimeSpan(unittest.TestCase):
         C = TimeSpan(60,1)
         D = TimeSpan(60,2)
         E = TimeSpan(59,9999)
-        self.assertTrue(not A < A, "Conditional was not met properly.")
+        self.assertTrue(A >= A, "Conditional was not met properly.")
         self.assertTrue(A <= A, "Conditional was not met properly.")
-        self.assertTrue(not A > A, "Conditional was not met properly.")
+        self.assertTrue(A <= A, "Conditional was not met properly.")
         self.assertTrue(A >= A, "Conditional was not met properly.")
         self.assertTrue(A < B, "Conditional was not met properly.")
         self.assertTrue(B > A, "Conditional was not met properly.")
