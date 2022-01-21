@@ -1,6 +1,9 @@
 """ TODO: Module docstring
 """
+from copy import copy
 from decimal import Decimal
+from itertools import repeat
+from math import acos
 from math import copysign
 from math import floor
 from math import sqrt
@@ -19,29 +22,38 @@ _DECIMAL_NANOSECONDS_PER_SECOND = Decimal(str(NANOSECONDS_PER_SECOND))
 
 #pylint: disable=invalid-name
 class Matrix:
-    """Class represents a two-dimensional matrix of float values."""
+    """ Class represents a two-dimensional matrix of float values.
+    """
 
     @staticmethod
     def fill(num_rows: int, num_cols: int, fill_value: float) -> 'Matrix':
+        """ TODO: Method docstring
+        """
         if (num_rows <= 0) or (num_cols <= 0):
             raise ValueError("The number of rows or columns must be positive and greater than 0.")
         fill_value = float(fill_value)
-        return Matrix(A=[[fill_value for _ in range(int(num_cols))] for _ in range(int(num_rows))])
+        return Matrix(A = [list(repeat(fill_value, num_cols)) for _ in range(num_rows)])
 
     @staticmethod
     def zeros(num_rows: int, num_cols: int = None) -> 'Matrix':
+        """ TODO: Method docstring
+        """
         if not num_cols and num_cols != 0.0:
             num_cols = num_rows
         return Matrix.fill(num_rows, num_cols, 0.0)
 
     @staticmethod
     def ones(num_rows: int, num_cols: int = None) -> 'Matrix':
+        """ TODO: Method docstring
+        """
         if not num_cols and num_cols != 0.0:
             num_cols = num_rows
         return Matrix.fill(num_rows, num_cols, 1.0)
 
     @staticmethod
     def identity(dim: int) -> 'Matrix':
+        """ TODO: Method docstring
+        """
         A = Matrix.zeros(dim)
         for i in range(dim):
             A[i,i] = 1.0
@@ -49,10 +61,14 @@ class Matrix:
 
     @staticmethod
     def empty() -> 'Matrix':
+        """ TODO: Method docstring
+        """
         return Matrix([])
 
     @staticmethod
     def from_column_matrices(matrices) -> 'Matrix':
+        """ TODO: Method docstring
+        """
         if not isinstance(matrices, list):
             raise ValueError('Input collection must be a list of matrices to concatenate.')
         for A in matrices:
@@ -74,6 +90,9 @@ class Matrix:
             return ", ".join([str(x) for x in row])
         mat = "\n ".join(stringify_row(row) for row in self._A)
         return f"[{mat}]"
+
+    def __repr__(self) -> str:
+        return f"[{'; '.join(', '.join(str(x) for x in row) for row in self)}]"
 
     def __setitem__(self,
                     indices: Union[Tuple[int, int],
@@ -187,19 +206,27 @@ class Matrix:
 
     @property
     def num_rows(self) -> int:
+        """ TODO: Property docstring
+        """
         return len(self._A)
 
     @property
     def num_cols(self) -> int:
+        """ TODO: Property docstring
+        """
         return len(self._A[0]) if self._A else 0
 
     @property
     def size(self) -> Tuple[int, int]:
+        """ TODO: Property docstring
+        """
         return self.num_rows, self.num_cols
 
     @property
     def is_empty(self) -> bool:
-        return not (bool(self.num_rows) or bool(self.num_cols))
+        """ TODO: Property docstring
+        """
+        return not (self.num_rows or self.num_cols)
 
     def __eq__(self, other: Union['Matrix', float, int]) -> bool:
         if not isinstance(other, (Matrix, float, int)):
@@ -302,7 +329,7 @@ class Matrix:
         return M
 
     def __len__(self) -> int:
-        """Returns the length of the calling Matrix, defined as the maximum dimension.
+        """ Returns the length of the calling Matrix, defined as the maximum dimension.
 
         Returns:
             int: The maximum dimension of the calling Matrix, i.e. max(num_rows, num_cols)
@@ -310,13 +337,18 @@ class Matrix:
         return int(max(self.size))
 
     def get_row(self, idx: int) -> List[float]:
+        """ TODO: Method docstring
+        """
         return self._A[idx]
 
     def get_col(self, idx: int) -> List[float]:
+        """ TODO: Method docstring
+        """
         return [row[idx] for row in self._A]
 
     def transpose(self) -> 'Matrix':
-        """Returns the transpose of the calling matrix."""
+        """ Returns the transpose of the calling matrix.
+        """
         M = Matrix.zeros(self.num_cols, self.num_rows)
         for i in range(self.num_rows):
             for j in range(self.num_cols):
@@ -324,8 +356,9 @@ class Matrix:
         return M
 
     def determinant(self) -> float:
-        """Returns the determinant of the calling matrix."""
-        m,n = self.size
+        """ Returns the determinant of the calling matrix.
+        """
+        m, n = self.size
         if m != n:
             raise ValueError("The calling matrix is not square and the determinant does not exist.")
         if m == 2:
@@ -333,28 +366,29 @@ class Matrix:
         else:
             d = 0.0
             for j in range(self.num_cols):
-                A_temp = self[:,:]
-                A_temp[0,:] = Matrix.empty()
-                A_temp[:,j] = Matrix.empty()
-                d += (self[0,j] * pow(-1,j) * A_temp.determinant())
+                A_temp = copy(self[:, :])
+                A_temp[0, :] = Matrix.empty()
+                A_temp[:, j] = Matrix.empty()
+                d += (self[0, j] * pow(-1, j) * A_temp.determinant())
         return d
 
     def inverse(self) -> 'Matrix':
         """ Returns the inverse of the calling matrix, computed using the cofactor method.
         """
         def compute_cofactor_matrix(A: 'Matrix') -> 'Matrix':
-            """Returns the cofactor matrix computed from the input matrix."""
-            m,n = A.size
+            """ Returns the cofactor matrix computed from the input matrix.
+            """
+            m, n = A.size
             if m != n:
                 raise ValueError("The input matrix is not square. The cofactor matrix does not "
                                  "exist.")
             M = Matrix.zeros(*A.size)
             for i in range(A.num_rows):
                 for j in range(A.num_cols):
-                    A_temp = A[:,:]
-                    A_temp[i,:] = Matrix.empty()
-                    A_temp[:,j] = Matrix.empty()
-                    M[i,j] = pow(-1,i+j) * A_temp.determinant()
+                    A_temp = A[:, :]
+                    A_temp[i, :] = Matrix.empty()
+                    A_temp[:, j] = Matrix.empty()
+                    M[i, j] = pow(-1, i + j) * A_temp.determinant()
             return M
         m,n = self.size
         if m != n:
@@ -362,9 +396,7 @@ class Matrix:
         d = self.determinant()
         if not d:
             raise ValueError("The calling matrix is singular. The matrix inverse does not exist.")
-        C = compute_cofactor_matrix(self)
-        A_inv = (1 / d) * C.transpose()
-        return A_inv
+        return (1 / d) * compute_cofactor_matrix(self).transpose()
 
     def is_row_matrix(self) -> bool:
         """ Returns True if the calling Matrix is a row matrix (i.e. has one row and one or more
@@ -395,7 +427,7 @@ class Matrix:
 
     def to_column_matrix(self) -> 'Matrix':
         """ Returns a copy of the calling Matrix expressed as a column matrix, with each row
-            stacked in order.
+            stacked in sequence.
 
         Returns:
             Matrix: A copy of the calling matrix, in column matrix form.
@@ -404,16 +436,21 @@ class Matrix:
 
 
 class Vector3(Matrix):
-    """ Class represents a Euclidean vector. """
+    """ Class represents a Euclidean vector.
+    """
 
     #pylint: disable=arguments-differ
     @staticmethod
     def zeros() -> 'Vector3':
-        return Vector3(0,0,0)
+        """ TODO: Method docstring
+        """
+        return Vector3(0, 0, 0)
 
     #pylint: disable=arguments-differ
     @staticmethod
     def ones() -> 'Vector3':
+        """ TODO: Method docstring
+        """
         return Vector3(1,1,1)
 
     @staticmethod
@@ -435,45 +472,60 @@ class Vector3(Matrix):
         Args:
             M (Matrix): The Matrix from which to construct the Vector3.
 
-        Raises:
-            ValueError: Raised if the input Matrix is not of size 3x1 or 1x3.
-
         Returns:
             Vector3: The instantiated Vector3 object.
+
+        Raises:
+            ValueError: Raised if the input Matrix is not of size 3x1 or 1x3.
         """
-        if M.size not in {(3,1), (1,3)}:
+        if M.size not in {(3, 1), (1, 3)}:
             raise ValueError("Input matrix must be a row or column matrix of length three.")
-        return Vector3(*(M.get_col(0) if M.size == (3,1) else M.get_row(0)))
+        return Vector3(*(M.get_col(0) if M.size == (3, 1) else M.get_row(0)))
 
     def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0):
-        super().__init__([[x],[y],[z]])
+        super().__init__([[x], [y], [z]])
 
     @property
     def x(self) -> float:
-        return self[0,0]
+        """ TODO: Property docstring
+        """
+        return self[0, 0]
 
     @x.setter
     def x(self, value: float):
+        """ TODO: Property docstring
+        """
         self[0,0] = value
 
     @property
     def y(self) -> float:
+        """ TODO: Property docstring
+        """
         return self[1,0]
 
     @y.setter
     def y(self, value: float):
+        """ TODO: Property docstring
+        """
         self[1,0] = value
 
     @property
     def z(self) -> float:
+        """ TODO: Property docstring
+        """
         return self[2,0]
 
     @z.setter
     def z(self, value: float):
+        """ TODO: Property docstring
+        """
         self[2,0] = value
 
     def __str__(self) -> str:
         return f'[x = {self.x}, y = {self.y}, z = {self.z}]'
+
+    def __repr__(self) -> str:
+        return f'[{self.x}, {self.y}, {self.z}]'
 
     def __add__(self, other: Union[Matrix, 'Vector3']) -> 'Vector3':
         return Vector3.from_matrix(super().__add__(other))
@@ -491,11 +543,13 @@ class Vector3(Matrix):
         return Vector3.from_matrix(super().__neg__())
 
     def norm(self) -> float:
-        """ Returns the Euclidean norm of the calling vector. """
+        """ Returns the Euclidean norm of the calling vector.
+        """
         return sqrt(self.x**2 + self.y**2 + self.z**2)
 
     def norm_2(self) -> float:
-        """ Returns the square of the Euclidean norm of the calling vector. """
+        """ Returns the square of the Euclidean norm of the calling vector.
+        """
         return self.x**2 + self.y**2 + self.z**2
 
     def cross(self, other: 'Vector3') -> 'Vector3':
@@ -507,7 +561,7 @@ class Vector3(Matrix):
         x = self.y * other.z - self.z * other.y
         y = self.z * other.x - self.x * other.z
         z = self.x * other.y - self.y * other.x
-        return Vector3(x,y,z)
+        return Vector3(x, y, z)
 
     def dot(self, other: 'Vector3') -> float:
         """ Returns the dot product of the calling vector with the argument
@@ -517,17 +571,38 @@ class Vector3(Matrix):
             return NotImplemented
         return self.x * other.x + self.y * other.y + self.z * other.z
 
+    def vertex_angle(self, other: 'Vector3') -> float:
+        """ Returns the angle between the calling vector and the
+            argument vector, measured from the calling vector. If
+            either vector is a zero vector an angle of 0.0 radians
+            will be returned.
+
+        Args:
+            other (Vector3): Vector to which to compute the
+                vertex angle.
+
+        Returns:
+            float: The angle between the two vectors, expressed
+                in radians.
+        """
+        if not isinstance(other, Vector3):
+            return NotImplemented
+        m = self.norm()
+        #TODO Replace hard-zero check below with machine precision-tolerant division
+        return acos(self.dot(other) / (m * other.norm())) if m else 0.0
+
     def normalize(self) -> 'Vector3':
         """ Normalizes the calling vector in place by its Euclidean norm. """
         m = self.norm()
-        self[0,0] /= m
-        self[1,0] /= m
-        self[2,0] /= m
+        self[0, 0] /= m
+        self[1, 0] /= m
+        self[2, 0] /= m
 
     def normalized(self) -> 'Vector3':
         """ Returns the calling vector, normalized by its Euclidean norm. """
         m = self.norm()
-        return Vector3(self.x/m, self.y/m, self.z/m) if m else Vector3.zeros()
+        #TODO Replace hard-zero check below with machine precision-tolerant division
+        return Vector3(self.x / m, self.y / m, self.z / m) if m else Vector3.zeros()
 
 
 class TimeSpan:
@@ -536,12 +611,14 @@ class TimeSpan:
 
     @staticmethod
     def undefined() -> 'TimeSpan':
-        """ Factory method to create an undefined TimeSpan. """
+        """ Factory method to create an undefined TimeSpan.
+        """
         return TimeSpan(None, None)
 
     @staticmethod
     def zero() -> 'TimeSpan':
-        """ Factory method to create a zero TimeSpan."""
+        """ Factory method to create a zero TimeSpan.
+        """
         return TimeSpan(0, 0)
 
     @staticmethod
@@ -569,62 +646,65 @@ class TimeSpan:
         return TimeSpan(*_decompose_decimal_seconds(days * SECONDS_PER_SOLAR_DAY))
 
     def __init__(self, whole_seconds: int, nano_seconds: int):
-        def normalize_time(ws: int, ns: int) -> Tuple[int,int]:
+        def normalize_time(ws: int, ns: int) -> Tuple[int, int]:
             """ Function for normalizing whole vs sub-second digits. """
             ws += (copysign(1,ns) * 1)
             ns -= (copysign(1,ns) * NANOSECONDS_PER_SECOND)
             return ws, ns
-        self.whole_seconds = None
-        self.nano_seconds = None
+        self._whole_seconds = None
+        self._nano_seconds = None
         if (whole_seconds is not None) and (nano_seconds is not None):
             while abs(nano_seconds) >= NANOSECONDS_PER_SECOND:
                 whole_seconds, nano_seconds = normalize_time(whole_seconds, nano_seconds)
-            if copysign(1,whole_seconds) != copysign(1,nano_seconds):
+            if copysign(1, whole_seconds) != copysign(1, nano_seconds):
                 whole_seconds, nano_seconds = normalize_time(whole_seconds, nano_seconds)
-            self.whole_seconds = int(whole_seconds)
-            self.nano_seconds = int(nano_seconds)
+            self._whole_seconds = int(whole_seconds)
+            self._nano_seconds = int(nano_seconds)
 
-    def __str__(self):
-        return f'[whole_seconds = {self.whole_seconds}, nano_seconds = {self.nano_seconds}]' \
+    def __str__(self) -> str:
+        return f'[whole_seconds = {self._whole_seconds}, nano_seconds = {self._nano_seconds}]' \
                if self.is_defined() else 'Undefined'
 
+    def __repr__(self) -> str:
+        return f"[{self._whole_seconds}, {self._nano_seconds}"
+
     def __hash__(self) -> int:
-        return hash((self.whole_seconds, self.nano_seconds))
+        return hash((self._whole_seconds, self._nano_seconds))
 
     def __eq__(self, other: 'TimeSpan') -> bool:
         if not isinstance(other, TimeSpan):
             return False
-        if self.whole_seconds != other.whole_seconds:
+        if self._whole_seconds != other._whole_seconds:
             return False
-        if self.nano_seconds != other.nano_seconds:
+        if self._nano_seconds != other._nano_seconds:
             return False
         return True
 
     def __lt__(self, other: 'TimeSpan') -> bool:
         if not isinstance(other, TimeSpan):
             return False
-        if self.whole_seconds > other.whole_seconds:
+        if self._whole_seconds > other._whole_seconds:
             return False
-        if self.whole_seconds == other.whole_seconds:
-            if self.nano_seconds >= other.nano_seconds:
+        if self._whole_seconds == other._whole_seconds:
+            if self._nano_seconds >= other._nano_seconds:
                 return False
         return True
 
     def __le__(self, other: 'TimeSpan') -> bool:
         if not isinstance(other, TimeSpan):
             return False
-        if self.whole_seconds > other.whole_seconds:
+        if self._whole_seconds > other._whole_seconds:
             return False
-        if self.whole_seconds == other.whole_seconds:
-            if self.nano_seconds > other.nano_seconds:
+        if self._whole_seconds == other._whole_seconds:
+            if self._nano_seconds > other._nano_seconds:
                 return False
         return True
 
     def __add__(self, other: 'TimeSpan') -> 'TimeSpan':
         if not isinstance(other, TimeSpan):
             return NotImplemented
-        return TimeSpan(self.whole_seconds + other.whole_seconds,
-                        self.nano_seconds + other.nano_seconds)
+        return TimeSpan(self._whole_seconds + other._whole_seconds,
+                        self._nano_seconds + other._nano_seconds)
 
     def __radd__(self, other: 'TimeSpan') -> 'TimeSpan':
         return self.__add__(other)
@@ -632,8 +712,8 @@ class TimeSpan:
     def __sub__(self, other: 'TimeSpan') -> 'TimeSpan':
         if not isinstance(other, TimeSpan):
             return NotImplemented
-        return TimeSpan(self.whole_seconds - other.whole_seconds,
-                        self.nano_seconds - other.nano_seconds)
+        return TimeSpan(self._whole_seconds - other._whole_seconds,
+                        self._nano_seconds - other._nano_seconds)
 
     def __rsub__(self, other: 'TimeSpan') -> 'TimeSpan':
         return -1.0 * self.__sub__(other)
@@ -641,8 +721,8 @@ class TimeSpan:
     def __mul__(self, other: Union[float, int]) -> 'TimeSpan':
         if not isinstance(other, (float, int)):
             return NotImplemented
-        ws, ns = _decompose_decimal_seconds(other * self.whole_seconds)
-        return TimeSpan(ws, floor(other * self.nano_seconds) + ns)
+        ws, ns = _decompose_decimal_seconds(other * self._whole_seconds)
+        return TimeSpan(ws, floor(other * self._nano_seconds) + ns)
 
     def __rmul__(self, other: Union[float, int]) -> 'TimeSpan':
         if not isinstance(other, (float, int)):
@@ -650,14 +730,14 @@ class TimeSpan:
         return self.__mul__(other)
 
     def __abs__(self) -> 'TimeSpan':
-        ws = abs(self.whole_seconds) if self.whole_seconds is not None else None
-        ns = abs(self.nano_seconds) if self.nano_seconds is not None else None
-        return TimeSpan(ws,ns)
+        ws = abs(self._whole_seconds) if self._whole_seconds is not None else None
+        ns = abs(self._nano_seconds) if self._nano_seconds is not None else None
+        return TimeSpan(ws, ns)
 
     def __neg__(self) -> 'TimeSpan':
-        ws = -1 * self.whole_seconds if self.whole_seconds is not None else None
-        ns = -1 * self.nano_seconds if self.nano_seconds is not None else None
-        return TimeSpan(ws,ns)
+        ws = -1 * self._whole_seconds if self._whole_seconds is not None else None
+        ns = -1 * self._nano_seconds if self._nano_seconds is not None else None
+        return TimeSpan(ws, ns)
 
     def is_defined(self) -> bool:
         """ Returns a boolean indicator of whether or not the calling TimeSpan is defined.
@@ -665,13 +745,13 @@ class TimeSpan:
         Returns:
             bool: Boolean indicator of whether or not the calling TimeSpan is defined.
         """
-        return (self.whole_seconds is not None) and (self.nano_seconds is not None)
+        return (self._whole_seconds is not None) and (self._nano_seconds is not None)
 
     def to_seconds(self) -> float:
         """ Returns the calling TimeSpan's value converted to seconds. This conversion could
             potentially not preserve the calling TimeSpan's precision.
         """
-        return self.whole_seconds + (self.nano_seconds / NANOSECONDS_PER_SECOND)
+        return self._whole_seconds + (self._nano_seconds / NANOSECONDS_PER_SECOND)
 
     def to_minutes(self) -> float:
         """ Returns the calling TimeSpan's value converted to minutes. This conversion could
@@ -703,12 +783,18 @@ class ElementSetBase():
 
     @property
     def num_elements(self) -> int:
+        """ TODO: Property docstring
+        """
         return self._elements.num_rows
 
     def to_column_matrix(self) -> Matrix:
+        """ TODO: Method docstring
+        """
         return self._elements
 
     def from_column_matrix(self, value: Matrix) -> 'ElementSetBase':
+        """ TODO: Method docstring
+        """
         if not isinstance(value, Matrix) or value.num_cols != 1:
             raise ValueError("Input value must be a column matrix.")
         if value.num_rows != self.num_elements:
@@ -717,5 +803,7 @@ class ElementSetBase():
 
 
 def _decompose_decimal_seconds(seconds: float) -> Tuple[int, int]:
+    """ TODO: Function docstring
+    """
     decimal_sec = Decimal(str(seconds))
     return int(decimal_sec), int((decimal_sec % 1) * _DECIMAL_NANOSECONDS_PER_SECOND)
