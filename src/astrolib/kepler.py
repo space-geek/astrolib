@@ -3,7 +3,7 @@
 
 from astrolib import Vector3
 from astrolib.orbit_elements import OrbitElementSet
-from astrolib.util.constants import EARTH_MU
+from astrolib.constants import EARTH_MU
 
 
 def angular_momentum_vector(elements: OrbitElementSet) -> Vector3:

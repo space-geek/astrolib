@@ -1,5 +1,6 @@
 """ TODO: Module docstring
 """
+from __future__ import annotations
 from typing import Callable
 from typing import Iterator
 from typing import List
@@ -13,26 +14,51 @@ from astrolib.integration.euler import integrate as integrate_euler
 from astrolib.integration.rk4 import integrate as integrate_rk4
 from astrolib.integration.rk45 import integrate as integrate_rk45
 from astrolib.state_vector import StateVector
-from astrolib.util.constants import EARTH_MU
+from astrolib.constants import EARTH_MU
 
 
 class PropagatorBase():
-    """Base class for all propagators."""
+    """ Base class for all propagators.
+    """
 
     def __init__(self):
         pass
 
     def get_state(self, epoch: TimeSpan, *args, **kwargs) -> StateVector:
+        """ Function returns the state at the provided epoch.
+
+        Args:
+            epoch (TimeSpan): The epoch at which to produce the state using
+                the subclass-specific propagator implementation.
+
+        Raises:
+            NotImplementedError: No base class implementation.
+
+        Returns:
+            StateVector: The state vector at the provided epoch.
+        """
         raise NotImplementedError
 
     def get_states(self, epochs: List[TimeSpan], *args, **kwargs) -> 'Ephemeris':
+        """ Function returns an Ephemeris containing the states at the provided epochs.
+
+        Args:
+            epochs (List[TimeSpan]): The epochs at which to produce the states using
+                the subclass-specific propagator implementation.
+
+        Raises:
+            NotImplementedError: No base class implementation.
+
+        Returns:
+            Ephemeris: The states at the provided epochs.
+        """
         raise NotImplementedError
 
 
 class Ephemeris(PropagatorBase):
 
     @classmethod
-    def empty(cls) -> 'Ephemeris':
+    def empty(cls) -> Ephemeris:
         """ Factory method to create an empty Ephemeris.
         """
         return Ephemeris([])
@@ -93,7 +119,7 @@ class Ephemeris(PropagatorBase):
             raise NotImplementedError
         return state
 
-    def get_states(self, epochs: List[TimeSpan]) -> 'Ephemeris':
+    def get_states(self, epochs: List[TimeSpan]) -> Ephemeris:
         return Ephemeris(states=[self.get_state(epoch) for epoch in epochs])
 
 
@@ -115,11 +141,11 @@ class Integrator(PropagatorBase):
             states.append(self.get_state(epoch, states[-1]))
         return Ephemeris(states=states)
 
-    def propagate_to(self, epoch: TimeSpan, X_0: StateVector) -> StateVector:
-        return self.get_state(epoch, X_0)
+    def propagate_to(self, epoch: TimeSpan, initial_state: StateVector) -> StateVector:
+        return self.get_state(epoch, initial_state)
 
-    def _evaluate_dynamics(self, epoch: TimeSpan, X: Matrix, state_vector_type: Type) -> Matrix:
-        return self.dynamics_model.evaluate(state_vector_type.from_column_matrix(epoch, X))
+    def _evaluate_dynamics(self, epoch: TimeSpan, state: Matrix, state_vector_type: Type) -> Matrix:
+        return self.dynamics_model.evaluate(state_vector_type.from_column_matrix(epoch, state))
 
 
 class FixedStepIntegrator(Integrator):
