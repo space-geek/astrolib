@@ -6,7 +6,7 @@ from typing import Tuple
 from astrolib.base_objects import Matrix
 from astrolib.base_objects import TimeSpan
 from astrolib.integration.errors import MinimumStepSizeExceededError
-from astrolib.util.constants import MINIMUM_STEP_SIZE_IN_SECONDS
+from astrolib.constants import MINIMUM_STEP_SIZE_IN_SECONDS
 
 _DEFAULT_RELATIVE_ERROR_TOLERANCE = 1.0e-12
 _MINIMUM_STEP_SIZE = TimeSpan.from_seconds(MINIMUM_STEP_SIZE_IN_SECONDS)
