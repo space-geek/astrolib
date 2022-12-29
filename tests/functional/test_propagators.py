@@ -7,6 +7,7 @@ from astrolib.solar_system.motion_models import OriginFixedMotionModel
 from astrolib.state_vector import CartesianStateVector
 from astrolib.constants import EARTH_MU
 
+
 def main():
 
     num_steps = 10
@@ -31,7 +32,10 @@ def main():
     rk45 = RK45()
     rk45.dynamics_model.forces.append(earth_gravity)
 
-    ephem_rk4 = rk4.get_states([initial_state.epoch + i * rk4.step_size for i in range(0, num_steps)], initial_state)
+    ephem_rk4 = rk4.get_states(
+        [initial_state.epoch + i * rk4.step_size for i in range(0, num_steps)],
+        initial_state,
+    )
     ephem_rk45 = rk45.get_states(list(ephem_rk4.epochs), initial_state)
 
     for i, (s_rk4, s_rk45) in enumerate(zip(ephem_rk4, ephem_rk45)):
@@ -42,6 +46,7 @@ def main():
 
     print(ephem_rk4)
     print(ephem_rk45)
+
 
 if __name__ == "__main__":
     main()

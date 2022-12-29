@@ -7,13 +7,21 @@ from astrolib.constants import EARTH_MU
 
 
 def angular_momentum_vector(elements: OrbitElementSet) -> Vector3:
-    #TODO inject orbit element conversion to cartesian elements
+    """TODO: Function docstring"""
+    # TODO inject orbit element conversion to cartesian elements
     return elements.position.cross(elements.velocity)
 
+
 def eccentricity_vector(elements: OrbitElementSet, mu: float = EARTH_MU) -> Vector3:
-    #TODO inject orbit element conversion to cartesian elements
-    return (1 / mu) * elements.velocity.cross(angular_momentum_vector(elements)) - elements.position.normalized()
+    """TODO: Function docstring"""
+    # TODO inject orbit element conversion to cartesian elements
+    hvec: Vector3 = angular_momentum_vector(elements)
+    return (1 / mu) * elements.velocity.cross(hvec) - elements.position.normalized()
+
 
 def specific_energy(elements: OrbitElementSet, mu: float = EARTH_MU) -> float:
-    #TODO inject orbit element conversion to cartesian elements
-    return (1 / 2) * pow(elements.velocity.norm(), 2) - mu * (1 / elements.position.norm())
+    """TODO: Function docstring"""
+    # TODO inject orbit element conversion to cartesian elements
+    rmag = elements.position.norm()
+    vmag = elements.velocity.norm()
+    return (1 / 2) * pow(vmag, 2) - mu * (1 / rmag)

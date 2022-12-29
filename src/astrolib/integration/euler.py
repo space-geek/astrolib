@@ -5,8 +5,13 @@ from astrolib.base_objects import Matrix
 from astrolib.base_objects import TimeSpan
 
 
-def integrate(t_0: TimeSpan, X_0: Matrix, h: TimeSpan, dynamics_func: Callable[[TimeSpan, Matrix],Matrix]) -> Tuple[TimeSpan, Matrix, TimeSpan]:
-    """ Function utilizes a first-order/Euler integration scheme to integrate
+def integrate(
+    t_0: TimeSpan,
+    X_0: Matrix,
+    h: TimeSpan,
+    dynamics_func: Callable[[TimeSpan, Matrix], Matrix],
+) -> Tuple[TimeSpan, Matrix, TimeSpan]:
+    """Function utilizes a first-order/Euler integration scheme to integrate
         the input state from the initial to the final epoch.
 
     Arguments:

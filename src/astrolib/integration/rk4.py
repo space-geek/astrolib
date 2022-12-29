@@ -7,12 +7,13 @@ from astrolib import Matrix
 from astrolib import TimeSpan
 
 
-def integrate(t_0: TimeSpan,
-              x_0: Matrix,
-              h: TimeSpan,
-              dynamics_func: Callable[[TimeSpan, Matrix], Matrix]
-              ) -> Tuple[TimeSpan, Matrix, TimeSpan]:
-    """ Function utilizes a 4th-order Runge-Kutta integration scheme to integrate
+def integrate(
+    t_0: TimeSpan,
+    x_0: Matrix,
+    h: TimeSpan,
+    dynamics_func: Callable[[TimeSpan, Matrix], Matrix],
+) -> Tuple[TimeSpan, Matrix, TimeSpan]:
+    """Function utilizes a 4th-order Runge-Kutta integration scheme to integrate
         the input state vector from the initial to the final epoch.
 
     Arguments:
@@ -28,12 +29,12 @@ def integrate(t_0: TimeSpan,
 
     # Compute the RK coefficients:
     k_1 = h.to_seconds() * dynamics_func(t_0, x_0)
-    k_2 = h.to_seconds() * dynamics_func(t_0 + (1.0/2.0) * h, x_0 + (1.0/2.0) * k_1)
-    k_3 = h.to_seconds() * dynamics_func(t_0 + (1.0/2.0) * h, x_0 + (1.0/2.0) * k_2)
-    k_4 = h.to_seconds() * dynamics_func(t_0 + (    1.0) * h, x_0 + (    1.0) * k_3)
+    k_2 = h.to_seconds() * dynamics_func(t_0 + (1.0 / 2.0) * h, x_0 + (1.0 / 2.0) * k_1)
+    k_3 = h.to_seconds() * dynamics_func(t_0 + (1.0 / 2.0) * h, x_0 + (1.0 / 2.0) * k_2)
+    k_4 = h.to_seconds() * dynamics_func(t_0 + (1.0) * h, x_0 + (1.0) * k_3)
 
     # Build up the new state vector:
     t_n = t_0 + h
-    x_n = x_0 + (1.0/6.0) * (k_1 + 2.0 * k_2 + 2.0 * k_3 + k_4)
+    x_n = x_0 + (1.0 / 6.0) * (k_1 + 2.0 * k_2 + 2.0 * k_3 + k_4)
 
     return t_n, x_n, h
