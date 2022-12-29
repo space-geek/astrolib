@@ -22,9 +22,9 @@ if __name__ == "__main__":
     orbit_state = KeplerianElements(10000, 0.0, 0.0, 0.0, 0.0, 0.0)
     orbit_state = CartesianElements(Vector3.zeros(), Vector3.zeros())
     attitude_state = Quaternion.identity()
-    X_0 =  StateVector(ts0, [orbit_state, attitude_state])
+    X_0 = StateVector(ts0, [orbit_state, attitude_state])
 
-    #Integrator-type propagators
+    # Integrator-type propagators
     prop = Euler(step_size=TimeSpan.from_seconds(2.0))
     prop = RK4(step_size=TimeSpan.from_seconds(2.0))
     prop = RK45(step_size=TimeSpan.from_seconds(300), relative_tolerance=1e-6)
@@ -33,24 +33,26 @@ if __name__ == "__main__":
     prop.dynamics_model.add_force(Earth.atmospheric_drag)
     prop.dynamics_model.add_force(Moon.gravity)
     prop.dynamics_model.add_force(Sun.gravity)
-     # Analytic-type propagators
-    prop = TwoBodyAnalytic(Earth) # __init__(self, central_body: CelestialObject)
+    # Analytic-type propagators
+    prop = TwoBodyAnalytic(Earth)  # __init__(self, central_body: CelestialObject)
     prop = J2MeanAnalytic(Mars)
 
     # Case 0: Simple single step:
     # Propagator.get_state(epoch: TimeSpan, X_0: StateVector) -> StateVector:
     X_f = prop.get_state(ts, X_0)
     print(X_f)
-    
+
     # Case 1: Multiple epochs, generate state at each epoch:
     # Propagator.get_states(epochs: List[TimeSpan], X_0: StateVector) -> Ephemeris
-    ephem = prop.get_states([X_0.epoch + i*TimeSpan.from_minutes(300.0) for i in range(0,6)], X_0)
+    ephem = prop.get_states(
+        [X_0.epoch + i * TimeSpan.from_minutes(300.0) for i in range(0, 6)], X_0
+    )
     for state in ephem:
         print(state)
-    print(ephem) # start/end epochs, number of state vectors, types of data contained
-    
+    print(ephem)  # start/end epochs, number of state vectors, types of data contained
+
     # Case 2: Manual version of case 1
-    tvec = [X_0.epoch + i*TimeSpan.from_minutes(300.0) for i in range(0,6)]
+    tvec = [X_0.epoch + i * TimeSpan.from_minutes(300.0) for i in range(0, 6)]
     states = [X_0]
     for epoch in tvec:
         states.append(prop.get_state(epoch, states[-1]))
@@ -65,5 +67,11 @@ if __name__ == "__main__":
     print(ephem)
     for state in ephem:
         print(state)
-    X = ephem.get_state(ts) # either return exact state or interpolate
-    eph2 = ephem.get_states([x + TimeSpan.from_seconds(1) for x in tvec if ephem.start_epoch < x < ephem.end_epoch]) # either return exact state or interpolate
+    X = ephem.get_state(ts)  # either return exact state or interpolate
+    eph2 = ephem.get_states(
+        [
+            x + TimeSpan.from_seconds(1)
+            for x in tvec
+            if ephem.start_epoch < x < ephem.end_epoch
+        ]
+    )  # either return exact state or interpolate

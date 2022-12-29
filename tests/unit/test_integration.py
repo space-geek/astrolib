@@ -8,10 +8,9 @@ from astrolib.integration.rk45 import integrate as rk45_integrate
 
 
 class Test_Euler(unittest.TestCase):
-
     def test_simple(self):
         t_0 = TimeSpan.zero()
-        X_0 = Matrix.ones(2,1)
+        X_0 = Matrix.ones(2, 1)
         h = TimeSpan.from_seconds(1)
         t_f, X_f, h_actual = euler_integrate(t_0, X_0, h, _simple_dynamics_func)
         self.assertTrue(t_f == h, "Integration did not work.")
@@ -20,11 +19,11 @@ class Test_Euler(unittest.TestCase):
 
     # TODO: Add more extensive Euler integration tests
 
-class Test_RK4(unittest.TestCase):
 
+class Test_RK4(unittest.TestCase):
     def test_simple(self):
         t_0 = TimeSpan.zero()
-        X_0 = Matrix.ones(2,1)
+        X_0 = Matrix.ones(2, 1)
         h = TimeSpan.from_seconds(1)
         t_f, X_f, h_actual = rk4_integrate(t_0, X_0, h, _simple_dynamics_func)
         self.assertTrue(t_f == h, "Integration did not work.")
@@ -33,11 +32,11 @@ class Test_RK4(unittest.TestCase):
 
     # TODO: Add more extensive RK4 integration tests
 
-class Test_RK45(unittest.TestCase):
 
+class Test_RK45(unittest.TestCase):
     def test_simple(self):
         t_0 = TimeSpan.zero()
-        X_0 = Matrix.ones(2,1)
+        X_0 = Matrix.ones(2, 1)
         h = TimeSpan.from_seconds(1)
         t_f, X_f, h_actual = rk45_integrate(t_0, X_0, h, _simple_dynamics_func)
         self.assertTrue(t_f == h, "Integration did not work.")
@@ -46,8 +45,10 @@ class Test_RK45(unittest.TestCase):
 
     # TODO: Add more extensive RK45 integration tests
 
+
 def _simple_dynamics_func(t: TimeSpan, X: Matrix) -> Matrix:
     return Matrix.fill(*X.size, 1.0)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
