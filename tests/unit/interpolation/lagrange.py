@@ -1,3 +1,5 @@
+""" Unit test module for the astrolib.interpolation.lagrange module.
+"""
 import unittest
 
 from astrolib.base_objects import Matrix
@@ -54,7 +56,3 @@ class Test_Lagrange(unittest.TestCase):
             interpolate_lagrange(xvals, yvals, x_0) == 0.3295454545454546,
             "Lagrange interpolation failed.",
         )
-
-
-if __name__ == "__main__":
-    unittest.main()
