@@ -24,7 +24,6 @@ class Test_UnitTestDirectoryLayout(unittest.TestCase):
         self.assertTrue(self.this_file_path.parent.name == "unit")
         self.assertTrue(self.this_file_path.parent.parent.name == "tests")
 
-    @unittest.expectedFailure  # TODO Add unit test modules for all modules
     def test_module_per_src_module(self):
         """Test for verifying unit test modules exist for each source module."""
 
@@ -64,7 +63,9 @@ class Test_UnitTestDirectoryLayout(unittest.TestCase):
 
             # Construct the expected source module path:
             source_relative_path: Path = test_file_path.relative_to(tests_dir).parent
-            source_filename: str = test_file_path.name.split("test_", maxsplit=1)[1]
+            source_filename: str = test_file_path.name.split("test_", maxsplit=1)[
+                1
+            ]  # TODO investigate why interpolation tests are passing
             source_path: Path = Path(
                 _SOURCE_PATH,
                 source_relative_path,
