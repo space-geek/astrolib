@@ -10,6 +10,7 @@ from math import floor
 from math import sqrt
 from typing import Iterator
 from typing import List
+from typing import Optional
 from typing import Tuple
 from typing import Union
 
@@ -61,10 +62,10 @@ class Matrix:
     @staticmethod
     def empty() -> Matrix:
         """TODO: Method docstring"""
-        return Matrix([])
+        return Matrix()
 
     @staticmethod
-    def from_column_matrices(matrices) -> Matrix:
+    def from_column_matrices(matrices: List[Matrix]) -> Matrix:
         """TODO: Method docstring"""
         if not isinstance(matrices, list):
             raise ValueError(
@@ -77,24 +78,62 @@ class Matrix:
                 )
             if A.num_cols != 1:
                 raise ValueError("Each matrix must be a column matrix to concatenate.")
-        return Matrix([row for A in matrices for row in A])
+        return Matrix([[row] for A in matrices for row in A])
 
-    def __init__(self, A: List[List[float]]):
-        num_cols = len(A[0]) if A else 0
-        for row in A:
-            if len(row) != num_cols:
-                raise ValueError("Each row must have the same number of columns.")
-        self._A = A
+    def __init__(self, A: Optional[List[int | float] | List[List[int | float]]] = None):
+        """Initialization method for the Matrix class.
+
+        Args:
+            A (Optional[List[float] | List[List[float]]]): An object containing
+                the intended data to be captured in the resulting Matrix. The
+                behavior is as follows based on the content type:
+                    None: A null matrix is initialized. Default case.
+                    List[int | float]: A row matrix is initialized containing
+                        the provided data.
+                    List[List[int | float]]: A 2x2 matrix is initialized containing
+                        the provided data. Each entry in the inner List is
+                        interpreted as a row of the resulting matrix.
+
+        Returns:
+            Matrix: The initialized Matrix class instance.
+        """
+        if A is None:
+            A = []
+        else:
+            if not isinstance(A, list):
+                raise ValueError
+            if len(A) > 0:
+                if not isinstance(A[0], list):
+                    if isinstance(A[0], (int, float)):
+                        A = [A]
+                    else:
+                        raise ValueError
+            num_cols = len(A[0]) if A else 0
+            for row in A:
+                if len(row) != num_cols:
+                    raise ValueError("Each row must have the same number of columns.")
+        self._A: List[List[int | float]] = A
 
     def __str__(self) -> str:
-        def stringify_row(row: List):
-            return ", ".join([str(x) for x in row])
-
-        mat = "\n ".join(stringify_row(row) for row in self._A)
-        return f"[{mat}]"
+        stringify_row = lambda row: ", ".join([str(x) for x in row])
+        match self.size:
+            case 1, _:
+                repr: str = stringify_row(self._A[0])
+            case _, 1:
+                repr: str = "\n".join(str(row[0]) for row in self._A)
+            case _:
+                repr: str = "\n ".join(stringify_row(row) for row in self._A)
+        return f"[{repr}]"
 
     def __repr__(self) -> str:
-        return f"[{'; '.join(', '.join(str(x) for x in row) for row in self)}]"
+        match self.size:
+            case 1, _:
+                repr: str = ", ".join(str(x) for x in self._A[0])
+            case _, 1:
+                repr: str = "; ".join(str(row[0]) for row in self._A)
+            case _:
+                repr: str = "; ".join(", ".join(str(x) for x in row) for row in self)
+        return f"[{repr}]"
 
     def __setitem__(
         self,
@@ -107,7 +146,7 @@ class Matrix:
             slice,
         ],
         value: Union[int, Matrix],
-    ) -> None:
+    ) -> None:  # TODO Cleanup signature and content
         if isinstance(indices, (int, slice)):
             if self.is_row_matrix():
                 indices = (0, indices)
@@ -196,70 +235,82 @@ class Matrix:
 
     def __getitem__(
         self,
-        indices: Union[
-            Tuple[int, int],
-            Tuple[int, slice],
-            Tuple[int, slice],
-            Tuple[slice, slice],
-            int,
-            slice,
-        ],
-    ) -> Union[float, Matrix]:
-        M = None
-        if isinstance(indices, (int, slice)):
-            if self.is_row_matrix():
-                indices = (0, indices)
-            elif self.is_column_matrix():
-                indices = (indices, 0)
+        indices: (
+            Tuple[int | float, int | float]
+            | Tuple[int | float, slice]
+            | Tuple[int | float, slice]
+            | Tuple[slice, slice]
+            | (int | float)
+            | slice
+        ),
+    ) -> int | float | Matrix:
+        if isinstance(indices, (int, float, slice)):
+            m, n = self.size
+            if m == 1:
+                indices: Tuple[int, int | float | slice] = (0, indices)
+            elif n == 1:
+                indices: Tuple[int | float | slice, int] = (indices, 0)
             else:
                 raise ValueError(
-                    "Single-index indexing only supported for row or column matrices."
+                    "Single-index indexing only supported for row or column "
+                    f"matrices. Matrix is of size ({m}, {n})."
                 )
-        if isinstance(indices[0], slice) and isinstance(
-            indices[1], slice
-        ):  # returns Matrix
-            rows_range = range(
-                (indices[0].start or 0),
-                (indices[0].stop or self.num_rows),
-                (indices[0].step or 1),
-            )
-            cols_range = range(
-                (indices[1].start or 0),
-                (indices[1].stop or self.num_cols),
-                (indices[1].step or 1),
-            )
-            M = Matrix([[self.get_row(i)[j] for j in cols_range] for i in rows_range])
-        elif isinstance(indices[0], slice):  # returns Matrix
-            M = Matrix(
-                [
-                    [self.get_col(indices[1])[i]]
-                    for i in range(
-                        (indices[0].start or 0),
-                        (indices[0].stop or self.num_rows),
-                        (indices[0].step or 1),
-                    )
-                ]
-            )
-        elif isinstance(indices[1], slice):  # returns Matrix
-            M = Matrix(
-                [
+        match indices:
+            case slice(), slice():
+                rows_range = range(
+                    (indices[0].start or 0),
+                    (indices[0].stop or self.num_rows),
+                    (indices[0].step or 1),
+                )
+                cols_range = range(
+                    (indices[1].start or 0),
+                    (indices[1].stop or self.num_cols),
+                    (indices[1].step or 1),
+                )
+                M: Matrix = Matrix(
+                    [[self._A[i][j] for j in cols_range] for i in rows_range]
+                )
+            case slice(), int() | float():
+                M: Matrix = Matrix(
                     [
-                        self.get_row(indices[0])[i]
+                        [self._A[i][indices[1]]]
                         for i in range(
-                            (indices[1].start or 0),
-                            (indices[1].stop or self.num_cols),
-                            (indices[1].step or 1),
+                            (indices[0].start or 0),
+                            (indices[0].stop or self.num_rows),
+                            (indices[0].step or 1),
                         )
                     ]
-                ]
-            )
-        else:  # returns float
-            M = self._A[indices[0]][indices[1]]
+                )
+            case int() | float(), slice():
+                M: Matrix = Matrix(
+                    [
+                        [
+                            self._A[indices[0]][i]
+                            for i in range(
+                                (indices[1].start or 0),
+                                (indices[1].stop or self.num_cols),
+                                (indices[1].step or 1),
+                            )
+                        ]
+                    ]
+                )
+            case int() | float(), int() | float():
+                M: float = self._A[indices[0]][indices[1]]
+            case _:
+                raise ValueError("Unsupported access indices provided.")
         return M
 
-    def __iter__(self) -> Iterator[List[float]]:
-        for row in self._A:
-            yield row
+    def __iter__(self) -> Iterator[float] | Iterator[List[float]]:
+        m, n = self.size
+        if m == 1:
+            for x in self._A[0]:
+                yield x
+        elif n == 1:
+            for row in self._A:
+                yield row[0]
+        else:
+            for row in self._A:
+                yield row
 
     @property
     def num_rows(self) -> int:
@@ -343,6 +394,9 @@ class Matrix:
         return -1.0 * self.__sub__(other)
 
     def __mul__(self, other: Union[Matrix, float, int]) -> Matrix:
+        """Matrix multiplication source:
+        The Algorithm Design Manual, Skeina, 3rd Ed.; Section 16.3, p. 472
+        """
         if not isinstance(other, (Matrix, float, int)):
             return NotImplemented
         if isinstance(other, (float, int)):
@@ -351,19 +405,19 @@ class Matrix:
                 for j in range(self.num_cols):
                     M[i, j] = other * self[i, j]
         elif isinstance(other, Matrix):
-            if other.num_rows != self.num_cols:
+            x, y = self.size
+            yy, z = other.size
+            if y != yy:
                 raise ValueError(
                     "Incorrect dimensions for matrix multiplication. Check that the "
                     "number of columns in the first matrix matches the number of "
                     "rows in the second matrix."
                 )
-            M = Matrix.zeros(self.num_rows, other.num_cols)
-            # TODO: Evaluate _inner_product() local function performance vs that of nested for loop
-            for i in range(self.num_rows):
-                for j in range(other.num_cols):
-                    M[i, j] = sum(
-                        [x * y for (x, y) in zip(self.get_row(i), other.get_col(j))]
-                    )
+            M = Matrix.zeros(x, z)
+            o_t = other.transpose()
+            for i in range(x):
+                for j in range(z):
+                    M[i, j] = sum(x * y for x, y in zip(self._A[i], o_t._A[j]))
         return M
 
     def __rmul__(self, other: Union[float, int]) -> Matrix:
@@ -393,13 +447,13 @@ class Matrix:
         """
         return int(max(self.size))
 
-    def get_row(self, idx: int) -> List[float]:
+    def get_row(self, idx: int) -> Matrix:
         """TODO: Method docstring"""
-        return self._A[idx]
+        return Matrix([self._A[idx]])
 
-    def get_col(self, idx: int) -> List[float]:
+    def get_col(self, idx: int) -> Matrix:
         """TODO: Method docstring"""
-        return [row[idx] for row in self._A]
+        return Matrix([row[idx] for row in self._A]).transpose()
 
     def transpose(self) -> Matrix:
         """Returns the transpose of the calling matrix."""
@@ -408,6 +462,23 @@ class Matrix:
             for j in range(self.num_cols):
                 M[j, i] = self[i, j]
         return M
+
+    @property
+    def diag(self) -> Matrix:
+        """The main diagonal of the calling matrix."""
+        return Matrix([[self[idx, idx]] for idx in range(min(self.size))])
+
+    @property
+    def trace(self) -> float:
+        """The trace of the calling matrix."""
+        if not self.is_square:
+            raise ValueError(
+                "The calling matrix is not square and the trace does not exist."
+            )
+        return sum(x for x in self.diag)
+
+    def adjoint(self) -> Matrix:
+        """TODO"""
 
     def determinant(self) -> float:
         """Returns the determinant of the calling matrix."""
@@ -477,6 +548,7 @@ class Matrix:
         """
         return self.num_cols == 1
 
+    @property
     def is_square(self) -> bool:
         """Returns True if the calling Matrix is square (i.e. the number of rows equals the
             number of columns), False otherwise.
