@@ -5,9 +5,6 @@
 # Machine precision threshold, under which a float will be treated as zero
 MACHINE_EPSILON = 1.0e-14
 
-# Minimum integration step size, in seconds
-MINIMUM_STEP_SIZE_IN_SECONDS = 1.0e-9
-
 # Number of whole nanoseconds per second
 NANOSECONDS_PER_SECOND = int(1e9)
 

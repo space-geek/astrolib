@@ -18,13 +18,26 @@ from astrolib.base_objects import TimeSpan
 class Test_Matrix(unittest.TestCase):
     def test_constructor(self):
         A = Matrix([[1, 2, 3], [4, 5, 6]])
+        B = Matrix([1, 2, 3, 4, 5])
+        _ = Matrix([])
         for i in range(A.num_rows):
             for j in range(A.num_cols):
                 self.assertTrue(
-                    A[i, j] == i * 3 + j + 1, "Matrix construction not done correctly."
+                    A[i, j] == i * 3 + j + 1,
+                    "Matrix construction not done correctly.",
+                )
+        for i in range(B.num_rows):
+            for j in range(B.num_cols):
+                self.assertTrue(
+                    B[i, j] == i * j + (j + 1),
+                    "Matrix construction not done correctly.",
                 )
         with self.assertRaises(ValueError):
             Matrix([[1, 2], [3, 4, 5]])
+        with self.assertRaises(ValueError):
+            Matrix(1)
+        with self.assertRaises(ValueError):
+            Matrix("test")
 
     def test_get_item(self):
         A = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
@@ -103,12 +116,21 @@ class Test_Matrix(unittest.TestCase):
             A.size = 1
 
     def test_is_empty(self):
-        A = Matrix([])
+        A = Matrix()
         B = Matrix([[1], [2]])
         C = Matrix.empty()
+        D = Matrix([])
         self.assertTrue(A.is_empty, "Matrix is empty.")
         self.assertTrue(not B.is_empty, "Matrix is not empty.")
         self.assertTrue(C.is_empty, "Matrix is empty.")
+        self.assertTrue(D.is_empty, "Matrix is empty.")
+
+    def test_empty(self):
+        A = Matrix.empty()
+        self.assertTrue(
+            A.size == (0, 0),
+            f"Matrix should have size (0, 0), but has size {A.size}.",
+        )
 
     def test_fill(self):
         A = Matrix.fill(2, 2, 1.0)
@@ -230,7 +252,7 @@ class Test_Matrix(unittest.TestCase):
         )
         for row in G:
             self.assertTrue(
-                isinstance(row[0], (float, int)),
+                isinstance(row, (float, int)),
                 "The matrix instantiation from column matrices was not completed successfully.",
             )
         self.assertTrue(
@@ -411,6 +433,29 @@ class Test_Matrix(unittest.TestCase):
         with self.assertRaises(ValueError):
             C.inverse()
         # TODO Add more test cases
+
+    def test_diag(self) -> None:
+        A = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        B = Matrix([[1], [5], [9]])
+        C = Matrix([[1, 2], [3, 4], [5, 6]])
+        D = Matrix([[1], [4]])
+        self.assertTrue(A.diag == B)
+        self.assertTrue(C.diag == D)
+
+    def test_is_square(self) -> None:
+        A = Matrix([[1, 2], [3, 4]])
+        B = Matrix([[1, 2], [3, 4], [5, 6]])
+        self.assertTrue(A.is_square)
+        self.assertTrue(not B.is_square)
+
+    def test_trace(self) -> None:
+        A = Matrix.identity(5)
+        B = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        C = Matrix([[1, 2], [3, 4], [5, 6]])
+        self.assertTrue(A.trace == 5)
+        self.assertTrue(B.trace == 15)
+        with self.assertRaises(ValueError):
+            C.trace
 
 
 class Test_Vector3(unittest.TestCase):
