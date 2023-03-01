@@ -92,7 +92,8 @@ class CartesianElements(OrbitElementSet):
         self._elements[1, 0] = value.y
         self._elements[2, 0] = value.z
 
-    # TODO Figure out a way to enable "elements.position.x = float_value" usage. Currently does not make it back to self._elements data structure.
+    # TODO Figure out a way to enable "elements.position.x = float_value" usage. Currently
+    # does not make it back to self._elements data structure.
 
     @property
     def velocity(self) -> Vector3:
@@ -106,7 +107,8 @@ class CartesianElements(OrbitElementSet):
         self._elements[4, 0] = value.y
         self._elements[5, 0] = value.z
 
-    # TODO Figure out a way to enable "elements.velocity.x = float_value" usage. Currently does not make it back to self._elements data structure.
+    # TODO Figure out a way to enable "elements.velocity.x = float_value" usage. Currently
+    # does not make it back to self._elements data structure.
 
 
 class KeplerianElements(OrbitElementSet):

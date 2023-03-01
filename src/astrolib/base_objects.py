@@ -115,25 +115,27 @@ class Matrix:
         self._A: List[List[int | float]] = A
 
     def __str__(self) -> str:
-        stringify_row = lambda row: ", ".join([str(x) for x in row])
+        def _stringify_row(row: List[str]) -> str:
+            return ", ".join([str(x) for x in row])
+
         match self.size:
             case 1, _:
-                repr: str = stringify_row(self._A[0])
+                data: str = _stringify_row(self._A[0])
             case _, 1:
-                repr: str = "\n".join(str(row[0]) for row in self._A)
+                data: str = "\n".join(str(row[0]) for row in self._A)
             case _:
-                repr: str = "\n ".join(stringify_row(row) for row in self._A)
-        return f"[{repr}]"
+                data: str = "\n ".join(_stringify_row(row) for row in self._A)
+        return f"[{data}]"
 
     def __repr__(self) -> str:
         match self.size:
             case 1, _:
-                repr: str = ", ".join(str(x) for x in self._A[0])
+                data: str = ", ".join(str(x) for x in self._A[0])
             case _, 1:
-                repr: str = "; ".join(str(row[0]) for row in self._A)
+                data: str = "; ".join(str(row[0]) for row in self._A)
             case _:
-                repr: str = "; ".join(", ".join(str(x) for x in row) for row in self)
-        return f"[{repr}]"
+                data: str = "; ".join(", ".join(str(x) for x in row) for row in self)
+        return f"[{data}]"
 
     def __setitem__(
         self,
