@@ -15,6 +15,7 @@ _INSTALL_REQUIRES = []
 
 _DEV_REQUIRES = [
     "pytest==7.1.2",
+    "pylint==2.16.2",
     "wheel==0.37.1",
     "black==22.12.0",
 ]
