@@ -281,6 +281,29 @@ class Test_Matrix(unittest.TestCase):
         # pylint: disable=not-an-iterable
         self.assertTrue(Matrix.ones(*A.size) == F, "Matrices are equal.")
 
+    @unittest.expectedFailure
+    def test_comparison(self):
+        A = Matrix.ones(3)
+        B = 2 * Matrix.ones(3)
+        C = Matrix.ones(3)
+        D = 3.0
+        E = 0.0
+        F = 1.0
+        self.assertTrue(A < B, "A is less than B")
+        self.assertTrue(A <= B, "A is less than or equal to B")
+        self.assertTrue(A <= C, "A is less than or equal to C")
+        self.assertTrue(A < D, "A is less than D")
+        self.assertTrue(A <= D, "A is less than or equal to D")
+        self.assertTrue(B > A, "B is greater than A")
+        self.assertTrue(B >= A, "B is greater than or equal to A")
+        self.assertTrue(C >= A, "C is greater than or equal to A")
+        self.assertTrue(D > A, "D is greater than A")
+        self.assertTrue(D >= A, "D is greater than or equal to A")
+        # TODO figure out how to do a __rle__ (right less than/less than or equal to)
+        self.assertTrue(A > E, "A is greater than E")
+        self.assertTrue(A >= E, "A is greater than or equal to E")
+        self.assertTrue(A >= F, "A is greater than or equal to F")
+
     def test_neg(self):
         A = Matrix.ones(3, 2)
         B = Matrix.fill(3, 2, -1)
@@ -594,6 +617,20 @@ class Test_Vector3(unittest.TestCase):
         C = Vector3(math.cos(math.pi / 6), math.sin(math.pi / 6), 0)
         self.assertTrue(abs(A.vertex_angle(B) - math.pi / 2) <= 1.0e-6)
         self.assertTrue(abs(A.vertex_angle(C) - math.pi / 6) <= 1.0e-6)
+
+    def test_x_axis(self):
+        self.assertTrue(Vector3.x_axis() == Vector3(1, 0, 0))
+
+    def test_y_axis(self):
+        self.assertTrue(Vector3.y_axis() == Vector3(0, 1, 0))
+
+    def test_z_axis(self):
+        self.assertTrue(Vector3.z_axis() == Vector3(0, 0, 1))
+
+    def test_skew(self):
+        A = Vector3(1, 2, 3)
+        B = Matrix([[0, -3, 2], [3, 0, -1], [-2, 1, 0]])
+        self.assertTrue(abs(A.skew() - B) <= 1.0e-16)
 
 
 class Test_TimeSpan(unittest.TestCase):

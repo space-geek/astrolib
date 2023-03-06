@@ -598,6 +598,21 @@ class Vector3(Matrix):
         raise NotImplementedError
 
     @staticmethod
+    def x_axis() -> Vector3:
+        """Instantiates a Vector3 instance storing the X unit vector."""
+        return Vector3(1, 0, 0)
+
+    @staticmethod
+    def y_axis() -> Vector3:
+        """Instantiates a Vector3 instance storing the Y unit vector."""
+        return Vector3(0, 1, 0)
+
+    @staticmethod
+    def z_axis() -> Vector3:
+        """Instantiates a Vector3 instance storing the Z unit vector."""
+        return Vector3(0, 0, 1)
+
+    @staticmethod
     def from_matrix(M: Matrix) -> Vector3:
         """Factory method to construct a Vector3 from a Matrix. The input Matrix must be of size 3x1
             or 1x3 for this operation to be successful.
@@ -734,6 +749,16 @@ class Vector3(Matrix):
             Vector3(self.x / m, self.y / m, self.z / m)
             if abs(m) > MACHINE_EPSILON
             else Vector3.zeros()
+        )
+
+    def skew(self) -> Matrix:
+        """Returns the skew-symmetric matrix created from the calling vector."""
+        return Matrix(
+            [
+                [0, -self.z, self.y],
+                [self.z, 0, -self.x],
+                [-self.y, self.x, 0],
+            ]
         )
 
 
