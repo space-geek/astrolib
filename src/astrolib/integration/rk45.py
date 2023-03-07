@@ -8,7 +8,8 @@ from astrolib.constants import MACHINE_EPSILON
 from astrolib.integration.errors import MinimumStepSizeExceededError
 from astrolib.integration import IntegratorResults
 
-_DEFAULT_RELATIVE_ERROR_TOLERANCE: float = 1.0e-12
+# NOTE: Set to 1.0e-3 to be consistent with Matlab https://www.mathworks.com/help/matlab/ref/odeset.html
+_DEFAULT_RELATIVE_ERROR_TOLERANCE: float = 1.0e-3
 _MINIMUM_STEP_SIZE_IN_SECONDS: float = 1.0e-9
 _MAXIMUM_STEP_SIZE_SCALE_FACTOR: float = 4.0
 _MINIMUM_STEP_SIZE_SCALE_FACTOR: float = 0.1
@@ -173,20 +174,25 @@ def _integrate_single_step(
             + (1.0 / 50.0) * k_5
             + (2.0 / 55.0) * k_6
         )
-        if isinstance(inner_term, Matrix):
-            R: float = (1.0 / h) * max(abs(inner_term))  # inner_term.norm()
+        if isinstance(inner_term, Matrix):  # TODO evaluate this statement
+            relative_error: float = (1.0 / h) * max(
+                abs(inner_term)
+            )  # inner_term.norm()
         else:
-            R: float = (1.0 / h) * abs(inner_term)
+            relative_error: float = (1.0 / h) * abs(inner_term)
 
         # Compute the step size scaling term:
-        q: float = 0.84 * pow(rel_tol / R if abs(R) > MACHINE_EPSILON else 1.0, 0.25)
-        if q <= _MINIMUM_STEP_SIZE_SCALE_FACTOR:
-            q = _MINIMUM_STEP_SIZE_SCALE_FACTOR
-        elif q > _MAXIMUM_STEP_SIZE_SCALE_FACTOR:
-            q = _MAXIMUM_STEP_SIZE_SCALE_FACTOR
+        q_scale: float = 0.84 * pow(
+            rel_tol / relative_error if abs(relative_error) > MACHINE_EPSILON else 1.0,
+            0.25,
+        )
+        if q_scale <= _MINIMUM_STEP_SIZE_SCALE_FACTOR:
+            q_scale = _MINIMUM_STEP_SIZE_SCALE_FACTOR
+        elif q_scale > _MAXIMUM_STEP_SIZE_SCALE_FACTOR:
+            q_scale = _MAXIMUM_STEP_SIZE_SCALE_FACTOR
 
         # Check against the relative error tolerance:
-        if R <= rel_tol:
+        if relative_error <= rel_tol:
 
             # Compute the new state vector using the 4th-order Runge-Kutta
             # approximation:
@@ -201,7 +207,7 @@ def _integrate_single_step(
 
             # Compute the projected step size for the next integration
             # step:
-            projected_step_size: float = q * h
+            projected_step_size: float = q_scale * h
             if projected_step_size > max_step_size:
                 projected_step_size = max_step_size
 
@@ -209,7 +215,7 @@ def _integrate_single_step(
             break
 
         # Scale the step size, bounding by the extrema limits:
-        h *= q
+        h *= q_scale
         if h > max_step_size:
             h = max_step_size
         if h < min_step_size:
