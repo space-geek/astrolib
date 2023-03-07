@@ -281,7 +281,6 @@ class Test_Matrix(unittest.TestCase):
         # pylint: disable=not-an-iterable
         self.assertTrue(Matrix.ones(*A.size) == F, "Matrices are equal.")
 
-    @unittest.expectedFailure
     def test_comparison(self):
         A = Matrix.ones(3)
         B = 2 * Matrix.ones(3)
@@ -299,7 +298,6 @@ class Test_Matrix(unittest.TestCase):
         self.assertTrue(C >= A, "C is greater than or equal to A")
         self.assertTrue(D > A, "D is greater than A")
         self.assertTrue(D >= A, "D is greater than or equal to A")
-        # TODO figure out how to do a __rle__ (right less than/less than or equal to)
         self.assertTrue(A > E, "A is greater than E")
         self.assertTrue(A >= E, "A is greater than or equal to E")
         self.assertTrue(A >= F, "A is greater than or equal to F")
@@ -480,6 +478,11 @@ class Test_Matrix(unittest.TestCase):
         with self.assertRaises(ValueError):
             C.trace
 
+    @unittest.expectedFailure
+    def test_adjoint(self) -> None:
+        # TODO add adjoint tests once implementation is complete
+        self.assertTrue(False)
+
 
 class Test_Vector3(unittest.TestCase):
     def test_constructor(self):
@@ -548,6 +551,10 @@ class Test_Vector3(unittest.TestCase):
             A * x == b,
             "The matrix multiplication with the vector was not computed successfully.",
         )
+        self.assertTrue(
+            isinstance(A * x, Matrix),
+            "The matrix multiplication with the vector was not computed successfully.",
+        )
 
     def test_norm(self):
         A = Vector3(0.5377, 1.8339, -2.2588)
@@ -589,7 +596,6 @@ class Test_Vector3(unittest.TestCase):
         )
 
     def test_normalize(self):
-        # TODO Update Matrix class to utilize Decimal class for its elements instead of floats to increase numeric precision
         A = Vector3(0.5377, 1.8339, -2.2588)
         A_norm = Vector3(0.1792, 0.6113, -0.7529)
         self.assertTrue(
@@ -618,14 +624,14 @@ class Test_Vector3(unittest.TestCase):
         self.assertTrue(abs(A.vertex_angle(B) - math.pi / 2) <= 1.0e-6)
         self.assertTrue(abs(A.vertex_angle(C) - math.pi / 6) <= 1.0e-6)
 
-    def test_x_axis(self):
-        self.assertTrue(Vector3.x_axis() == Vector3(1, 0, 0))
+    def test_unit_x(self):
+        self.assertTrue(Vector3.unit_x() == Vector3(1, 0, 0))
 
-    def test_y_axis(self):
-        self.assertTrue(Vector3.y_axis() == Vector3(0, 1, 0))
+    def test_unit_y(self):
+        self.assertTrue(Vector3.unit_y() == Vector3(0, 1, 0))
 
-    def test_z_axis(self):
-        self.assertTrue(Vector3.z_axis() == Vector3(0, 0, 1))
+    def test_unit_z(self):
+        self.assertTrue(Vector3.unit_z() == Vector3(0, 0, 1))
 
     def test_skew(self):
         A = Vector3(1, 2, 3)

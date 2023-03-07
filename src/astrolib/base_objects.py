@@ -139,111 +139,101 @@ class Matrix:
 
     def __setitem__(
         self,
-        indices: Union[
-            Tuple[int, int],
-            Tuple[int, slice],
-            Tuple[int, slice],
-            Tuple[slice, slice],
-            int,
-            slice,
-        ],
-        value: Union[int, Matrix],
-    ) -> None:  # TODO Cleanup signature and content
-        if isinstance(indices, (int, slice)):
-            if self.is_row_matrix():
-                indices = (0, indices)
-            elif self.is_column_matrix():
-                indices = (indices, 0)
+        indices: Tuple[int | slice, int | slice] | int | slice,
+        value: float | int | Matrix,
+    ) -> None:
+        if isinstance(indices, (int, float, slice)):
+            m, n = self.size
+            if m == 1:
+                indices: Tuple[int, int | float | slice] = (0, indices)
+            elif n == 1:
+                indices: Tuple[int | float | slice, int] = (indices, 0)
             else:
                 raise ValueError(
-                    "Single-index indexing only supported for row or column matrices."
+                    "Single-index indexing only supported for row or column "
+                    f"matrices. Matrix is of size ({m}, {n})."
                 )
-        if isinstance(indices[0], slice) and isinstance(
-            indices[1], slice
-        ):  # expects Matrix
-            if not isinstance(value, Matrix):
-                raise ValueError(
-                    "When setting matrix indices using slice notation a Matrix value "
-                    "must be used."
+        match indices:
+            case slice(), slice():
+                if not isinstance(value, Matrix):  # TODO Support scalar value
+                    raise ValueError(
+                        "When setting matrix indices using slice notation a Matrix value "
+                        "must be used."
+                    )
+                if value.is_empty:
+                    raise ValueError(
+                        "When setting matrix indices using slice notation for both the "
+                        "row and column indices an empty Matrix value cannot be used."
+                    )
+                slice_rows_range = range(
+                    (indices[0].start or 0),
+                    (indices[0].stop or self.num_rows),
+                    (indices[0].step or 1),
                 )
-            if value.is_empty:
-                raise ValueError(
-                    "When setting matrix indices using slice notation for both the "
-                    "row and column indices an empty Matrix value cannot be used."
+                slice_cols_range = range(
+                    (indices[1].start or 0),
+                    (indices[1].stop or self.num_cols),
+                    (indices[1].step or 1),
                 )
-            slice_rows_range = range(
-                (indices[0].start or 0),
-                (indices[0].stop or self.num_rows),
-                (indices[0].step or 1),
-            )
-            slice_cols_range = range(
-                (indices[1].start or 0),
-                (indices[1].stop or self.num_cols),
-                (indices[1].step or 1),
-            )
-            value_rows_range = range(value.num_rows)
-            value_cols_range = range(value.num_cols)
-            for (i, m) in zip(slice_rows_range, value_rows_range):
-                for (j, n) in zip(slice_cols_range, value_cols_range):
-                    self._A[i][j] = value[m, n]
-        elif isinstance(indices[0], slice):  # expects Matrix
-            if not isinstance(value, Matrix):
-                raise ValueError(
-                    "When setting matrix indices using slice notation a Matrix value "
-                    "must be used."
+                value_rows_range = range(value.num_rows)
+                value_cols_range = range(value.num_cols)
+                for (i, m) in zip(slice_rows_range, value_rows_range):
+                    for (j, n) in zip(slice_cols_range, value_cols_range):
+                        self._A[i][j] = value[m, n]
+            case slice(), int() | float():
+                if not isinstance(value, Matrix):  # TODO Support scalar value
+                    raise ValueError(
+                        "When setting matrix indices using slice notation a Matrix value "
+                        "must be used."
+                    )
+                slice_range = range(
+                    (indices[0].start or 0),
+                    (indices[0].stop or self.num_rows),
+                    (indices[0].step or 1),
                 )
-            slice_range = range(
-                (indices[0].start or 0),
-                (indices[0].stop or self.num_rows),
-                (indices[0].step or 1),
-            )
-            if value.is_empty:
-                self._A = [
-                    [self._A[i][j] for j in range(self.num_cols) if j != indices[1]]
-                    for i in slice_range
-                ]
-            else:
-                value_range = range(value.num_rows)
-                for (i, j) in zip(slice_range, value_range):
-                    self._A[i][indices[1]] = value[j, 0]
-        elif isinstance(indices[1], slice):  # expects Matrix
-            if not isinstance(value, Matrix):
-                raise ValueError(
-                    "When setting matrix indices using slice notation a Matrix value "
-                    "must be used."
+                if value.is_empty:
+                    self._A = [
+                        [self._A[i][j] for j in range(self.num_cols) if j != indices[1]]
+                        for i in slice_range
+                    ]
+                else:
+                    value_range = range(value.num_rows)
+                    for (i, j) in zip(slice_range, value_range):
+                        self._A[i][indices[1]] = value[j, 0]
+            case int() | float(), slice():
+                if not isinstance(value, Matrix):  # TODO Support scalar value
+                    raise ValueError(
+                        "When setting matrix indices using slice notation a Matrix value "
+                        "must be used."
+                    )
+                slice_range = range(
+                    (indices[1].start or 0),
+                    (indices[1].stop or self.num_cols),
+                    (indices[1].step or 1),
                 )
-            slice_range = range(
-                (indices[1].start or 0),
-                (indices[1].stop or self.num_cols),
-                (indices[1].step or 1),
-            )
-            if value.is_empty:
-                self._A = [
-                    [self._A[i][j] for j in slice_range]
-                    for i in range(self.num_rows)
-                    if i != indices[0]
-                ]
-            else:
-                value_range = range(value.num_cols)
-                for (i, j) in zip(slice_range, value_range):
-                    self._A[indices[0]][i] = value[0, j]
-        else:  # expects int or float
-            if not isinstance(value, (float, int)):
-                raise ValueError(
-                    "When setting matrix indices using direct index notation an int "
-                    "or float value must be used."
-                )
-            self._A[indices[0]][indices[1]] = value
+                if value.is_empty:
+                    self._A = [
+                        [self._A[i][j] for j in slice_range]
+                        for i in range(self.num_rows)
+                        if i != indices[0]
+                    ]
+                else:
+                    value_range = range(value.num_cols)
+                    for (i, j) in zip(slice_range, value_range):
+                        self._A[indices[0]][i] = value[0, j]
+            case int() | float(), int() | float():
+                if not isinstance(value, (int, float)):
+                    raise ValueError(
+                        "When setting matrix indices using direct index notation a numeric value must be used."
+                    )
+                self._A[indices[0]][indices[1]] = value
+            case _:
+                raise ValueError("Unsupported access indices provided.")
 
     def __getitem__(
         self,
         indices: (
-            Tuple[int | float, int | float]
-            | Tuple[int | float, slice]
-            | Tuple[int | float, slice]
-            | Tuple[slice, slice]
-            | (int | float)
-            | slice
+            Tuple[int | float | slice, int | float | slice] | int | float | slice
         ),
     ) -> int | float | Matrix:
         if isinstance(indices, (int, float, slice)):
@@ -334,7 +324,7 @@ class Matrix:
         """TODO: Property docstring"""
         return not (self.num_rows or self.num_cols)
 
-    def __eq__(self, other: Union[Matrix, float, int]) -> bool:
+    def __eq__(self, other: Matrix | float | int) -> bool:
         if not isinstance(other, (Matrix, float, int)):
             return False
         if isinstance(other, (float, int)):
@@ -347,7 +337,7 @@ class Matrix:
                     return False
         return True
 
-    def __lt__(self, other: Union[Matrix, float, int]) -> bool:
+    def __lt__(self, other: Matrix | float | int) -> bool:
         if not isinstance(other, (Matrix, float, int)):
             return False
         if isinstance(other, (float, int)):
@@ -360,7 +350,7 @@ class Matrix:
                     return False
         return True
 
-    def __le__(self, other: Union[Matrix, float, int]) -> bool:
+    def __le__(self, other: Matrix | float | int) -> bool:
         if not isinstance(other, (Matrix, float, int)):
             return False
         if isinstance(other, (float, int)):
@@ -373,7 +363,13 @@ class Matrix:
                     return False
         return True
 
-    def __add__(self, other: Union[Matrix, float, int]) -> Matrix:
+    def __gt__(self, other: Matrix | float | int) -> bool:
+        return not self.__le__(other)
+
+    def __ge__(self, other: Matrix | float | int) -> bool:
+        return not self.__lt__(other)
+
+    def __add__(self, other: Matrix | float | int) -> Matrix:
         if not isinstance(other, (Matrix, float, int)):
             return NotImplemented
         if isinstance(other, (float, int)):
@@ -386,40 +382,41 @@ class Matrix:
                 M[i, j] = self[i, j] + other[i, j]
         return M
 
-    def __radd__(self, other: Union[Matrix, float, int]) -> Matrix:
+    def __radd__(self, other: Matrix | float | int) -> Matrix:
         return self.__add__(other)
 
-    def __sub__(self, other: Union[Matrix, float, int]) -> Matrix:
+    def __sub__(self, other: Matrix | float | int) -> Matrix:
         return self.__add__(-1.0 * other)
 
-    def __rsub__(self, other: Union[Matrix, float, int]) -> Matrix:
+    def __rsub__(self, other: Matrix | float | int) -> Matrix:
         return -1.0 * self.__sub__(other)
 
-    def __mul__(self, other: Union[Matrix, float, int]) -> Matrix:
+    def __mul__(self, other: Matrix | float | int) -> Matrix:
         """Matrix multiplication source:
         The Algorithm Design Manual, Skeina, 3rd Ed.; Section 16.3, p. 472
         """
         if not isinstance(other, (Matrix, float, int)):
             return NotImplemented
-        if isinstance(other, (float, int)):
-            M = Matrix.zeros(*self.size)
-            for i in range(self.num_rows):
-                for j in range(self.num_cols):
-                    M[i, j] = other * self[i, j]
-        elif isinstance(other, Matrix):
-            x, y = self.size
-            yy, z = other.size
-            if y != yy:
-                raise ValueError(
-                    "Incorrect dimensions for matrix multiplication. Check that the "
-                    "number of columns in the first matrix matches the number of "
-                    "rows in the second matrix."
-                )
-            M = Matrix.zeros(x, z)
-            o_t = other.transpose()
-            for i in range(x):
-                for j in range(z):
-                    M[i, j] = sum(x * y for x, y in zip(self._A[i], o_t._A[j]))
+        match other:
+            case int() | float():
+                M = Matrix.zeros(*self.size)
+                for i in range(self.num_rows):
+                    for j in range(self.num_cols):
+                        M[i, j] = other * self[i, j]
+            case Matrix():
+                x, y = self.size
+                yy, z = other.size
+                if y != yy:
+                    raise ValueError(
+                        "Incorrect dimensions for matrix multiplication. Check that the "
+                        "number of columns in the first matrix matches the number of "
+                        "rows in the second matrix."
+                    )
+                M = Matrix.zeros(x, z)
+                o_t = other.transpose()
+                for i in range(x):
+                    for j in range(z):
+                        M[i, j] = sum(x * y for x, y in zip(self._A[i], o_t._A[j]))
         return M
 
     def __rmul__(self, other: Union[float, int]) -> Matrix:
@@ -435,11 +432,7 @@ class Matrix:
         return M
 
     def __neg__(self) -> Matrix:
-        M = Matrix.zeros(*self.size)
-        for i in range(self.num_rows):
-            for j in range(self.num_cols):
-                M[i, j] = -1 * self[i, j]
-        return M
+        return -1.0 * self
 
     def __len__(self) -> int:
         """Returns the length of the calling Matrix, defined as the maximum dimension.
@@ -598,18 +591,18 @@ class Vector3(Matrix):
         raise NotImplementedError
 
     @staticmethod
-    def x_axis() -> Vector3:
-        """Instantiates a Vector3 instance storing the X unit vector."""
+    def unit_x() -> Vector3:
+        """Instantiates a Vector3 instance containing the X unit vector."""
         return Vector3(1, 0, 0)
 
     @staticmethod
-    def y_axis() -> Vector3:
-        """Instantiates a Vector3 instance storing the Y unit vector."""
+    def unit_y() -> Vector3:
+        """Instantiates a Vector3 instance containing the Y unit vector."""
         return Vector3(0, 1, 0)
 
     @staticmethod
-    def z_axis() -> Vector3:
-        """Instantiates a Vector3 instance storing the Z unit vector."""
+    def unit_z() -> Vector3:
+        """Instantiates a Vector3 instance containing the Z unit vector."""
         return Vector3(0, 0, 1)
 
     @staticmethod
@@ -629,7 +622,7 @@ class Vector3(Matrix):
             raise ValueError(
                 "Input matrix must be a row or column matrix of length three."
             )
-        return Vector3(*(M.get_col(0) if M.size == (3, 1) else M.get_row(0)))
+        return Vector3(*M)
 
     def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0):
         super().__init__([[x], [y], [z]])
