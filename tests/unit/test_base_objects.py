@@ -621,8 +621,11 @@ class Test_Vector3(unittest.TestCase):
         A = Vector3(1, 0, 0)
         B = Vector3(0, 1, 0)
         C = Vector3(math.cos(math.pi / 6), math.sin(math.pi / 6), 0)
+        D = Vector3.zeros()
         self.assertTrue(abs(A.vertex_angle(B) - math.pi / 2) <= 1.0e-6)
         self.assertTrue(abs(A.vertex_angle(C) - math.pi / 6) <= 1.0e-6)
+        self.assertTrue(A.vertex_angle(D) == 0.0)
+        self.assertTrue(D.vertex_angle(A) == 0.0)
 
     def test_unit_x(self):
         self.assertTrue(Vector3.unit_x() == Vector3(1, 0, 0))

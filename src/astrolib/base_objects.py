@@ -4,10 +4,7 @@ from __future__ import annotations
 from copy import copy
 from decimal import Decimal
 from itertools import repeat
-from math import acos
-from math import copysign
-from math import floor
-from math import sqrt
+import math
 from typing import Iterator
 from typing import List
 from typing import Optional
@@ -680,7 +677,7 @@ class Vector3(Matrix):
 
     def norm(self) -> float:
         """Returns the Euclidean norm of the calling vector."""
-        return sqrt(self.x**2 + self.y**2 + self.z**2)
+        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
 
     def norm_2(self) -> float:
         """Returns the square of the Euclidean norm of the calling vector."""
@@ -721,12 +718,7 @@ class Vector3(Matrix):
         """
         if not isinstance(other, Vector3):
             return NotImplemented
-        m = self.norm()
-        return (
-            acos(self.dot(other) / (m * other.norm()))
-            if abs(m) > MACHINE_EPSILON
-            else 0.0
-        )
+        return math.atan2(self.cross(other).norm(), self.dot(other))
 
     def normalize(self) -> Vector3:
         """Normalizes the calling vector in place by its Euclidean norm."""
@@ -791,8 +783,8 @@ class TimeSpan:
     def __init__(self, whole_seconds: int, nano_seconds: int):
         def normalize_time(ws: int, ns: int) -> Tuple[int, int]:
             """Function for normalizing whole vs sub-second digits."""
-            ws += copysign(1, ns) * 1
-            ns -= copysign(1, ns) * NANOSECONDS_PER_SECOND
+            ws += math.copysign(1, ns) * 1
+            ns -= math.copysign(1, ns) * NANOSECONDS_PER_SECOND
             return ws, ns
 
         self._whole_seconds = None
@@ -802,7 +794,7 @@ class TimeSpan:
                 whole_seconds, nano_seconds = normalize_time(
                     whole_seconds, nano_seconds
                 )
-            if copysign(1, whole_seconds) != copysign(1, nano_seconds):
+            if math.copysign(1, whole_seconds) != math.copysign(1, nano_seconds):
                 whole_seconds, nano_seconds = normalize_time(
                     whole_seconds, nano_seconds
                 )
@@ -877,7 +869,7 @@ class TimeSpan:
         if not isinstance(other, (float, int)):
             return NotImplemented
         ws, ns = _decompose_decimal_seconds(other * self._whole_seconds)
-        return TimeSpan(ws, floor(other * self._nano_seconds) + ns)
+        return TimeSpan(ws, math.floor(other * self._nano_seconds) + ns)
 
     def __rmul__(self, other: Union[float, int]) -> TimeSpan:
         if not isinstance(other, (float, int)):
