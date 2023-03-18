@@ -388,7 +388,7 @@ class Matrix:
     def __rsub__(self, other: Matrix | float | int) -> Matrix:
         return -1.0 * self.__sub__(other)
 
-    def __mul__(self, other: Matrix | float | int) -> Matrix:
+    def __mul__(self, other: Matrix | float | int) -> Matrix | int | float:
         """Matrix multiplication source:
         The Algorithm Design Manual, Skeina, 3rd Ed.; Section 16.3, p. 472
         """
@@ -414,6 +414,8 @@ class Matrix:
                 for i in range(x):
                     for j in range(z):
                         M[i, j] = sum(x * y for x, y in zip(self._A[i], o_t._A[j]))
+        if M.size == (1, 1):
+            M: int | float = M[0]
         return M
 
     def __rmul__(self, other: Union[float, int]) -> Matrix:

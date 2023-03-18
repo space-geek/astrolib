@@ -405,21 +405,36 @@ class Test_Matrix(unittest.TestCase):
         F = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         G = Matrix([[1, 2], [3, 4], [5, 6]])
         H = Matrix([[22, 28], [49, 64], [76, 100]])
+        I = Matrix([[1], [2], [3], [4], [5], [6], [7], [8], [9]])
         tol = 2.0e-3
         self.assertTrue(
-            abs(A * B - C) <= tol, "The matrix product was not computed successfully."
+            abs(A * B - C) <= tol,
+            "The matrix product was not computed successfully.",
         )
         self.assertTrue(
-            abs(B * A - D) <= tol, "The matrix product was not computed successfully."
+            abs(B * A - D) <= tol,
+            "The matrix product was not computed successfully.",
         )
         self.assertTrue(
-            abs(3 * D - E) <= tol, "The matrix product was not computed successfully."
+            abs(3 * D - E) <= tol,
+            "The matrix product was not computed successfully.",
         )
         self.assertTrue(
-            abs(D * 3 - E) <= tol, "The matrix product was not computed successfully."
+            abs(D * 3 - E) <= tol,
+            "The matrix product was not computed successfully.",
         )
         self.assertTrue(
-            abs(F * G - H) <= tol, "The matrix product was not computed successfully."
+            abs(F * G - H) <= tol,
+            "The matrix product was not computed successfully.",
+        )
+
+        self.assertTrue(
+            isinstance(I.transpose() * I, int),
+            "The matrix product was not computed successfully.",
+        )
+        self.assertTrue(
+            abs(I.transpose() * I - 285.0) <= tol,
+            "The matrix product was not computed successfully.",
         )
         with self.assertRaises(ValueError):
             G * F
