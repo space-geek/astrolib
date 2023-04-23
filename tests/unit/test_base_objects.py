@@ -505,10 +505,6 @@ class Test_Vector3(unittest.TestCase):
         self.assertTrue(A.x == 1, "The vector was not initialized successfully.")
         self.assertTrue(A.y == 2, "The vector was not initialized successfully.")
         self.assertTrue(A.z == 3, "The vector was not initialized successfully.")
-        B = Vector3()
-        self.assertTrue(B.x == 0, "The vector was not initialized successfully.")
-        self.assertTrue(B.y == 0, "The vector was not initialized successfully.")
-        self.assertTrue(B.z == 0, "The vector was not initialized successfully.")
 
     def test_ones(self):
         A = Vector3.ones()
@@ -577,7 +573,7 @@ class Test_Vector3(unittest.TestCase):
             A.norm() - 3.0 <= 1.0e-16, "The vector norm was not computed successfully."
         )
         self.assertTrue(
-            A.norm_2() - 9.0 <= 1.0e-16,
+            A.squared_norm() - 9.0 <= 1.0e-16,
             "The vector norm was not computed successfully.",
         )
 
@@ -625,6 +621,11 @@ class Test_Vector3(unittest.TestCase):
         self.assertTrue(
             A.norm() == 1.0,
             "The normalized form of the vector was not computed successfully.",
+        )
+        B = Vector3(-3.0, 0, 0)
+        self.assertTrue(
+            B.normalized() - Vector3(-1.0, 0, 0) <= 1.0e-6,
+            "The vector norm was not computed successfully.",
         )
 
     def test_neg(self):

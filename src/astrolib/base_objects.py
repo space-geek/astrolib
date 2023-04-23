@@ -111,6 +111,9 @@ class Matrix:
                     raise ValueError("Each row must have the same number of columns.")
         self._A: List[List[int | float]] = A
 
+    def __hash__(self) -> int:
+        return hash(str(self))
+
     def __str__(self) -> str:
         def _stringify_row(row: List[str]) -> str:
             return ", ".join([str(x) for x in row])
@@ -623,7 +626,7 @@ class Vector3(Matrix):
             )
         return Vector3(*M)
 
-    def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0):
+    def __init__(self, x: int | float, y: int | float, z: int | float):
         super().__init__([[x], [y], [z]])
 
     @property
@@ -681,7 +684,7 @@ class Vector3(Matrix):
         """Returns the Euclidean norm of the calling vector."""
         return math.sqrt(self.x**2 + self.y**2 + self.z**2)
 
-    def norm_2(self) -> float:
+    def squared_norm(self) -> float:
         """Returns the square of the Euclidean norm of the calling vector."""
         return self.x**2 + self.y**2 + self.z**2
 
