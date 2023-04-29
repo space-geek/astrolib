@@ -550,10 +550,11 @@ class Test_Vector3(unittest.TestCase):
             B - 3 == A, "The vector difference was not computed successfully."
         )
 
-    def test_mul_with_matrix(self):
+    def test_mul(self):
         x = Vector3(1, 2, 3)
         A = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         b = Vector3(14, 32, 50)
+        c = Vector3(2, 4, 6)
         self.assertTrue(
             Matrix.identity(3) * x == x,
             "The matrix multiplication with the vector was not computed successfully.",
@@ -563,9 +564,34 @@ class Test_Vector3(unittest.TestCase):
             "The matrix multiplication with the vector was not computed successfully.",
         )
         self.assertTrue(
-            isinstance(A * x, Matrix),
+            isinstance(A * x, Vector3),
             "The matrix multiplication with the vector was not computed successfully.",
         )
+        self.assertTrue(
+            2 * x == c,
+            "The scalar multiplication with the vector was not computed successfully.",
+        )
+        self.assertTrue(
+            isinstance(2 * x, Vector3),
+            "The scalar multiplication with the vector was not computed successfully.",
+        )
+        self.assertTrue(
+            b * c.transpose()
+            == Matrix(
+                [
+                    [28, 56, 84],
+                    [64, 128, 192],
+                    [100, 200, 300],
+                ]
+            ),
+            "The multiplication with the vector was not computed successfully.",
+        )
+        self.assertTrue(
+            isinstance(b * c.transpose(), Matrix),
+            "The scalar multiplication with the vector was not computed successfully.",
+        )
+        with self.assertRaises(ValueError):
+            x * A
 
     def test_norm(self):
         A = Vector3(0.5377, 1.8339, -2.2588)

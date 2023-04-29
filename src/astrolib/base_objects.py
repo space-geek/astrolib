@@ -396,6 +396,7 @@ class Matrix:
         The Algorithm Design Manual, Skeina, 3rd Ed.; Section 16.3, p. 472
         """
         if not isinstance(other, (Matrix, float, int)):
+            print(type(other))
             return NotImplemented
         match other:
             case int() | float():
@@ -421,7 +422,7 @@ class Matrix:
             M: int | float = M[0]
         return M
 
-    def __rmul__(self, other: Union[float, int]) -> Matrix:
+    def __rmul__(self, other: int | float) -> Matrix:
         if not isinstance(other, (float, int)):
             return NotImplemented
         return self.__mul__(other)
@@ -620,9 +621,12 @@ class Vector3(Matrix):
         Raises:
             ValueError: Raised if the input Matrix is not of size 3x1 or 1x3.
         """
+        if not isinstance(M, Matrix):
+            raise ValueError(f"Received unsupported input type {type(M)}.")
         if M.size not in {(3, 1), (1, 3)}:
             raise ValueError(
-                "Input matrix must be a row or column matrix of length three."
+                "The multiplying matrix must be a row or column matrix but is instead of size "
+                f"{M.size}. Check dimensionality and try again."
             )
         return Vector3(*M)
 
@@ -673,6 +677,39 @@ class Vector3(Matrix):
 
     def __rsub__(self, other: Union[Matrix, Vector3]) -> Vector3:
         return Vector3.from_matrix(super().__rsub__(other))
+
+    def __mul__(self, other: int | float | Matrix) -> Vector3:
+        match other:
+            case int() | float():
+                return Vector3.from_matrix(super().__mul__(other))
+            case Matrix():
+                if other.num_rows == 1:
+                    return super().__mul__(other)
+                raise ValueError(
+                    "The multiplying matrix must be a row matrix but is instead of size "
+                    f"{other.size}. Check dimensionality and try again."
+                )
+            case _:
+                pass
+        return NotImplemented
+
+    def __rmul__(self, other: int | float | Matrix) -> Vector3:
+        match other:
+            case int() | float():
+                return Vector3.from_matrix(super().__rmul__(other))
+            case Matrix():
+                if other.num_cols == 3:
+                    result: int | float | Matrix = other.__mul__(self)
+                    if isinstance(result, Matrix) and result.num_rows == 3:
+                        return Vector3.from_matrix(result)
+                    return result
+                raise ValueError(
+                    "The multiplying matrix must have 3 columns but is instead of size "
+                    f"{other.size}. Check dimensionality and try again."
+                )
+            case _:
+                pass
+        return NotImplemented
 
     def __abs__(self) -> Vector3:
         return Vector3.from_matrix(super().__abs__())
