@@ -1,4 +1,5 @@
 """ TODO: Module docstring """
-from astrolib.base_objects import Matrix
+
 from astrolib.base_objects import TimeSpan
-from astrolib.base_objects import Vector3
+from astrolib.matrix import Matrix
+from astrolib.matrix import Vector3
