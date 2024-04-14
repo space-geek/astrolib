@@ -161,6 +161,21 @@ class TestDirectionCosineMatrix(unittest.TestCase):
             dcm.transpose() == DirectionCosineMatrix.r_y(math.radians(-90)).as_matrix()
         )
 
+    def test_repr(self):
+        """Tests for DCM repr."""
+        dcm = DirectionCosineMatrix.identity()
+        self.assertTrue(
+            repr(dcm)
+            == "DirectionCosineMatrix(Matrix([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]))"
+        )
+
+    def test_equals(self):
+        """Tests for DCM equality comparison."""
+        dcm = DirectionCosineMatrix.identity()
+        self.assertTrue(dcm == DirectionCosineMatrix.identity())
+        self.assertTrue(dcm == Matrix.identity(3))
+        self.assertFalse(dcm == "foo")
+
     def test_subtraction(self):
         """Tests for DCM component-wise subtraction"""
         dcm = DirectionCosineMatrix.identity()
@@ -169,6 +184,7 @@ class TestDirectionCosineMatrix(unittest.TestCase):
         self.assertTrue((dcm - dcm).size == (3, 3))
         self.assertTrue(dcm - dcm == Matrix.zeros(3))
         self.assertTrue(dcm - Matrix.identity(3) == Matrix.zeros(3))
+        self.assertTrue(Matrix.identity(3) - dcm == Matrix.zeros(3))
         with self.assertRaises(ValueError):
             # pylint: disable=expression-not-assigned
             dcm - Matrix.ones(4)

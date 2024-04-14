@@ -133,17 +133,70 @@ class TestQuaternion(unittest.TestCase):
             # Invalid dimensionality: (4,1) * (4, 4)
             # pylint: disable=expression-not-assigned
             q1 * Matrix.identity(4)
-        # TODO more matrix mult
+        with self.assertRaises(ValueError):
+            # Invalid dimensionality: (3, 3) * (4, 1)
+            # pylint: disable=expression-not-assigned
+            Matrix.identity(3) * q1
+        with self.assertRaises(TypeError):
+            # NOTE: String throws TypeError because mul doesn't support string
+            # pylint: disable=pointless-statement
+            q1 * "foo"
+        with self.assertRaises(TypeError):
+            # NOTE: String throws TypeError because rmul doesn't support string
+            # pylint: disable=pointless-statement
+            "foo" * q1
 
-        # TODO quaternion mult
+        q2 = Quaternion(
+            x=0.5609048967777117,
+            y=-0.4305643932918568,
+            z=-0.4305643932918568,
+            w=0.5609048967777116,
+        )
+        q3 = Quaternion(
+            x=-0.0,
+            y=-0.0,
+            z=0.0008707285125009092,
+            w=0.9999996209158569,
+        )
+        self.assertAlmostEqual(
+            q3 * q2,
+            Quaternion(
+                x=0.5612795888412664,
+                y=-0.430075834185297,
+                z=-0.430075834185297,
+                w=0.5612795888412663,
+            ),
+            7,
+        )  # TODO Find an independent test case
 
     def test_division(self):
         """Tests for quaternion division."""
-        q1 = Quaternion(*range(4)).normalized()
-        q2 = Quaternion(*reversed(range(4))).normalized()
-        print(q1 / q2)
-        # self.assertFalse(True)
-        # TODO quaternion division test case
+        q1 = Quaternion(
+            x=0.5609048967777117,
+            y=-0.4305643932918568,
+            z=-0.4305643932918568,
+            w=0.5609048967777116,
+        )
+        q2 = Quaternion(
+            x=0.5616538553604372,
+            y=-0.42958694900887906,
+            z=-0.42958694900887906,
+            w=0.5616538553604371,
+        )
+        self.assertAlmostEqual(
+            q2 / q1,
+            Quaternion(x=0.0, y=0.0, z=-0.0017414563648430748, w=-0.9999984836637152),
+            7,
+        )  # TODO Find an independent test case
+        self.assertAlmostEqual(q1 / q1, -Quaternion.identity(), 7)
+        with self.assertRaises(TypeError):
+            # pylint: disable=pointless-statement
+            q1 / 1.0
+
+    def test_round(self):
+        """Tests for rounded quaternions"""
+        q1 = Quaternion(0, 1, 1, 1).normalized()
+        self.assertEqual(round(q1, 1), Quaternion(0, 0.6, 0.6, 0.6))
 
     def test_as_matrix(self):
         """Tests for the as_matrix method."""

@@ -347,30 +347,44 @@ class Matrix:
         return NotImplemented
 
     def __lt__(self, other: Self | float | int) -> bool:
-        if not isinstance(other, (Matrix, float, int)):
-            return False
-        if isinstance(other, (float, int)):
-            other = Matrix.fill(*self.size, other)
-        if self.size != other.size:
-            return False
-        for i in range(self.num_rows):
-            for j in range(self.num_cols):
-                if self[i, j] >= other[i, j]:
+        match other:
+            case int() | float():
+                for i in range(self.num_rows):
+                    for j in range(self.num_cols):
+                        if self[i, j] >= other:
+                            return False
+                return True
+            case Matrix():
+                if self.size != other.size:
                     return False
-        return True
+                for i in range(self.num_rows):
+                    for j in range(self.num_cols):
+                        if self[i, j] >= other[i, j]:
+                            return False
+                return True
+            case _:
+                pass
+        return NotImplemented
 
     def __le__(self, other: Self | float | int) -> bool:
-        if not isinstance(other, (Matrix, float, int)):
-            return False
-        if isinstance(other, (float, int)):
-            other = Matrix.fill(*self.size, other)
-        if self.size != other.size:
-            return False
-        for i in range(self.num_rows):
-            for j in range(self.num_cols):
-                if self[i, j] > other[i, j]:
+        match other:
+            case int() | float():
+                for i in range(self.num_rows):
+                    for j in range(self.num_cols):
+                        if self[i, j] > other:
+                            return False
+                return True
+            case Matrix():
+                if self.size != other.size:
                     return False
-        return True
+                for i in range(self.num_rows):
+                    for j in range(self.num_cols):
+                        if self[i, j] > other[i, j]:
+                            return False
+                return True
+            case _:
+                pass
+        return NotImplemented
 
     def __gt__(self, other: Self | float | int) -> bool:
         return not self.__le__(other)
@@ -379,17 +393,24 @@ class Matrix:
         return not self.__lt__(other)
 
     def __add__(self, other: Self | float | int) -> Self:
-        if not isinstance(other, (Matrix, float, int)):
-            return NotImplemented
-        if isinstance(other, (float, int)):
-            other = Matrix.fill(*self.size, other)
-        if self.size != other.size:
-            raise ValueError("Matrices must be the same size to be added.")
-        M = Matrix.zeros(*self.size)
-        for i in range(self.num_rows):
-            for j in range(self.num_cols):
-                M[i, j] = self[i, j] + other[i, j]
-        return M
+        match other:
+            case int() | float():
+                M = Matrix.zeros(*self.size)
+                for i in range(self.num_rows):
+                    for j in range(self.num_cols):
+                        M[i, j] = self[i, j] + other
+                return M
+            case Matrix():
+                if self.size != other.size:
+                    raise ValueError("Matrices must be the same size to be added.")
+                M = Matrix.zeros(*self.size)
+                for i in range(self.num_rows):
+                    for j in range(self.num_cols):
+                        M[i, j] = self[i, j] + other[i, j]
+                return M
+            case _:
+                pass
+        return NotImplemented
 
     def __radd__(self, other: Self | float | int) -> Self:
         return self.__add__(other)
@@ -449,9 +470,12 @@ class Matrix:
         return M
 
     def __rmul__(self, other: int | float) -> Self:
-        if not isinstance(other, (float, int)):
-            return NotImplemented
-        return self.__mul__(other)
+        match other:
+            case int() | float():
+                return self.__mul__(other)
+            case _:
+                pass
+        return NotImplemented
 
     def __abs__(self) -> Self:
         M = Matrix.zeros(*self.size)
@@ -461,7 +485,11 @@ class Matrix:
         return M
 
     def __neg__(self) -> Self:
-        return -1.0 * self
+        M = Matrix.zeros(*self.size)
+        for i in range(self.num_rows):
+            for j in range(self.num_cols):
+                M[i, j] = -self[i, j]
+        return M
 
     def __len__(self) -> int:
         """Returns the length of the calling Matrix, defined as the maximum dimension.
