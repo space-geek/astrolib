@@ -5,11 +5,8 @@ from copy import copy
 from itertools import repeat
 import math
 from typing import Iterator
-from typing import List
 from typing import Optional
 from typing import Self
-from typing import Tuple
-from typing import Union
 
 from astrolib.constants import MACHINE_EPSILON
 
@@ -56,7 +53,7 @@ class Matrix:
         return cls()
 
     @classmethod
-    def from_column_matrices(cls, matrices: List[Self]) -> Self:
+    def from_column_matrices(cls, matrices: list[Self]) -> Self:
         """TODO: Method docstring"""
         if not isinstance(matrices, list):
             raise ValueError(
@@ -73,19 +70,19 @@ class Matrix:
 
     def __init__(
         self,
-        A: Optional[List[int | float] | List[List[int | float]]] = None,
+        A: Optional[list[int | float] | list[list[int | float]]] = None,
     ) -> None:  # TODO make it so that matrix takes iterables
         """Initialization method for the Matrix class.
 
         Args:
-            A (Optional[List[float] | List[List[float]]]): An object containing
+            A (Optional[list[float] | list[list[float]]]): An object containing
                 the intended data to be captured in the resulting Matrix. The
                 behavior is as follows based on the content type:
                     None: A null matrix is initialized. Default case.
-                    List[int | float]: A row matrix is initialized containing
+                    list[int | float]: A row matrix is initialized containing
                         the provided data.
-                    List[List[int | float]]: A 2x2 matrix is initialized containing
-                        the provided data. Each entry in the inner List is
+                    list[list[int | float]]: A 2x2 matrix is initialized containing
+                        the provided data. Each entry in the inner list is
                         interpreted as a row of the resulting matrix.
 
         Returns:
@@ -106,13 +103,13 @@ class Matrix:
             for row in A:
                 if len(row) != num_cols:
                     raise ValueError("Each row must have the same number of columns.")
-        self._A: List[List[int | float]] = A
+        self._A: list[list[int | float]] = A
 
     def __hash__(self) -> int:
         return hash(str(self))
 
     def __str__(self) -> str:
-        def _stringify_row(row: List[str]) -> str:
+        def _stringify_row(row: list[str]) -> str:
             return ", ".join([str(x) for x in row])
 
         match self.size:
@@ -136,15 +133,15 @@ class Matrix:
 
     def __setitem__(
         self,
-        indices: Tuple[int | slice, int | slice] | int | slice,
+        indices: tuple[int | slice, int | slice] | int | slice,
         value: float | int | Self,
     ) -> None:
         if isinstance(indices, (int, float, slice)):
             m, n = self.size
             if m == 1:
-                indices: Tuple[int, int | float | slice] = (0, indices)
+                indices: tuple[int, int | float | slice] = (0, indices)
             elif n == 1:
-                indices: Tuple[int | float | slice, int] = (indices, 0)
+                indices: tuple[int | float | slice, int] = (indices, 0)
             else:
                 raise ValueError(
                     "Single-index indexing only supported for row or column "
@@ -229,14 +226,14 @@ class Matrix:
 
     def __getitem__(
         self,
-        indices: Tuple[int | float | slice, int | float | slice] | int | float | slice,
+        indices: tuple[int | float | slice, int | float | slice] | int | float | slice,
     ) -> int | float | Self:
         if isinstance(indices, (int, float, slice)):
             m, n = self.size
             if m == 1:
-                indices: Tuple[int, int | float | slice] = (0, indices)
+                indices: tuple[int, int | float | slice] = (0, indices)
             elif n == 1:
-                indices: Tuple[int | float | slice, int] = (indices, 0)
+                indices: tuple[int | float | slice, int] = (indices, 0)
             else:
                 raise ValueError(
                     "Single-index indexing only supported for row or column "
@@ -287,7 +284,7 @@ class Matrix:
                 raise ValueError("Unsupported access indices provided.")
         return M
 
-    def __iter__(self) -> Iterator[float] | Iterator[List[float]]:
+    def __iter__(self) -> Iterator[float] | Iterator[list[float]]:
         m, n = self.size
         if m == 1:
             for x in self._A[0]:
@@ -317,7 +314,7 @@ class Matrix:
         return len(self._A[0]) if self._A else 0
 
     @property
-    def size(self) -> Tuple[int, int]:
+    def size(self) -> tuple[int, int]:
         """TODO: Property docstring"""
         return self.num_rows, self.num_cols
 
@@ -443,7 +440,6 @@ class Matrix:
         The Algorithm Design Manual, Skeina, 3rd Ed.; Section 16.3, p. 472
         """
         if not isinstance(other, (Matrix, float, int)):
-            print(type(other))
             return NotImplemented
         match other:
             case int() | float():
@@ -723,13 +719,13 @@ class Vector3(Matrix):
     def __repr__(self) -> str:
         return f"[{self.x}, {self.y}, {self.z}]"
 
-    def __add__(self, other: Union[Matrix, Self]) -> Self:
+    def __add__(self, other: Matrix | Self) -> Self:
         return Vector3.from_matrix(super().__add__(other))
 
-    def __sub__(self, other: Union[Matrix, Self]) -> Self:
+    def __sub__(self, other: Matrix | Self) -> Self:
         return Vector3.from_matrix(super().__sub__(other))
 
-    def __rsub__(self, other: Union[Matrix, Self]) -> Self:
+    def __rsub__(self, other: Matrix | Self) -> Self:
         return Vector3.from_matrix(super().__rsub__(other))
 
     def __mul__(self, other: int | float | Matrix) -> Self:
