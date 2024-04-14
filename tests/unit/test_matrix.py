@@ -264,7 +264,11 @@ class Test_Matrix(unittest.TestCase):
             "The matrix instantiation from column matrices was not completed successfully.",
         )
         with self.assertRaises(ValueError):
+            Matrix.from_column_matrices("foo")
+        with self.assertRaises(ValueError):
             Matrix.from_column_matrices([A, F])
+        with self.assertRaises(ValueError):
+            Matrix.from_column_matrices(["foo"])
 
     def test_equals(self):
         A = Matrix([[1, 2, 3], [4, 5, 6]])
