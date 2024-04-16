@@ -52,22 +52,6 @@ class Matrix:
         """TODO: Method docstring"""
         return cls()
 
-    @classmethod
-    def from_column_matrices(cls, matrices: list[Self]) -> Self:
-        """TODO: Method docstring"""
-        if not isinstance(matrices, list):
-            raise ValueError(
-                "Input collection must be a list of matrices to concatenate."
-            )
-        for A in matrices:
-            if not isinstance(A, Matrix):
-                raise ValueError(
-                    "Input collection must be a list of matrices to concatenate."
-                )
-            if A.num_cols != 1:
-                raise ValueError("Each matrix must be a column matrix to concatenate.")
-        return cls([[row] for A in matrices for row in A])
-
     def __init__(
         self,
         A: Optional[list[int | float] | list[list[int | float]]] = None,
@@ -122,14 +106,8 @@ class Matrix:
         return f"[{data}]"
 
     def __repr__(self) -> str:
-        match self.size:
-            case 1, _:
-                data: str = ", ".join(str(x) for x in self._A[0])
-            case _, 1:
-                data: str = "; ".join(str(row[0]) for row in self._A)
-            case _:
-                data: str = "; ".join(", ".join(str(x) for x in row) for row in self)
-        return f"[{data}]"
+        data = ", ".join(f"[{', '.join(str(x) for x in row)}]" for row in self._A)
+        return f"Matrix([{data}])" if data else "Matrix()"
 
     def __setitem__(
         self,
@@ -495,14 +473,6 @@ class Matrix:
         """
         return int(max(self.size))
 
-    def get_row(self, idx: int) -> Self:
-        """TODO: Method docstring"""
-        return Matrix([self._A[idx]])
-
-    def get_col(self, idx: int) -> Self:
-        """TODO: Method docstring"""
-        return Matrix([row[idx] for row in self._A]).transpose()
-
     def transpose(self) -> Self:
         """Returns the transpose of the calling matrix."""
         M = Matrix.zeros(self.num_cols, self.num_rows)
@@ -549,23 +519,6 @@ class Matrix:
     def inverse(self) -> Self:
         """Returns the inverse of the calling matrix, computed using the cofactor method."""
 
-        def compute_cofactor_matrix(A: Matrix) -> Matrix:
-            """Returns the cofactor matrix computed from the input matrix."""
-            m, n = A.size
-            if m != n:
-                raise ValueError(
-                    "The input matrix is not square. The cofactor matrix does not "
-                    "exist."
-                )
-            M = Matrix.zeros(*A.size)
-            for i in range(A.num_rows):
-                for j in range(A.num_cols):
-                    A_temp = A[:, :]
-                    A_temp[i, :] = Matrix.empty()
-                    A_temp[:, j] = Matrix.empty()
-                    M[i, j] = pow(-1, i + j) * A_temp.determinant()
-            return M
-
         m, n = self.size
         if m != n:
             raise ValueError(
@@ -576,8 +529,9 @@ class Matrix:
             raise ValueError(
                 "The calling matrix is singular. The matrix inverse does not exist."
             )
-        return (1 / d) * compute_cofactor_matrix(self).transpose()
+        return (1 / d) * _compute_cofactor_matrix(self).transpose()
 
+    @property
     def is_row_matrix(self) -> bool:
         """Returns True if the calling Matrix is a row matrix (i.e. has one row and one or more
             columns), False otherwise.
@@ -587,6 +541,7 @@ class Matrix:
         """
         return self.num_rows == 1
 
+    @property
     def is_column_matrix(self) -> bool:
         """Returns True if the calling Matrix is a column matrix (i.e. has one column and one or
             more rows), False otherwise.
@@ -605,15 +560,6 @@ class Matrix:
             bool: Boolean indicator of whether or not the calling matrix is square.
         """
         return self.num_rows == self.num_cols
-
-    def to_column_matrix(self) -> Self:
-        """Returns a copy of the calling Matrix expressed as a column matrix, with each row
-            stacked in sequence.
-
-        Returns:
-            Matrix: A copy of the calling matrix, in column matrix form.
-        """
-        return Matrix.from_column_matrices([row.transpose() for row in self])
 
 
 class Vector3(Matrix):
@@ -681,57 +627,85 @@ class Vector3(Matrix):
         return cls(*M)
 
     def __init__(self, x: int | float, y: int | float, z: int | float):
-        super().__init__([[x], [y], [z]])
+        super().__init__([[float(x)], [float(y)], [float(z)]])
 
     @property
     def x(self) -> float:
         """TODO: Property docstring"""
-        return self[0, 0]
+        return self._A[0][0]
 
     @x.setter
-    def x(self, value: float):
+    def x(self, value: int | float):
         """TODO: Property docstring"""
-        self[0, 0] = value
+        self._A[0][0] = float(value)
 
     @property
     def y(self) -> float:
         """TODO: Property docstring"""
-        return self[1, 0]
+        return self._A[1][0]
 
     @y.setter
-    def y(self, value: float):
+    def y(self, value: int | float):
         """TODO: Property docstring"""
-        self[1, 0] = value
+        self._A[1][0] = float(value)
 
     @property
     def z(self) -> float:
         """TODO: Property docstring"""
-        return self[2, 0]
+        return self._A[2][0]
 
     @z.setter
-    def z(self, value: float):
+    def z(self, value: int | float):
         """TODO: Property docstring"""
-        self[2, 0] = value
+        self._A[2][0] = float(value)
 
     def __str__(self) -> str:
-        return f"[x = {self.x}, y = {self.y}, z = {self.z}]"
-
-    def __repr__(self) -> str:
         return f"[{self.x}, {self.y}, {self.z}]"
 
-    def __add__(self, other: Matrix | Self) -> Self:
-        return Vector3.from_matrix(super().__add__(other))
+    def __repr__(self) -> str:
+        return f"Vector3({self.x}, {self.y}, {self.z})"
 
-    def __sub__(self, other: Matrix | Self) -> Self:
-        return Vector3.from_matrix(super().__sub__(other))
+    def __iter__(self) -> Iterator[float]:
+        yield self.x
+        yield self.y
+        yield self.z
 
-    def __rsub__(self, other: Matrix | Self) -> Self:
-        return Vector3.from_matrix(super().__rsub__(other))
+    def __add__(self, other: int | float | Matrix | Self) -> Self:
+        match other:
+            case int() | float():
+                return Vector3(*(x + other for x in self))
+            case Vector3():
+                return Vector3(*(getattr(self, x) + getattr(other, x) for x in "xyz"))
+            case Matrix():
+                if other.size == self.size:
+                    return Vector3(*(self[idx] + other[idx] for idx in range(3)))
+            case _:
+                pass
+        return NotImplemented
+
+    def __radd__(self, other: int | float | Matrix | Self) -> Self:
+        return self.__add__(other)
+
+    def __sub__(self, other: int | float | Matrix | Self) -> Self:
+        match other:
+            case int() | float():
+                return Vector3(*(x - other for x in self))
+            case Vector3():
+                return Vector3(*(getattr(self, x) - getattr(other, x) for x in "xyz"))
+            case Matrix():
+                if other.size == self.size:
+                    return Vector3(*(self[idx] - other[idx] for idx in range(3)))
+            case _:
+                pass
+        return NotImplemented
+
+    def __rsub__(self, other: float | int | Matrix | Self) -> Self:
+        return -1.0 * self.__sub__(other)
 
     def __mul__(self, other: int | float | Matrix) -> Self:
         match other:
             case int() | float():
-                return Vector3.from_matrix(super().__mul__(other))
+                return Vector3(*(other * x for x in self))
             case Matrix():
                 if other.num_rows == 1:
                     return super().__mul__(other)
@@ -746,12 +720,15 @@ class Vector3(Matrix):
     def __rmul__(self, other: int | float | Matrix) -> Self:
         match other:
             case int() | float():
-                return Vector3.from_matrix(super().__rmul__(other))
+                return Vector3(*(other * x for x in self))
             case Matrix():
                 if other.num_cols == 3:
                     result: int | float | Matrix = other.__mul__(self)
-                    if isinstance(result, Matrix) and result.num_rows == 3:
-                        return Vector3.from_matrix(result)
+                    if isinstance(result, Matrix):
+                        try:
+                            return Vector3.from_matrix(result)
+                        except ValueError:
+                            pass
                     return result
                 raise ValueError(
                     "The multiplying matrix must have 3 columns but is instead of size "
@@ -762,10 +739,10 @@ class Vector3(Matrix):
         return NotImplemented
 
     def __abs__(self) -> Self:
-        return Vector3.from_matrix(super().__abs__())
+        return Vector3(*(abs(x) for x in self))
 
     def __neg__(self) -> Self:
-        return Vector3.from_matrix(super().__neg__())
+        return Vector3(*(-1 * x for x in self))
 
     def norm(self) -> float:
         """Returns the Euclidean norm of the calling vector."""
@@ -780,7 +757,7 @@ class Vector3(Matrix):
         vector, computed as C = A x B for C = A.cross(B).
         """
         if not isinstance(other, Vector3):
-            return NotImplemented
+            raise NotImplementedError
         x = self.y * other.z - self.z * other.y
         y = self.z * other.x - self.x * other.z
         z = self.x * other.y - self.y * other.x
@@ -791,7 +768,7 @@ class Vector3(Matrix):
         vector, computed as C = A * B for C = A.dot(B).
         """
         if not isinstance(other, Vector3):
-            return NotImplemented
+            raise NotImplementedError
         return self.x * other.x + self.y * other.y + self.z * other.z
 
     def vertex_angle(self, other: Self) -> float:
@@ -809,7 +786,7 @@ class Vector3(Matrix):
                 in radians.
         """
         if not isinstance(other, Vector3):
-            return NotImplemented
+            raise NotImplementedError
         return math.atan2(self.cross(other).norm(), self.dot(other))
 
     def normalize(self) -> None:
@@ -837,3 +814,20 @@ class Vector3(Matrix):
                 [-self.y, self.x, 0],
             ]
         )
+
+
+def _compute_cofactor_matrix(A: Matrix) -> Matrix:
+    """Returns the cofactor matrix computed from the input matrix."""
+    m, n = A.size
+    if m != n:
+        raise ValueError(
+            "The input matrix is not square. The cofactor matrix does not exist."
+        )
+    M = Matrix.zeros(*A.size)
+    for i in range(A.num_rows):
+        for j in range(A.num_cols):
+            A_temp = A[:, :]
+            A_temp[i, :] = Matrix.empty()
+            A_temp[:, j] = Matrix.empty()
+            M[i, j] = pow(-1, i + j) * A_temp.determinant()
+    return M

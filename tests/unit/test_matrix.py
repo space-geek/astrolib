@@ -4,6 +4,7 @@
 import math
 import unittest
 
+from astrolib.matrix import _compute_cofactor_matrix
 from astrolib.matrix import Matrix
 from astrolib.matrix import Vector3
 
@@ -38,6 +39,8 @@ class Test_Matrix(unittest.TestCase):
             Matrix(1)
         with self.assertRaises(ValueError):
             Matrix("test")
+        with self.assertRaises(ValueError):
+            Matrix(["test"])
 
     def test_get_item(self):
         A = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
@@ -60,6 +63,8 @@ class Test_Matrix(unittest.TestCase):
         self.assertTrue(B[1:3] == H, "Matrix indexing not done correctly.")
         with self.assertRaises(ValueError):
             A[0:2]
+        with self.assertRaises(ValueError):
+            A["abc", "abc"]
 
     def test_set_item(self):
         A = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
@@ -96,6 +101,21 @@ class Test_Matrix(unittest.TestCase):
         self.assertTrue(A == H, "Matrix assignment not done correctly")
         with self.assertRaises(ValueError):
             A[:, :] = Matrix.empty()
+        mat = Matrix.ones(1, 3)
+        mat[1:] = Matrix.zeros(1, 2)
+        self.assertTrue(mat == Matrix([1, 0, 0]))
+        mat = Matrix.ones(3, 1)
+        mat[1:] = Matrix.zeros(2, 1)
+        self.assertTrue(mat == Matrix([1, 0, 0]).transpose())
+        mat = Matrix.ones(3)
+        with self.assertRaises(ValueError):
+            mat[1:] = Matrix.zeros(1, 2)
+        with self.assertRaises(ValueError):
+            mat[1:, 1] = 0.0
+        with self.assertRaises(ValueError):
+            mat[1, 1:] = 0.0
+        with self.assertRaises(ValueError):
+            mat["abc", "abc"] = "abc"
 
     def test_num_rows(self):
         A = Matrix([[1, 2, 3], [4, 5, 6]])
@@ -217,59 +237,6 @@ class Test_Matrix(unittest.TestCase):
         with self.assertRaises(ValueError):
             Matrix.identity(0)
 
-    def test_from_column_matrices(self):
-        A = Matrix.zeros(3, 1)
-        B = Matrix.ones(4, 1)
-        C = Matrix.fill(2, 1, 1.2345)
-        D = Vector3(1, 2, 3)
-        E = Vector3.zeros()
-        F = Matrix.zeros(2, 2)
-        G = Matrix.from_column_matrices([D, E])
-        truth_mat_1 = Matrix([[0], [0], [0], [1], [1], [1], [1], [1.2345], [1.2345]])
-        truth_mat_2 = Matrix([[1], [2], [3], [0], [0], [0]])
-        truth_mat_3 = Matrix(
-            [
-                [0],
-                [0],
-                [0],
-                [1],
-                [1],
-                [1],
-                [1],
-                [1.2345],
-                [1.2345],
-                [1],
-                [2],
-                [3],
-                [0],
-                [0],
-                [0],
-            ]
-        )
-        self.assertTrue(
-            Matrix.from_column_matrices([A, B, C]) == truth_mat_1,
-            "The matrix instantiation from column matrices was not completed successfully.",
-        )
-        for row in G:
-            self.assertTrue(
-                isinstance(row, (float, int)),
-                "The matrix instantiation from column matrices was not completed successfully.",
-            )
-        self.assertTrue(
-            G == truth_mat_2,
-            "The matrix instantiation from column matrices was not completed successfully.",
-        )
-        self.assertTrue(
-            Matrix.from_column_matrices([A, B, C, D, E]) == truth_mat_3,
-            "The matrix instantiation from column matrices was not completed successfully.",
-        )
-        with self.assertRaises(ValueError):
-            Matrix.from_column_matrices("foo")
-        with self.assertRaises(ValueError):
-            Matrix.from_column_matrices([A, F])
-        with self.assertRaises(ValueError):
-            Matrix.from_column_matrices(["foo"])
-
     def test_equals(self):
         A = Matrix([[1, 2, 3], [4, 5, 6]])
         B = Matrix([[4, 5, 6], [7, 8, 9]])
@@ -308,6 +275,12 @@ class Test_Matrix(unittest.TestCase):
         self.assertTrue(A > E, "A is greater than E")
         self.assertTrue(A >= E, "A is greater than or equal to E")
         self.assertTrue(A >= F, "A is greater than or equal to F")
+        self.assertFalse(A < Matrix.zeros(2))
+        self.assertFalse(A <= Matrix.zeros(2))
+        with self.assertRaises(TypeError):
+            A < "foo"
+        with self.assertRaises(TypeError):
+            A <= "foo"
 
     def test_neg(self):
         A = Matrix.ones(3, 2)
@@ -362,6 +335,9 @@ class Test_Matrix(unittest.TestCase):
             A - "foo"
         with self.assertRaises(TypeError):
             "foo" - A
+        with self.assertRaises(ValueError):
+            # pylint: disable=expression-not-assigned
+            A - Matrix.ones(2)
 
     def test_mult(self):
         A = Matrix(
@@ -445,6 +421,8 @@ class Test_Matrix(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             G * F
+        with self.assertRaises(TypeError):
+            "foo" * G
 
     def test_transpose(self):
         A = Matrix([[1, 2, 3], [4, 5, 6]])
@@ -475,6 +453,8 @@ class Test_Matrix(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             C.inverse()
+        with self.assertRaises(ValueError):
+            Matrix.zeros(3).inverse()
         # TODO Add more test cases
 
     def test_diag(self) -> None:
@@ -491,6 +471,28 @@ class Test_Matrix(unittest.TestCase):
         self.assertTrue(A.is_square)
         self.assertTrue(not B.is_square)
 
+    def test_is_row_matrix(self) -> None:
+        """Tests for the is_row_matrix method."""
+        A = Matrix.ones(1, 3)
+        B = Matrix.ones(3, 1)
+        C = Matrix.ones(3, 3)
+        D = Matrix.ones(1, 1)
+        self.assertTrue(A.is_row_matrix)
+        self.assertFalse(B.is_row_matrix)
+        self.assertFalse(C.is_row_matrix)
+        self.assertTrue(D.is_row_matrix)
+
+    def test_is_column_matrix(self) -> None:
+        """Tests for the is_column_matrix method."""
+        A = Matrix.ones(1, 3)
+        B = Matrix.ones(3, 1)
+        C = Matrix.ones(3, 3)
+        D = Matrix.ones(1, 1)
+        self.assertFalse(A.is_column_matrix)
+        self.assertTrue(B.is_column_matrix)
+        self.assertFalse(C.is_column_matrix)
+        self.assertTrue(D.is_column_matrix)
+
     def test_trace(self) -> None:
         A = Matrix.identity(5)
         B = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
@@ -505,13 +507,52 @@ class Test_Matrix(unittest.TestCase):
         # TODO add adjoint tests once implementation is complete
         self.assertTrue(False)
 
+    def test_hash(self) -> None:
+        """Unit tests for the hash dunder method."""
+        mat = Matrix([[1, 2]])
+        expected = hash("[1, 2]")
+        self.assertTrue(hash(mat) == expected)
+
+    def test_repr(self) -> None:
+        """Unit tests for the repr dunder method."""
+        self.assertTrue(repr(Matrix()) == "Matrix()")
+        self.assertTrue(repr(Matrix.identity(2)) == "Matrix([[1.0, 0.0], [0.0, 1.0]])")
+        self.assertTrue(repr(Matrix([1, 2])) == "Matrix([[1, 2]])")
+        self.assertTrue(repr(Matrix([[1], [2]])) == "Matrix([[1], [2]])")
+
+    def test_round(self) -> None:
+        """Unit tests for the round dunder method."""
+        A = Matrix.fill(10, 10, 1.0e-3)
+        self.assertTrue(round(A) == A)
+        self.assertTrue(round(A, 3) == A)
+        # pylint: disable=not-an-iterable
+        self.assertTrue(round(A, 2) == Matrix.zeros(*A.size))
+
+    def test_iter(self) -> None:
+        """Unit tests for the iter dunder method."""
+        self.assertTrue(all(isinstance(x, float) for x in Matrix.ones(2, 1)))
+        self.assertTrue(all(isinstance(x, float) for x in Matrix.ones(1, 2)))
+        self.assertTrue(all(isinstance(x, list) for x in Matrix.ones(2, 2)))
+
 
 class Test_Vector3(unittest.TestCase):
     def test_constructor(self):
         A = Vector3(1, 2, 3)
+        self.assertIsInstance(A.x, float)
+        self.assertIsInstance(A.y, float)
+        self.assertIsInstance(A.z, float)
         self.assertTrue(A.x == 1, "The vector was not initialized successfully.")
         self.assertTrue(A.y == 2, "The vector was not initialized successfully.")
         self.assertTrue(A.z == 3, "The vector was not initialized successfully.")
+
+    def test_not_supported_superclass_methods(self) -> None:
+        """Tests to verify not supported superclass methods."""
+        with self.assertRaises(NotImplementedError):
+            Vector3.identity(3)
+        with self.assertRaises(NotImplementedError):
+            Vector3.fill(1, 2, 3)
+        with self.assertRaises(NotImplementedError):
+            Vector3.empty()
 
     def test_ones(self):
         A = Vector3.ones()
@@ -522,17 +563,28 @@ class Test_Vector3(unittest.TestCase):
     def test_zeros(self):
         A = Vector3.zeros()
         self.assertTrue(
-            isinstance(A.x, int), "The vector was not initialized successfully."
+            isinstance(A.x, float), "The vector was not initialized successfully."
         )
         self.assertTrue(
-            isinstance(A.y, int), "The vector was not initialized successfully."
+            isinstance(A.y, float), "The vector was not initialized successfully."
         )
         self.assertTrue(
-            isinstance(A.z, int), "The vector was not initialized successfully."
+            isinstance(A.z, float), "The vector was not initialized successfully."
         )
         self.assertTrue(A.x == 0, "The vector was not initialized successfully.")
         self.assertTrue(A.y == 0, "The vector was not initialized successfully.")
         self.assertTrue(A.z == 0, "The vector was not initialized successfully.")
+
+    def test_from_matrix(self) -> None:
+        """Tests for the from_matrix class method."""
+        vec = Vector3.from_matrix(Matrix.ones(3, 1))
+        self.assertTrue(vec, Vector3(1, 1, 1))
+        vec = Vector3.from_matrix(Matrix.ones(1, 3))
+        self.assertTrue(vec, Vector3(1, 1, 1))
+        with self.assertRaises(ValueError):
+            Vector3.from_matrix("abc")
+        with self.assertRaises(ValueError):
+            Vector3.from_matrix(Matrix.ones(3))
 
     def test_add(self):
         A = Vector3(1, 2, 3)
@@ -542,6 +594,13 @@ class Test_Vector3(unittest.TestCase):
         self.assertTrue(B + A == C, "The vector sum was not computed successfully.")
         self.assertTrue(A + 3 == B, "The vector sum was not computed successfully.")
         self.assertTrue(3 + A == B, "The vector sum was not computed successfully.")
+        self.assertTrue(A + Matrix.ones(3, 1) == Vector3(2, 3, 4))
+        with self.assertRaises(ValueError):
+            # pylint: disable=expression-not-assigned
+            A + Matrix.ones(3, 3)
+        with self.assertRaises(TypeError):
+            # pylint: disable=expression-not-assigned
+            "foo" + A
 
     def test_subtract(self):
         A = Vector3(1, 2, 3)
@@ -556,8 +615,15 @@ class Test_Vector3(unittest.TestCase):
         self.assertTrue(
             B - 3 == A, "The vector difference was not computed successfully."
         )
+        self.assertTrue(Vector3.unit_x() - Matrix.ones(3, 1) == Vector3(0, -1, -1))
+        with self.assertRaises(ValueError):
+            # pylint: disable=expression-not-assigned
+            A - Matrix.ones(3, 3)
+        with self.assertRaises(TypeError):
+            # pylint: disable=expression-not-assigned
+            "foo" - A
 
-    def test_mul(self):
+    def test_multiplication(self):
         x = Vector3(1, 2, 3)
         A = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         b = Vector3(14, 32, 50)
@@ -576,6 +642,10 @@ class Test_Vector3(unittest.TestCase):
         )
         self.assertTrue(
             2 * x == c,
+            "The scalar multiplication with the vector was not computed successfully.",
+        )
+        self.assertTrue(
+            x * 2 == c,
             "The scalar multiplication with the vector was not computed successfully.",
         )
         self.assertTrue(
@@ -599,6 +669,21 @@ class Test_Vector3(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             x * A
+        with self.assertRaises(TypeError):
+            # pylint: disable=expression-not-assigned
+            Vector3.unit_x() * "abc"
+        self.assertTrue(isinstance(Matrix.ones(1, 3) * Vector3.unit_x(), float))
+        self.assertTrue(Matrix.ones(1, 3) * Vector3.unit_x() == 1.0)
+        self.assertTrue(isinstance(Matrix.ones(2, 3) * Vector3.unit_x(), Matrix))
+        self.assertTrue(Matrix.ones(2, 3) * Vector3.unit_x() == Matrix([[1], [1]]))
+        self.assertTrue(isinstance(Matrix.identity(3) * Vector3.unit_x(), Vector3))
+        self.assertTrue(Matrix.identity(3) * Vector3.unit_x() == Vector3.unit_x())
+        with self.assertRaises(ValueError):
+            # pylint: disable=expression-not-assigned
+            Matrix.zeros(3, 1) * x
+        with self.assertRaises(TypeError):
+            # pylint: disable=expression-not-assigned
+            "abc" * Vector3.unit_x()
 
     def test_norm(self):
         A = Vector3(0.5377, 1.8339, -2.2588)
@@ -624,6 +709,8 @@ class Test_Vector3(unittest.TestCase):
             abs(B.cross(A) - BxA) <= 1.0e-03 * Vector3.ones(),
             "The cross product was not computed successfully.",
         )
+        with self.assertRaises(NotImplementedError):
+            A.cross("abc")
 
     def test_dot(self):
         # TODO Update Matrix class to utilize Decimal class for its elements instead of floats to increase numeric precision
@@ -638,6 +725,8 @@ class Test_Vector3(unittest.TestCase):
             abs(B.dot(A) - dot_product) <= 1.0e-03,
             "The dot product was not computed successfully.",
         )
+        with self.assertRaises(NotImplementedError):
+            A.dot("abc")
 
     def test_normalize(self):
         A = Vector3(0.5377, 1.8339, -2.2588)
@@ -675,6 +764,8 @@ class Test_Vector3(unittest.TestCase):
         self.assertTrue(abs(A.vertex_angle(C) - math.pi / 6) <= 1.0e-6)
         self.assertTrue(A.vertex_angle(D) == 0.0)
         self.assertTrue(D.vertex_angle(A) == 0.0)
+        with self.assertRaises(NotImplementedError):
+            A.vertex_angle("abc")
 
     def test_unit_x(self):
         self.assertTrue(Vector3.unit_x() == Vector3(1, 0, 0))
@@ -689,3 +780,29 @@ class Test_Vector3(unittest.TestCase):
         A = Vector3(1, 2, 3)
         B = Matrix([[0, -3, 2], [3, 0, -1], [-2, 1, 0]])
         self.assertTrue(abs(A.skew() - B) <= 1.0e-16)
+
+    def test_str(self) -> None:
+        """Tests for the str method."""
+        self.assertTrue(str(Vector3(1, 2, 3.0)) == "[1.0, 2.0, 3.0]")
+
+    def test_repr(self) -> None:
+        """Tests for the Vector3 repr method."""
+        self.assertTrue(repr(Vector3(1, 2, 3.0)) == "Vector3(1.0, 2.0, 3.0)")
+
+
+class Test_ComputeCofactorMatrix(unittest.TestCase):
+    """Class defines unit tests for the
+    _compute_cofactor_matrix() function.
+    """
+
+    @unittest.expectedFailure
+    def test_success(self) -> None:
+        """Method defines tests for the function."""
+        A = Matrix([[-4, 7], [-11, 9]])
+        B = Matrix([[9, 11], [-7, -4]])
+        self.assertTrue(_compute_cofactor_matrix(A) == B)
+
+    def test_failure(self) -> None:
+        """Method defines tests for the function"""
+        with self.assertRaises(ValueError):
+            _compute_cofactor_matrix(Matrix.ones(3, 2))
