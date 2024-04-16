@@ -82,7 +82,7 @@ class DirectionCosineMatrix:
 
     def __repr__(self) -> str:
         return (
-            f"DirectionCosineMatrix(Matrix([{', '.join(repr(x) for x in self.rows)}]))"
+            f"DirectionCosineMatrix(Matrix([{', '.join(str(x) for x in self.rows)}]))"
         )
 
     def __eq__(self, other: Self | Matrix) -> bool:
