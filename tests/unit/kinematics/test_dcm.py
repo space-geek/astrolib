@@ -5,9 +5,9 @@ import math
 import unittest
 
 from astrolib.matrix import Matrix
-from astrolib.matrix import Vector3
 from astrolib.kinematics.dcm import DirectionCosineMatrix
 from astrolib.kinematics.dcm import matrix_is_orthogonal
+from astrolib.vector import Vector3
 
 
 class TestDirectionCosineMatrix(unittest.TestCase):
@@ -56,9 +56,9 @@ class TestDirectionCosineMatrix(unittest.TestCase):
         self.assertTrue(dcm[0, 2] - 0.0 <= machine_precision)
         self.assertTrue(dcm[1, 0] - 0.0 <= machine_precision)
         self.assertTrue(dcm[1, 1] - 0.0 <= machine_precision)
-        self.assertTrue(dcm[1, 2] - 1.0 <= machine_precision)
+        self.assertTrue(dcm[1, 2] + 1.0 <= machine_precision)
         self.assertTrue(dcm[2, 0] - 0.0 <= machine_precision)
-        self.assertTrue(dcm[2, 1] + 1.0 <= machine_precision)
+        self.assertTrue(dcm[2, 1] - 1.0 <= machine_precision)
         self.assertTrue(dcm[2, 2] - 0.0 <= machine_precision)
         self.assertIsInstance(dcm[:2, :2], Matrix)
         self.assertTrue(dcm[:2, :2].size == (2, 2))
@@ -94,9 +94,9 @@ class TestDirectionCosineMatrix(unittest.TestCase):
         self.assertTrue(dcm[0, 2] - 0.0 <= machine_precision)
         self.assertTrue(dcm[1, 0] - 0.0 <= machine_precision)
         self.assertTrue(dcm[1, 1] - 0.0 <= machine_precision)
-        self.assertTrue(dcm[1, 2] - 1.0 <= machine_precision)
+        self.assertTrue(dcm[1, 2] + 1.0 <= machine_precision)
         self.assertTrue(dcm[2, 0] - 0.0 <= machine_precision)
-        self.assertTrue(dcm[2, 1] + 1.0 <= machine_precision)
+        self.assertTrue(dcm[2, 1] - 1.0 <= machine_precision)
         self.assertTrue(dcm[2, 2] - 0.0 <= machine_precision)
 
     def test_r_y(self):
@@ -105,11 +105,11 @@ class TestDirectionCosineMatrix(unittest.TestCase):
         dcm = DirectionCosineMatrix.r_y(math.radians(90))
         self.assertTrue(dcm[0, 0] - 0.0 <= machine_precision)
         self.assertTrue(dcm[0, 1] - 0.0 <= machine_precision)
-        self.assertTrue(dcm[0, 2] + 1.0 <= machine_precision)
+        self.assertTrue(dcm[0, 2] - 1.0 <= machine_precision)
         self.assertTrue(dcm[1, 0] - 0.0 <= machine_precision)
         self.assertTrue(dcm[1, 1] - 1.0 <= machine_precision)
         self.assertTrue(dcm[1, 2] - 0.0 <= machine_precision)
-        self.assertTrue(dcm[2, 0] - 1.0 <= machine_precision)
+        self.assertTrue(dcm[2, 0] + 1.0 <= machine_precision)
         self.assertTrue(dcm[2, 1] - 0.0 <= machine_precision)
         self.assertTrue(dcm[2, 2] - 0.0 <= machine_precision)
 
@@ -118,9 +118,9 @@ class TestDirectionCosineMatrix(unittest.TestCase):
         machine_precision: float = 1.0e-16
         dcm = DirectionCosineMatrix.r_z(math.radians(90))
         self.assertTrue(dcm[0, 0] - 0.0 <= machine_precision)
-        self.assertTrue(dcm[0, 1] - 1.0 <= machine_precision)
+        self.assertTrue(dcm[0, 1] + 1.0 <= machine_precision)
         self.assertTrue(dcm[0, 2] - 0.0 <= machine_precision)
-        self.assertTrue(dcm[1, 0] + 1.0 <= machine_precision)
+        self.assertTrue(dcm[1, 0] - 1.0 <= machine_precision)
         self.assertTrue(dcm[1, 1] - 0.0 <= machine_precision)
         self.assertTrue(dcm[1, 2] - 0.0 <= machine_precision)
         self.assertTrue(dcm[2, 0] - 0.0 <= machine_precision)
@@ -155,7 +155,7 @@ class TestDirectionCosineMatrix(unittest.TestCase):
     def test_transpose(self):
         """Tests for the transpose method."""
         dcm = DirectionCosineMatrix.r_y(math.radians(90))
-        self.assertTrue(isinstance(dcm.transpose(), Matrix))
+        self.assertTrue(isinstance(dcm.transpose(), DirectionCosineMatrix))
         self.assertTrue(dcm.transpose().size == (3, 3))
         self.assertTrue(
             dcm.transpose() == DirectionCosineMatrix.r_y(math.radians(-90)).as_matrix()
@@ -206,7 +206,6 @@ class TestDirectionCosineMatrix(unittest.TestCase):
         self.assertTrue(dcm2 * dcm1 == dcm2)
         self.assertTrue(dcm2 * Matrix.identity(3) == dcm2)
         self.assertTrue(Matrix.identity(3) * dcm2 == dcm2)
-        print(abs(dcm2 * dcm2 - DirectionCosineMatrix.r_x(math.radians(60))))
         self.assertTrue(
             abs(dcm2 * dcm2 - DirectionCosineMatrix.r_x(math.radians(60))) <= tol
         )
@@ -223,6 +222,19 @@ class TestDirectionCosineMatrix(unittest.TestCase):
         with self.assertRaises(TypeError):
             # pylint: disable=pointless-statement
             "abc" * dcm1
+        self.assertIsInstance(
+            DirectionCosineMatrix.r_y(math.radians(90)) * Vector3.unit_x(), Vector3
+        )
+        self.assertAlmostEqual(
+            DirectionCosineMatrix.r_y(math.radians(90)) * Vector3.unit_x(),
+            -Vector3.unit_z(),
+            7,
+        )
+        self.assertAlmostEqual(
+            DirectionCosineMatrix.r_z(math.radians(90)) * Vector3.unit_x(),
+            Vector3.unit_y(),
+            7,
+        )
 
     def test_trace(self) -> None:
         """Tests for the trace property."""

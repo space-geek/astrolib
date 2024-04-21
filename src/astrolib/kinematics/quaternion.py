@@ -6,7 +6,7 @@ from typing import Iterator
 from typing import Self
 
 from astrolib.matrix import Matrix
-from astrolib.matrix import Vector3
+from astrolib.vector import Vector3
 
 
 class Quaternion:
@@ -57,13 +57,28 @@ class Quaternion:
             case _:
                 raise ValueError(f"Unsupported index type {type(index)} provided.")
 
-    def __sub__(self, other: Self) -> Matrix:
-        return Matrix(
-            [
-                *(self._vector - other.vector),
-                self._scalar - other._scalar,
-            ]
-        ).transpose()
+    def __sub__(self, other: Self | Matrix) -> Matrix:
+        match other:
+            case Quaternion():
+                return Matrix(
+                    [
+                        *(self._vector - other.vector),
+                        self._scalar - other._scalar,
+                    ]
+                ).transpose()
+            case Matrix():
+                return self.as_matrix() - other
+            case _:
+                pass
+        return NotImplemented
+
+    def __rsub__(self, other: Matrix) -> Matrix:
+        match other:
+            case Matrix():
+                return other - self.as_matrix()
+            case _:
+                pass
+        return NotImplemented
 
     def __mul__(self, other: int | float | Matrix | Self) -> Self | Matrix:
         match other:
@@ -84,7 +99,7 @@ class Quaternion:
                     self.w * other.w - self.vector.dot(other.vector),
                 )
             case Matrix():
-                if other.num_rows == 1:
+                if other.size.num_rows == 1:
                     return self.as_matrix().__mul__(other)
                 raise ValueError(
                     "The multiplying matrix must be a row matrix but is instead of size "
@@ -104,7 +119,7 @@ class Quaternion:
                     other * self.w,
                 )
             case Matrix():
-                if other.num_cols == 4:
+                if other.size.num_cols == 4:
                     return other.__mul__(self.as_matrix())
                 raise ValueError(
                     "The multiplying matrix must have 4 columns but is instead of size "
@@ -213,8 +228,8 @@ class Quaternion:
     def as_matrix(self) -> Matrix:
         """Returns a copy of the calling quaternion, expressed as a 4x1 column matrix."""
         return Matrix(
-            list(self)
-        ).transpose()  # TODO remove list construction when possible
+            list([x] for x in self)
+        )  # TODO remove list construction when possible
 
     def transpose(self) -> Matrix:
         """Returns a copy of the calling quaternion, expressed as a 1x4 row matrix."""

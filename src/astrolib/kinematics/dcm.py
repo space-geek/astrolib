@@ -7,7 +7,8 @@ from typing import Iterator
 from typing import Self
 
 from astrolib.matrix import Matrix
-from astrolib.matrix import Vector3
+from astrolib.matrix import TwoDimensionalMatrixSize
+from astrolib.vector import Vector3
 
 
 class DirectionCosineMatrix:
@@ -31,8 +32,8 @@ class DirectionCosineMatrix:
             Matrix(
                 [
                     [1, 0, 0],
-                    [0, c_angle, s_angle],
-                    [0, -s_angle, c_angle],
+                    [0, c_angle, -s_angle],
+                    [0, s_angle, c_angle],
                 ]
             )
         )
@@ -47,9 +48,9 @@ class DirectionCosineMatrix:
         return cls(
             Matrix(
                 [
-                    [c_angle, 0, -s_angle],
+                    [c_angle, 0, s_angle],
                     [0, 1, 0],
-                    [s_angle, 0, c_angle],
+                    [-s_angle, 0, c_angle],
                 ]
             )
         )
@@ -64,8 +65,8 @@ class DirectionCosineMatrix:
         return cls(
             Matrix(
                 [
-                    [c_angle, s_angle, 0],
-                    [-s_angle, c_angle, 0],
+                    [c_angle, -s_angle, 0],
+                    [s_angle, c_angle, 0],
                     [0, 0, 1],
                 ]
             )
@@ -124,12 +125,12 @@ class DirectionCosineMatrix:
     def __rsub__(self, other: Self | Matrix) -> Matrix:
         return -1.0 * self.__sub__(other)
 
-    def __mul__(self, other: Self | Matrix) -> Self | Matrix:
+    def __mul__(self, other: Self | Matrix | Vector3) -> Self | Matrix | Vector3:
         match other:
             case DirectionCosineMatrix():
                 return DirectionCosineMatrix(self._dcm * other._dcm)
             case Matrix():
-                if other.num_rows == 3:
+                if other.size.num_rows == 3:
                     result = self._dcm.__mul__(other)
                     try:
                         result = DirectionCosineMatrix(result)
@@ -140,6 +141,8 @@ class DirectionCosineMatrix:
                     "The multiplying matrix must have 3 columns but is instead of size "
                     f"{other.size}. Check dimensionality and try again."
                 )
+            case Vector3():
+                return Vector3.from_matrix(self._dcm.__mul__(other.as_matrix()))
             case _:
                 pass
         return NotImplemented
@@ -147,7 +150,7 @@ class DirectionCosineMatrix:
     def __rmul__(self, other: Matrix) -> Self:
         match other:
             case Matrix():
-                if other.num_cols == 3:
+                if other.size.num_cols == 3:
                     result = other * self._dcm
                     try:
                         result = DirectionCosineMatrix(result)
@@ -188,14 +191,19 @@ class DirectionCosineMatrix:
         """Returns a copy of the calling direction cosine matrix, expressed as a 3x3 matrix."""
         return self[:, :]
 
-    def transpose(self) -> Matrix:
-        """Returns the transpose of the calling direction cosine matrix, expressed as a 3x3 matrix."""
-        return self.as_matrix().transpose()
+    def transpose(self) -> Self:
+        """Returns the transpose of the calling direction cosine matrix."""
+        return DirectionCosineMatrix(self._dcm.transpose())
 
     @property
     def trace(self) -> float:
         """Returns the trace of the calling direction cosine matrix."""
-        return self.as_matrix().trace
+        return self._dcm.trace
+
+    @property
+    def size(self) -> TwoDimensionalMatrixSize:
+        """The dimensions of the direction cosine matrix."""
+        return TwoDimensionalMatrixSize(3, 3)
 
 
 def matrix_is_orthogonal(

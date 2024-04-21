@@ -4,8 +4,8 @@
 import unittest
 
 from astrolib.matrix import Matrix
-from astrolib.matrix import Vector3
 from astrolib.kinematics.quaternion import Quaternion
+from astrolib.vector import Vector3
 
 
 class TestQuaternion(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestQuaternion(unittest.TestCase):
 
     def test_constructor(self):
         """Test for the class constructor."""
-        expected = Matrix(list(range(0, 4))).transpose()
+        expected = Matrix(list(range(4))).transpose()
         actual = Quaternion(*range(4))
         self.assertTrue(actual[:] == expected)
 
@@ -114,6 +114,16 @@ class TestQuaternion(unittest.TestCase):
         self.assertIsInstance(q1 - q2, Matrix)
         self.assertTrue((q1 - q2).size == (4, 1))
         self.assertTrue(q1 - q2 == Matrix([-3, -1, 1, 3]).transpose())
+        self.assertIsInstance(q1 - Matrix(list(range(4))).transpose(), Matrix)
+        self.assertTrue(q1 - Matrix(list(range(4))).transpose() == Matrix.zeros(4, 1))
+        self.assertIsInstance(Matrix(list(range(4))).transpose() - q1, Matrix)
+        self.assertTrue(Matrix(list(range(4))).transpose() - q1 == Matrix.zeros(4, 1))
+        with self.assertRaises(TypeError):
+            # pylint: disable=pointless-statement
+            q1 - "foo"
+        with self.assertRaises(TypeError):
+            # pylint: disable=pointless-statement
+            "foo" - q1
 
     def test_multiplication(self):
         """Tests for quaternion multiplication."""

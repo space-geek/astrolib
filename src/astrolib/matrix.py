@@ -3,15 +3,19 @@
 
 from copy import copy
 from itertools import repeat
-import math
 from typing import Iterator
+from typing import NamedTuple
 from typing import Optional
 from typing import Self
 
-from astrolib.constants import MACHINE_EPSILON
+
+class TwoDimensionalMatrixSize(NamedTuple):
+    """Tuple containing a two-dimensional matrix size."""
+
+    num_rows: int
+    num_cols: int
 
 
-# pylint: disable=invalid-name
 class Matrix:
     """Class represents a two-dimensional matrix of float values."""
 
@@ -100,7 +104,7 @@ class Matrix:
             case 1, _:
                 data: str = _stringify_row(self._A[0])
             case _, 1:
-                data: str = "\n".join(str(row[0]) for row in self._A)
+                data: str = "\n ".join(str(row[0]) for row in self._A)
             case _:
                 data: str = "\n ".join(_stringify_row(row) for row in self._A)
         return f"[{data}]"
@@ -139,16 +143,16 @@ class Matrix:
                     )
                 slice_rows_range = range(
                     (indices[0].start or 0),
-                    (indices[0].stop or self.num_rows),
+                    (indices[0].stop or self.size.num_rows),
                     (indices[0].step or 1),
                 )
                 slice_cols_range = range(
                     (indices[1].start or 0),
-                    (indices[1].stop or self.num_cols),
+                    (indices[1].stop or self.size.num_cols),
                     (indices[1].step or 1),
                 )
-                value_rows_range = range(value.num_rows)
-                value_cols_range = range(value.num_cols)
+                value_rows_range = range(value.size.num_rows)
+                value_cols_range = range(value.size.num_cols)
                 for i, m in zip(slice_rows_range, value_rows_range):
                     for j, n in zip(slice_cols_range, value_cols_range):
                         self._A[i][j] = value[m, n]
@@ -160,16 +164,20 @@ class Matrix:
                     )
                 slice_range = range(
                     (indices[0].start or 0),
-                    (indices[0].stop or self.num_rows),
+                    (indices[0].stop or self.size.num_rows),
                     (indices[0].step or 1),
                 )
                 if value.is_empty:
                     self._A = [
-                        [self._A[i][j] for j in range(self.num_cols) if j != indices[1]]
+                        [
+                            self._A[i][j]
+                            for j in range(self.size.num_cols)
+                            if j != indices[1]
+                        ]
                         for i in slice_range
                     ]
                 else:
-                    value_range = range(value.num_rows)
+                    value_range = range(value.size.num_rows)
                     for i, j in zip(slice_range, value_range):
                         self._A[i][indices[1]] = value[j, 0]
             case int() | float(), slice():
@@ -180,17 +188,17 @@ class Matrix:
                     )
                 slice_range = range(
                     (indices[1].start or 0),
-                    (indices[1].stop or self.num_cols),
+                    (indices[1].stop or self.size.num_cols),
                     (indices[1].step or 1),
                 )
                 if value.is_empty:
                     self._A = [
                         [self._A[i][j] for j in slice_range]
-                        for i in range(self.num_rows)
+                        for i in range(self.size.num_rows)
                         if i != indices[0]
                     ]
                 else:
-                    value_range = range(value.num_cols)
+                    value_range = range(value.size.num_cols)
                     for i, j in zip(slice_range, value_range):
                         self._A[indices[0]][i] = value[0, j]
             case int() | float(), int() | float():
@@ -221,12 +229,12 @@ class Matrix:
             case slice(), slice():
                 rows_range = range(
                     (indices[0].start or 0),
-                    (indices[0].stop or self.num_rows),
+                    (indices[0].stop or self.size.num_rows),
                     (indices[0].step or 1),
                 )
                 cols_range = range(
                     (indices[1].start or 0),
-                    (indices[1].stop or self.num_cols),
+                    (indices[1].stop or self.size.num_cols),
                     (indices[1].step or 1),
                 )
                 M: Matrix = Matrix(
@@ -238,7 +246,7 @@ class Matrix:
                         [self._A[i][indices[1]]]
                         for i in range(
                             (indices[0].start or 0),
-                            (indices[0].stop or self.num_rows),
+                            (indices[0].stop or self.size.num_rows),
                             (indices[0].step or 1),
                         )
                     ]
@@ -250,7 +258,7 @@ class Matrix:
                             self._A[indices[0]][i]
                             for i in range(
                                 (indices[1].start or 0),
-                                (indices[1].stop or self.num_cols),
+                                (indices[1].stop or self.size.num_cols),
                                 (indices[1].step or 1),
                             )
                         ]
@@ -282,38 +290,31 @@ class Matrix:
         return Matrix(A)
 
     @property
-    def num_rows(self) -> int:
-        """TODO: Property docstring"""
-        return len(self._A)
-
-    @property
-    def num_cols(self) -> int:
-        """TODO: Property docstring"""
-        return len(self._A[0]) if self._A else 0
-
-    @property
-    def size(self) -> tuple[int, int]:
-        """TODO: Property docstring"""
-        return self.num_rows, self.num_cols
+    def size(self) -> TwoDimensionalMatrixSize:
+        """The dimensions of the matrix, expressed as a tuple."""
+        return TwoDimensionalMatrixSize(
+            len(self._A),
+            len(self._A[0]) if self._A else 0,
+        )
 
     @property
     def is_empty(self) -> bool:
         """TODO: Property docstring"""
-        return not (self.num_rows or self.num_cols)
+        return all(x == 0 for x in self.size)
 
     def __eq__(self, other: Self | float | int) -> bool:
         match other:
             case int() | float():
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         if self[i, j] != other:
                             return False
                 return True
             case Matrix():
                 if self.size != other.size:
                     return False
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         if self[i, j] != other[i, j]:
                             return False
                 return True
@@ -324,16 +325,16 @@ class Matrix:
     def __lt__(self, other: Self | float | int) -> bool:
         match other:
             case int() | float():
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         if self[i, j] >= other:
                             return False
                 return True
             case Matrix():
                 if self.size != other.size:
                     return False
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         if self[i, j] >= other[i, j]:
                             return False
                 return True
@@ -344,16 +345,16 @@ class Matrix:
     def __le__(self, other: Self | float | int) -> bool:
         match other:
             case int() | float():
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         if self[i, j] > other:
                             return False
                 return True
             case Matrix():
                 if self.size != other.size:
                     return False
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         if self[i, j] > other[i, j]:
                             return False
                 return True
@@ -371,16 +372,16 @@ class Matrix:
         match other:
             case int() | float():
                 M = Matrix.zeros(*self.size)
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         M[i, j] = self[i, j] + other
                 return M
             case Matrix():
                 if self.size != other.size:
                     raise ValueError("Matrices must be the same size to be added.")
                 M = Matrix.zeros(*self.size)
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         M[i, j] = self[i, j] + other[i, j]
                 return M
             case _:
@@ -394,16 +395,16 @@ class Matrix:
         match (other):
             case int() | float():
                 M = Matrix.zeros(*self.size)
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         M[i, j] = self[i, j] - other
                 return M
             case Matrix():
                 if self.size != other.size:
                     raise ValueError("Matrices must be the same size to be subtracted.")
                 M = Matrix.zeros(*self.size)
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         M[i, j] = self[i, j] - other[i, j]
                 return M
             case _:
@@ -422,8 +423,8 @@ class Matrix:
         match other:
             case int() | float():
                 M = Matrix.zeros(*self.size)
-                for i in range(self.num_rows):
-                    for j in range(self.num_cols):
+                for i in range(self.size.num_rows):
+                    for j in range(self.size.num_cols):
                         M[i, j] = other * self[i, j]
             case Matrix():
                 x, y = self.size
@@ -453,15 +454,15 @@ class Matrix:
 
     def __abs__(self) -> Self:
         M = Matrix.zeros(*self.size)
-        for i in range(self.num_rows):
-            for j in range(self.num_cols):
+        for i in range(self.size.num_rows):
+            for j in range(self.size.num_cols):
                 M[i, j] = abs(self[i, j])
         return M
 
     def __neg__(self) -> Self:
         M = Matrix.zeros(*self.size)
-        for i in range(self.num_rows):
-            for j in range(self.num_cols):
+        for i in range(self.size.num_rows):
+            for j in range(self.size.num_cols):
                 M[i, j] = -self[i, j]
         return M
 
@@ -471,15 +472,15 @@ class Matrix:
         Returns:
             int: The maximum dimension of the calling Matrix, i.e. max(num_rows, num_cols)
         """
-        return int(max(self.size))
+        return max(self.size)
 
     def transpose(self) -> Self:
         """Returns the transpose of the calling matrix."""
-        M = Matrix.zeros(self.num_cols, self.num_rows)
-        for i in range(self.num_rows):
-            for j in range(self.num_cols):
-                M[j, i] = self[i, j]
-        return M
+        transposed_self = Matrix.zeros(self.size.num_cols, self.size.num_rows)
+        for i in range(self.size.num_rows):
+            for j in range(self.size.num_cols):
+                transposed_self[j, i] = self[i, j]
+        return transposed_self
 
     @property
     def diag(self) -> Self:
@@ -509,7 +510,7 @@ class Matrix:
             d = self[0, 0] * self[1, 1] - self[0, 1] * self[1, 0]
         else:
             d = 0.0
-            for j in range(self.num_cols):
+            for j in range(self.size.num_cols):
                 A_temp = copy(self[:, :])
                 A_temp[0, :] = Matrix.empty()
                 A_temp[:, j] = Matrix.empty()
@@ -539,7 +540,7 @@ class Matrix:
         Returns:
             bool: Boolean indicator of whether or not the calling matrix is a row matrix.
         """
-        return self.num_rows == 1
+        return self.size.num_rows == 1
 
     @property
     def is_column_matrix(self) -> bool:
@@ -549,7 +550,7 @@ class Matrix:
         Returns:
             bool: Boolean indicator of whether or not the calling matrix is a column matrix.
         """
-        return self.num_cols == 1
+        return self.size.num_cols == 1
 
     @property
     def is_square(self) -> bool:
@@ -559,261 +560,7 @@ class Matrix:
         Returns:
             bool: Boolean indicator of whether or not the calling matrix is square.
         """
-        return self.num_rows == self.num_cols
-
-
-class Vector3(Matrix):
-    """Class represents a Euclidean vector."""
-
-    # pylint: disable=arguments-differ
-    @classmethod
-    def zeros(cls) -> Self:
-        """TODO: Method docstring"""
-        return cls(0, 0, 0)
-
-    # pylint: disable=arguments-differ
-    @classmethod
-    def ones(cls) -> Self:
-        """TODO: Method docstring"""
-        return cls(1, 1, 1)
-
-    @classmethod
-    def identity(cls, dim: int) -> Self:
-        raise NotImplementedError
-
-    @classmethod
-    def fill(cls, num_rows: int, num_cols: int, fill_value: float) -> Self:
-        raise NotImplementedError
-
-    @classmethod
-    def empty(cls) -> Self:
-        raise NotImplementedError
-
-    @classmethod
-    def unit_x(cls) -> Self:
-        """Instantiates a Vector3 instance containing the X unit vector."""
-        return cls(1, 0, 0)
-
-    @classmethod
-    def unit_y(cls) -> Self:
-        """Instantiates a Vector3 instance containing the Y unit vector."""
-        return cls(0, 1, 0)
-
-    @classmethod
-    def unit_z(cls) -> Self:
-        """Instantiates a Vector3 instance containing the Z unit vector."""
-        return cls(0, 0, 1)
-
-    @classmethod
-    def from_matrix(cls, M: Matrix) -> Self:
-        """Factory method to construct a Vector3 from a Matrix. The input Matrix must be of size 3x1
-            or 1x3 for this operation to be successful.
-        Args:
-            M (Matrix): The Matrix from which to construct the Vector3.
-
-        Returns:
-            Vector3: The instantiated Vector3 object.
-
-        Raises:
-            ValueError: Raised if the input Matrix is not of size 3x1 or 1x3.
-        """
-        if not isinstance(M, Matrix):
-            raise ValueError(f"Received unsupported input type {type(M)}.")
-        if M.size not in {(3, 1), (1, 3)}:
-            raise ValueError(
-                "The multiplying matrix must be a row or column matrix but is instead of size "
-                f"{M.size}. Check dimensionality and try again."
-            )
-        return cls(*M)
-
-    def __init__(self, x: int | float, y: int | float, z: int | float):
-        super().__init__([[float(x)], [float(y)], [float(z)]])
-
-    @property
-    def x(self) -> float:
-        """TODO: Property docstring"""
-        return self._A[0][0]
-
-    @x.setter
-    def x(self, value: int | float):
-        """TODO: Property docstring"""
-        self._A[0][0] = float(value)
-
-    @property
-    def y(self) -> float:
-        """TODO: Property docstring"""
-        return self._A[1][0]
-
-    @y.setter
-    def y(self, value: int | float):
-        """TODO: Property docstring"""
-        self._A[1][0] = float(value)
-
-    @property
-    def z(self) -> float:
-        """TODO: Property docstring"""
-        return self._A[2][0]
-
-    @z.setter
-    def z(self, value: int | float):
-        """TODO: Property docstring"""
-        self._A[2][0] = float(value)
-
-    def __str__(self) -> str:
-        return f"[{self.x}, {self.y}, {self.z}]"
-
-    def __repr__(self) -> str:
-        return f"Vector3({self.x}, {self.y}, {self.z})"
-
-    def __iter__(self) -> Iterator[float]:
-        yield self.x
-        yield self.y
-        yield self.z
-
-    def __add__(self, other: int | float | Matrix | Self) -> Self:
-        match other:
-            case int() | float():
-                return Vector3(*(x + other for x in self))
-            case Vector3():
-                return Vector3(*(getattr(self, x) + getattr(other, x) for x in "xyz"))
-            case Matrix():
-                if other.size == self.size:
-                    return Vector3(*(self[idx] + other[idx] for idx in range(3)))
-            case _:
-                pass
-        return NotImplemented
-
-    def __radd__(self, other: int | float | Matrix | Self) -> Self:
-        return self.__add__(other)
-
-    def __sub__(self, other: int | float | Matrix | Self) -> Self:
-        match other:
-            case int() | float():
-                return Vector3(*(x - other for x in self))
-            case Vector3():
-                return Vector3(*(getattr(self, x) - getattr(other, x) for x in "xyz"))
-            case Matrix():
-                if other.size == self.size:
-                    return Vector3(*(self[idx] - other[idx] for idx in range(3)))
-            case _:
-                pass
-        return NotImplemented
-
-    def __rsub__(self, other: float | int | Matrix | Self) -> Self:
-        return -1.0 * self.__sub__(other)
-
-    def __mul__(self, other: int | float | Matrix) -> Self:
-        match other:
-            case int() | float():
-                return Vector3(*(other * x for x in self))
-            case Matrix():
-                if other.num_rows == 1:
-                    return super().__mul__(other)
-                raise ValueError(
-                    "The multiplying matrix must be a row matrix but is instead of size "
-                    f"{other.size}. Check dimensionality and try again."
-                )
-            case _:
-                pass
-        return NotImplemented
-
-    def __rmul__(self, other: int | float | Matrix) -> Self:
-        match other:
-            case int() | float():
-                return Vector3(*(other * x for x in self))
-            case Matrix():
-                if other.num_cols == 3:
-                    result: int | float | Matrix = other.__mul__(self)
-                    if isinstance(result, Matrix):
-                        try:
-                            return Vector3.from_matrix(result)
-                        except ValueError:
-                            pass
-                    return result
-                raise ValueError(
-                    "The multiplying matrix must have 3 columns but is instead of size "
-                    f"{other.size}. Check dimensionality and try again."
-                )
-            case _:
-                pass
-        return NotImplemented
-
-    def __abs__(self) -> Self:
-        return Vector3(*(abs(x) for x in self))
-
-    def __neg__(self) -> Self:
-        return Vector3(*(-1 * x for x in self))
-
-    def norm(self) -> float:
-        """Returns the Euclidean norm of the calling vector."""
-        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
-
-    def squared_norm(self) -> float:
-        """Returns the square of the Euclidean norm of the calling vector."""
-        return self.x**2 + self.y**2 + self.z**2
-
-    def cross(self, other: Self) -> Self:
-        """Returns the cross product of the calling vector with the argument
-        vector, computed as C = A x B for C = A.cross(B).
-        """
-        if not isinstance(other, Vector3):
-            raise NotImplementedError
-        x = self.y * other.z - self.z * other.y
-        y = self.z * other.x - self.x * other.z
-        z = self.x * other.y - self.y * other.x
-        return Vector3(x, y, z)
-
-    def dot(self, other: Self) -> float:
-        """Returns the dot product of the calling vector with the argument
-        vector, computed as C = A * B for C = A.dot(B).
-        """
-        if not isinstance(other, Vector3):
-            raise NotImplementedError
-        return self.x * other.x + self.y * other.y + self.z * other.z
-
-    def vertex_angle(self, other: Self) -> float:
-        """Returns the angle between the calling vector and the
-            argument vector, measured from the calling vector. If
-            either vector is a zero vector an angle of 0.0 radians
-            will be returned.
-
-        Args:
-            other (Vector3): Vector to which to compute the
-                vertex angle.
-
-        Returns:
-            float: The angle between the two vectors, expressed
-                in radians.
-        """
-        if not isinstance(other, Vector3):
-            raise NotImplementedError
-        return math.atan2(self.cross(other).norm(), self.dot(other))
-
-    def normalize(self) -> None:
-        """Normalizes the calling vector in place by its Euclidean norm."""
-        m = self.norm()
-        self[0, 0] /= m
-        self[1, 0] /= m
-        self[2, 0] /= m
-
-    def normalized(self) -> Self:
-        """Returns the calling vector, normalized by its Euclidean norm."""
-        m = self.norm()
-        return (
-            Vector3(self.x / m, self.y / m, self.z / m)
-            if abs(m) > MACHINE_EPSILON
-            else Vector3.zeros()
-        )
-
-    def skew(self) -> Matrix:
-        """Returns the skew-symmetric matrix created from the calling vector."""
-        return Matrix(
-            [
-                [0, -self.z, self.y],
-                [self.z, 0, -self.x],
-                [-self.y, self.x, 0],
-            ]
-        )
+        return self.size.num_rows == self.size.num_cols
 
 
 def _compute_cofactor_matrix(A: Matrix) -> Matrix:
@@ -824,8 +571,8 @@ def _compute_cofactor_matrix(A: Matrix) -> Matrix:
             "The input matrix is not square. The cofactor matrix does not exist."
         )
     M = Matrix.zeros(*A.size)
-    for i in range(A.num_rows):
-        for j in range(A.num_cols):
+    for i in range(A.size.num_rows):
+        for j in range(A.size.num_cols):
             A_temp = A[:, :]
             A_temp[i, :] = Matrix.empty()
             A_temp[:, j] = Matrix.empty()
