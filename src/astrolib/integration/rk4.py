@@ -1,8 +1,9 @@
 """ TODO: Module docstring
 """
+
 from typing import Callable
 
-from astrolib import Matrix
+from astrolib.matrix import Matrix
 from astrolib.integration import IntegratorResults
 
 

@@ -1,9 +1,10 @@
 """ TODO: Module docstring
 """
+
 from typing import Callable
 from typing import List
 
-from astrolib.base_objects import Matrix
+from astrolib.matrix import Matrix
 from astrolib.constants import MACHINE_EPSILON
 from astrolib.integration.errors import MinimumStepSizeExceededError
 from astrolib.integration import IntegratorResults

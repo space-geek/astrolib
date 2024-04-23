@@ -1,14 +1,13 @@
 """ Unit test module for the astrolib.integration.rk4 module.
 """
+
 import math
 from typing import Callable
 from typing import List
 from typing import NamedTuple
-from typing import Tuple
 import unittest
 
-from astrolib.base_objects import Matrix
-from astrolib.base_objects import TimeSpan
+from astrolib.matrix import Matrix
 from astrolib.integration.rk45 import integrate
 from astrolib.integration.rk45 import _integrate_single_step
 

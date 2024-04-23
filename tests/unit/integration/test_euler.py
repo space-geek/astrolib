@@ -1,9 +1,9 @@
 """ Unit test module for the astrolib.integration.euler module.
 """
+
 import unittest
 
-from astrolib.base_objects import Matrix
-from astrolib.base_objects import TimeSpan
+from astrolib.matrix import Matrix
 from astrolib.integration.euler import integrate
 
 
