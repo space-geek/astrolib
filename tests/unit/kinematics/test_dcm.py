@@ -235,6 +235,11 @@ class TestDirectionCosineMatrix(unittest.TestCase):
             Vector3.unit_y(),
             7,
         )
+        self.assertAlmostEqual(
+            DirectionCosineMatrix.r_z(math.radians(-90)) * Vector3.unit_y(),
+            Vector3.unit_x(),
+            7,
+        )
 
     def test_trace(self) -> None:
         """Tests for the trace property."""
