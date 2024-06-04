@@ -431,9 +431,8 @@ class Matrix:
                 yy, z = other.size
                 if y != yy:
                     raise ValueError(
-                        "Incorrect dimensions for matrix multiplication. Check that the "
-                        "number of columns in the first matrix matches the number of "
-                        "rows in the second matrix."
+                        f"The multiplied matrix must have {self.size.num_cols} row(s) but "
+                        f"is instead of size {other.size}. Check dimensionality and try again."
                     )
                 M = Matrix.zeros(x, z)
                 o_t = other.transpose()
