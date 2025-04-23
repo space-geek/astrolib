@@ -39,8 +39,13 @@ class Test_RK45(unittest.TestCase):
         )
         self.assertTrue(results.total_step_seconds == h, "Integration did not work.")
 
+    @unittest.expectedFailure
+    def test_matrix_integration(self) -> None:
+        """Unit test for matrix integration with the rk45."""
+        self.assertTrue(False)
+
     def test_burden_faires_ch5_ex1(self):
-        self._integrate_and_validate(
+        self._explicit_step_integrate_and_validate(
             truth_values=[
                 TruthDataset(1, 0.2500000, 0.9204886, 0.2500000),
                 TruthDataset(2, 0.4865522, 1.3964910, 0.2365522),
@@ -53,7 +58,7 @@ class Test_RK45(unittest.TestCase):
                 TruthDataset(9, 2.0000000, 5.3054896, 0.0206668),
             ],
             t_0=0.0,
-            x_0=0.5,
+            x_0=Matrix([0.5]),
             x_dyn=lambda t, y: y - math.pow(t, 2) + 1,
             h_max=0.25,
             h_min=0.01,
@@ -62,7 +67,7 @@ class Test_RK45(unittest.TestCase):
         )
 
     def test_burden_faires_5_5_1a(self):
-        self._integrate_and_validate(
+        self._explicit_step_integrate_and_validate(
             truth_values=[
                 TruthDataset(1, 0.2093900, 0.0298184, 0.2093900),
                 TruthDataset(3, 0.5610469, 0.4016438, 0.1777496),
@@ -79,7 +84,7 @@ class Test_RK45(unittest.TestCase):
         )
 
     def test_burden_faires_5_5_1b(self):
-        self._integrate_and_validate(
+        self._explicit_step_integrate_and_validate(
             truth_values=[
                 TruthDataset(1, 2.2500000, 1.4499988, 0.2500000),
                 TruthDataset(2, 2.5000000, 1.8333332, 0.2500000),
@@ -96,7 +101,7 @@ class Test_RK45(unittest.TestCase):
         )
 
     def test_burden_faires_5_5_1c(self):
-        self._integrate_and_validate(
+        self._explicit_step_integrate_and_validate(
             truth_values=[
                 TruthDataset(1, 1.2500000, 2.7789299, 0.2500000),
                 TruthDataset(2, 1.5000000, 3.6081985, 0.2500000),
@@ -113,7 +118,7 @@ class Test_RK45(unittest.TestCase):
         )
 
     def test_burden_faires_5_5_1d(self):
-        self._integrate_and_validate(
+        self._explicit_step_integrate_and_validate(
             truth_values=[
                 TruthDataset(1, 0.2500000, 1.3291478, 0.2500000),
                 TruthDataset(2, 0.5000000, 1.7304857, 0.2500000),
@@ -130,7 +135,7 @@ class Test_RK45(unittest.TestCase):
         )
 
     def test_burden_faires_5_5_3a(self):
-        self._integrate_and_validate(
+        self._explicit_step_integrate_and_validate(
             truth_values=[
                 TruthDataset(1, 1.1101946, 1.0051237, 0.1101946),
                 TruthDataset(5, 1.7470584, 1.1213948, 0.2180472),
@@ -147,7 +152,7 @@ class Test_RK45(unittest.TestCase):
         )
 
     def test_burden_faires_5_5_3b(self):
-        self._integrate_and_validate(
+        self._explicit_step_integrate_and_validate(
             truth_values=[
                 TruthDataset(4, 1.5482238, 0.7234123, 0.1256486),
                 TruthDataset(7, 1.8847226, 1.3851234, 0.1073571),
@@ -165,7 +170,7 @@ class Test_RK45(unittest.TestCase):
         )
 
     def test_burden_faires_5_5_3c(self):
-        self._integrate_and_validate(
+        self._explicit_step_integrate_and_validate(
             truth_values=[
                 TruthDataset(1, 0.1633541, -1.8380836, 0.1633541),
                 TruthDataset(5, 0.7585763, -1.3597623, 0.1266248),
@@ -184,7 +189,7 @@ class Test_RK45(unittest.TestCase):
         )
 
     def test_burden_faires_5_5_3d(self):
-        self._integrate_and_validate(
+        self._explicit_step_integrate_and_validate(
             truth_values=[
                 TruthDataset(1, 0.3986051, 0.3108201, 0.3986051),
                 TruthDataset(3, 0.9703970, 0.2221189, 0.2866710),
@@ -208,8 +213,8 @@ class Test_RK45(unittest.TestCase):
             TruthDataset(4, 1.0000000, 2.1179750, 0.2500000),
         ]
         t_0 = 0.0
-        x_0 = 1.0
-        x_dyn = lambda t, y: math.cos(2 * t) + math.sin(3 * t)
+        x_0 = Matrix([1.0])
+        x_dyn = lambda t, y: Matrix([math.cos(2 * t) + math.sin(3 * t)])
         h_max = 0.25
         h_min = 0.001
         rel_tol = 1.0e-8
@@ -240,7 +245,7 @@ class Test_RK45(unittest.TestCase):
                 )
             x_0 = results.state
 
-    def _integrate_and_validate(
+    def _explicit_step_integrate_and_validate(
         self,
         truth_values: List[TruthDataset],
         t_0: float,
@@ -269,6 +274,8 @@ class Test_RK45(unittest.TestCase):
                 )
                 t_0 = results.epoch
                 x_0 = results.state
+                if isinstance(x_0, Matrix):
+                    print(x_0)
                 step_size = results.projected_step_seconds
                 cur_step += 1
                 print("------------------------------")

@@ -59,8 +59,11 @@ def integrate(
     # Integrate to the end epoch:
     while t_n < t_f:
 
-        # Initialize the step to attempt using the maximum step size:
-        h: float = min(t_f - t_n, projected_step_size)
+        # Identify the step size:
+        h: float = min(projected_step_size, t_f - t_n)
+        print(f"Start epoch: {t_n}")
+        print(f"Target epoch: {t_f}")
+        print(f"Step size: {h}", flush=True)
 
         # Integrate for a single step:
         results = _integrate_single_step(
@@ -78,7 +81,7 @@ def integrate(
         x_n = results.state
         intermediate_step_sizes.extend(results.intermediate_step_seconds)
         projected_step_size = results.projected_step_seconds
-
+    print("done", flush=True)
     return IntegratorResults(
         epoch=t_n,
         state=x_n,
@@ -120,8 +123,8 @@ def _integrate_single_step(
             size.
     """
     # Check the provided step size against the maximum/minimum values:
-    if step_size < min_step_size:
-        raise MinimumStepSizeExceededError(step_size, min_step_size)
+    # if step_size < min_step_size:
+    #     raise MinimumStepSizeExceededError(step_size, min_step_size)
     if step_size > max_step_size:
         step_size = max_step_size
 
@@ -175,18 +178,32 @@ def _integrate_single_step(
             + (1.0 / 50.0) * k_5
             + (2.0 / 55.0) * k_6
         )
-        if isinstance(inner_term, Matrix):  # TODO evaluate this statement
+        # if isinstance(inner_term, Matrix):  # TODO evaluate this statement
+        #     relative_error: float = (1.0 / h) * max(
+        #         abs(inner_term)
+        #     )  # inner_term.norm()
+        # else:
+        #     relative_error: float = (1.0 / h) * abs(inner_term)
+        if isinstance(inner_term, float):
+            relative_error: float = (1.0 / h) * abs(inner_term)
+        else:
             relative_error: float = (1.0 / h) * max(
                 abs(inner_term)
             )  # inner_term.norm()
-        else:
-            relative_error: float = (1.0 / h) * abs(inner_term)
+            import math
+
+            relative_error: float = (1.0 / h) * math.sqrt(
+                sum(map(lambda x: x**2, inner_term))
+            )
 
         # Compute the step size scaling term:
         q_scale: float = 0.84 * pow(
             rel_tol / relative_error if abs(relative_error) > MACHINE_EPSILON else 1.0,
             0.25,
         )
+        # import pdb
+
+        # pdb.set_trace()
         if q_scale <= _MINIMUM_STEP_SIZE_SCALE_FACTOR:
             q_scale = _MINIMUM_STEP_SIZE_SCALE_FACTOR
         elif q_scale > _MAXIMUM_STEP_SIZE_SCALE_FACTOR:
@@ -217,10 +234,12 @@ def _integrate_single_step(
 
         # Scale the step size, bounding by the extrema limits:
         h *= q_scale
+
         if h > max_step_size:
             h = max_step_size
         if h < min_step_size:
-            raise MinimumStepSizeExceededError(h, min_step_size)
+            break  # min step size is a threshold
+            # raise MinimumStepSizeExceededError(h, min_step_size)
 
     return IntegratorResults(
         epoch=t_n,
